@@ -1,0 +1,61 @@
+{% extends 'layouts/wrapper.html.j2' %}
+
+{% block content %}
+    <script type="module" defer src="/static/js/home.js"></script>
+
+    {% set clocked_in = time_entries[:] and not time_entries[:][0].end %}
+
+    <div id="form" data-controller="form-switcher">
+        <ul class="nav nav-tabs mb-3">
+            <li class="nav-item" @form-switcher="click::changeTab">
+                <a :form-switcher="tab" class="nav-link active" aria-current="page">Relative Form</a>
+            </li>
+            <li class="nav-item" @form-switcher="click::changeTab">
+                <a :form-switcher="tab" class="nav-link">Manual Form</a>
+            </li>
+        </ul>
+
+        <div class="" :form-switcher="content">
+            {% include 'partials/relative_form.html.j2' %}
+        </div>
+        <div class="d-none" :form-switcher="content">
+            {% include 'partials/manual_form.html.j2' %}
+        </div>
+    </div>
+
+    <hr />
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Start</th>
+                <th scope="col">End</th>
+                <th scope="col">Time Logged</th>
+                <th scope="col">Notes</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for time in time_entries %}
+                <tr>
+                    {% set start = arrow.get(time.start).to(tz) %}
+                    {% set end = arrow.get(time.end).to(tz) if time.end else '' %}
+                    {% set date_fmt = 'Do [of] MMM YYYY [at] HH:mm' %}
+
+                    {% set range_end = end or arrow.now().to(tz) %}
+                    {% set duration = range_end.timestamp() | int - start.timestamp() | int %}
+
+                    <td>{{ start.format(date_fmt) }}</td>
+                    <td>{{ end.format(date_fmt) if end else 'Still clocked in' }}</td>
+                    <td>{{ start.humanize(range_end, only_distance=True, granularity=["hour", "minute"]) }}</td>
+                    <td>{{ time.note }}</td>
+                    <td>
+                        <a role="button" class="delete-time-entry">
+                            <i class="bi bi-x-lg" data-time-id="{{ time.id }}"></i>
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

@@ -1,0 +1,14 @@
+.header > a {
+    text-decoration: none;
+    color: black
+}
+
+.header > a:hover {
+    color: #0d6efd;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.cog {
+    color: black;
+}

@@ -1,0 +1,14 @@
+{% extends 'layouts/wrapper.html.j2' %}
+
+{% block content %}
+    <form method="post" action="/settings">
+        <div class="mb-3">
+            <div class="mb-2">
+                <label class="form-label">Time Zone</label>
+                <input class="form-control" type="text" name="timezone" id="timezone" value="{{ settings.timezone }}" required>
+            </div>
+        </div>
+        <button class="btn btn-primary" type="submit">Submit</button>
+    </form>
+{% endblock content %}
+

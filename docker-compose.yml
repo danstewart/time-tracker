@@ -1,0 +1,24 @@
+# Using V2 as advised here: https://github.com/docker/compose/issues/4513#issuecomment-368167466
+version: "2.4"
+
+volumes:
+  db:
+
+services:
+  app:
+    build:
+      context: .
+    mem_limit: ${MEM_LIMIT:-4G}
+    cpus: ${CPU_LIMIT:-0}
+    environment:
+      FLASK_APP: ${FLASK_APP:-app.wsgi}
+      FLASK_ENV: ${FLASK_ENV:-production}
+      FLASK_DEBUG: ${FLASK_DEBUG:-0}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    container_name: 'time-tracker'
+    image: 'time-tracker:latest'
+    restart: always
+    volumes:
+      - 'db:/home/app/time-tracker/db/'
+    ports:
+      - ${FLASK_PORT:-4000}:5000

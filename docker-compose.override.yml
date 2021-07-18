@@ -1,0 +1,15 @@
+# Overrides for development
+# Used automatically unless the `-f` flag is passed
+version: "2.4"
+
+services:
+  app:
+    build:
+      context: .
+    environment:
+      FLASK_APP: ${FLASK_APP:-app}
+      FLASK_ENV: ${FLASK_ENV:-dev}
+      FLASK_DEBUG: ${FLASK_DEBUG:-1}
+      LOG_LEVEL: ${LOG_LEVEL:-warning}
+    volumes:
+      - './:/home/app/time-tracker'
