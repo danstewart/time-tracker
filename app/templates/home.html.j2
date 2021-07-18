@@ -3,7 +3,7 @@
 {% block content %}
     <script type="module" defer src="/static/js/home.js"></script>
 
-    {% set clocked_in = time_entries[:] and not time_entries[:][0].end %}
+    {% set clocked_in = time_entries.first() and not time_entries.first().end %}
 
     <div id="form" data-controller="form-switcher">
         <ul class="nav nav-tabs mb-3">
@@ -15,7 +15,7 @@
             </li>
         </ul>
 
-        <div class="" :form-switcher="content">
+        <div :form-switcher="content">
             {% include 'partials/relative_form.html.j2' %}
         </div>
         <div class="d-none" :form-switcher="content">
@@ -58,4 +58,8 @@
             {% endfor %}
         </tbody>
     </table>
+
+    {% if not time_entries %}
+        <p>No time entries found</p>
+    {% endif %}
 {% endblock content %}

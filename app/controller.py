@@ -16,9 +16,11 @@ class Settings:
             self.settings = SettingsModel(timezone="Europe/London")
             pony.commit()
 
+
     def get(self):
         """Returns the settings row"""
         return self.settings
+
 
     def update(self, **values):
         """Updates the settings row"""
@@ -33,9 +35,11 @@ class Time:
         self.today = arrow.now(self.tz).format('YYYY-MM-DD')
         self.model = TimeModel
 
+
     def get_all(self) -> Iterator[TimeModel]:
         """Return all time records sorted by start date"""
-        return self.model.select().order_by(pony.desc(self.model.start))
+        return self.model.select().order_by(pony.desc(self.model.start), pony.desc(self.model.id))
+
 
     def create(self, start: int, end: Optional[int] = None, date: Optional[str] = None) -> None:
         """Create a new time record"""
@@ -55,6 +59,7 @@ class Time:
             note="Testing",
         )
 
+
     def clock_out(self, end: int):
         """Sets the end time for the current time record"""
         end = '{} {}'.format(self.today, end)
@@ -66,6 +71,7 @@ class Time:
             .first())
 
         current_record.end = int(end.timestamp())
+
 
     def delete(self, row_id: int):
         """Deletes a time record by ID"""
