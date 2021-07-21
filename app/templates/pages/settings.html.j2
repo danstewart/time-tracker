@@ -1,0 +1,23 @@
+{% extends 'layouts/wrapper.html.j2' %}
+
+{% block content %}
+    <form method="post" action="/settings">
+        <div class="mb-3">
+            <div class="mb-2">
+                <label class="form-label">Time Zone</label>
+                <input class="form-control" type="text" name="timezone" id="timezone" value="{{ settings.timezone }}" required>
+            </div>
+            <div class="mb-2">
+                <label class="form-label">Week Start</label>
+                <select class="form-select" name="week_start" id="week_start" value="{{ settings.week_start }}" required>
+                    {% set days = [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday' ] %}
+                    {% for day in days %}
+                        <option value="{{ loop.index }}" {% if loop.index == settings.week_start %}selected{% endif %}>{{ day }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <button class="btn btn-primary" type="submit">Submit</button>
+    </form>
+{% endblock content %}
+

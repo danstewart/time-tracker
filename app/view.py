@@ -18,7 +18,8 @@ def inject_settings():
 @v.get('/')
 def home():
     time_entries = Time().get_all()
-    return render_template('home.html.j2', time_entries=time_entries, tz=Time().tz, arrow=arrow)
+    stats = Time().get_stats()
+    return render_template('pages/home.html.j2', time_entries=time_entries, tz=Time().tz, arrow=arrow, stats=stats)
 
 
 @v.route('/settings', methods=['GET', 'POST'])
@@ -28,7 +29,7 @@ def settings():
     if request.form:
         settings.update(**request.form)
 
-    return render_template('settings.html.j2', settings=settings.settings)
+    return render_template('pages/settings.html.j2', settings=settings.settings)
 
 
 @v.post('/time/add')

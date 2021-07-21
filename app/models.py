@@ -5,9 +5,11 @@ class Time(db.Entity):
     id = pony.PrimaryKey(int, auto=True)
     start = pony.Required(int)
     end = pony.Optional(int)
+    logged = pony.Optional(int)
     note = pony.Optional(str)
 
 
 class Settings(db.Entity):
     id = pony.PrimaryKey(int, auto=True)
     timezone = pony.Required(str)
+    week_start = pony.Required(int)

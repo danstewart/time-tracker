@@ -1,16 +1,16 @@
 <form method="post" action="/time/add" data-controller="form-switcher">
     <div class="row mb-3">
-        <div class="col">
+        <div class="col-md-4">
             <label class="form-label">Date</label>
-            <input class="form-control" type="text" name="date" id="form-date" required>
+            <input class="form-control" type="text" name="date" id="form-date" type="date" required>
         </div>
-        <div class="col">
+        <div class="col-md-4">
             <label class="form-label">Start Time</label>
-            <input class="form-control" type="text" name="start" id="form-start-time" required>
+            <input class="form-control" type="text" name="start" id="form-start-time" type="time" required>
         </div>
-        <div class="col">
+        <div class="col-md-4">
             <label class="form-label">End Time</label>
-            <input class="form-control" type="text" name="end" id="form-end-time" required>
+            <input class="form-control" type="text" name="end" id="form-end-time" type="time" required>
         </div>
     </div>
     <button class="btn btn-primary" name="clock" value="manual" type="submit">Submit</button>

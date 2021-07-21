@@ -3,7 +3,38 @@
 {% block content %}
     <script type="module" defer src="/static/js/home.js"></script>
 
+    {% set date_fmt = 'Do [of] MMM YYYY [at] HH:mm' %}
     {% set clocked_in = time_entries.first() and not time_entries.first().end %}
+
+    <div class="row mb-5">
+        <div class="col-md-4 mb-2">
+            <div class="card border-dark">
+                <div class="card-body">
+                    <h4 class="card-title">Time Logged</h3>
+                    <h6 class="card-subtitle mb-2 text-muted">This Week</h6>
+                    <p class="card-text fw-bold fs-3">{{ stats.get('logged_this_week', 0) }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-2">
+            <div class="card border-dark">
+                <div class="card-body">
+                    <h4 class="card-title">Time Left</h4>
+                    <h6 class="card-subtitle mb-2 text-muted">Today</h6>
+                    <p class="card-text fw-bold fs-3">{{ stats.get('hours_left_today', 'N/A') }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-2">
+            <div class="card border-dark">
+                <div class="card-body">
+                    <h4 class="card-title">Overtime</h4>
+                    <h6 class="card-subtitle mb-2 text-muted">&nbsp;</h6>
+                    <p class="card-text fw-bold fs-3">{% if stats.get('overtime', 0) > 0 %}+{% endif %}{{ stats.get('overtime', 0) }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="form" data-controller="form-switcher">
         <ul class="nav nav-tabs mb-3">
@@ -40,7 +71,6 @@
                 <tr>
                     {% set start = arrow.get(time.start).to(tz) %}
                     {% set end = arrow.get(time.end).to(tz) if time.end else '' %}
-                    {% set date_fmt = 'Do [of] MMM YYYY [at] HH:mm' %}
 
                     {% set range_end = end or arrow.now().to(tz) %}
                     {% set duration = range_end.timestamp() | int - start.timestamp() | int %}

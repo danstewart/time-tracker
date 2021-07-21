@@ -3,7 +3,7 @@ from app.models import Time as TimeModel
 from app.models import Settings as SettingsModel
 from app.lib.database import pony
 from app.lib.logger import get_logger
-from typing import Iterator, Optional
+from typing import Dict, Iterator, Optional
 
 logger = get_logger('controller.py')
 
@@ -13,7 +13,11 @@ class Settings:
         self.settings = SettingsModel.get()
 
         if not self.settings:
-            self.settings = SettingsModel(timezone="Europe/London")
+            # These are the default settings
+            self.settings = SettingsModel(
+                timezone="Europe/London",
+                week_start=0,  # Monday
+            )
             pony.commit()
 
 
@@ -39,6 +43,24 @@ class Time:
     def get_all(self) -> Iterator[TimeModel]:
         """Return all time records sorted by start date"""
         return self.model.select().order_by(pony.desc(self.model.start), pony.desc(self.model.id))
+
+
+    def get_stats(self) -> Dict:
+        """Return the header stats"""
+        now = arrow.now(tz=self.settings.timezone)
+        if now.weekday() != self.settings.week_start:
+            start = now.shift(weekday=self.settings.week_start).shift(days=-7)
+        else:
+            start = now
+
+        records = self.model.select(lambda row: row.start > start.timestamp())
+        total_logged = sum([ record.logged for record in records if record.logged ])
+
+        return {
+            'logged_this_week': start.humanize(start.shift(seconds=total_logged), only_distance=True, granularity=["hour", "minute"]),
+            'hours_left_today': 'TODO',
+            'overtime': 0,
+        }
 
 
     def create(self, start: int, end: Optional[int] = None, date: Optional[str] = None) -> None:
@@ -71,6 +93,7 @@ class Time:
             .first())
 
         current_record.end = int(end.timestamp())
+        current_record.logged = int(end.timestamp()) - current_record.start
 
 
     def delete(self, row_id: int):
