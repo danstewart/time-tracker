@@ -16,6 +16,10 @@
                     {% endfor %}
                 </select>
             </div>
+            <div class="mb-2">
+                <label class="form-label">Hours Per Day</label>
+                <input class="form-control" type="text" name="hours_per_day" id="hours_per_day" value="{{ settings.hours_per_day }}" required>
+            </div>
         </div>
         <button class="btn btn-primary" type="submit">Submit</button>
     </form>

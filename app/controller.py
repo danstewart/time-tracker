@@ -17,6 +17,7 @@ class Settings:
             self.settings = SettingsModel(
                 timezone="Europe/London",
                 week_start=0,  # Monday
+                hours_per_day=7.5,
             )
             pony.commit()
 
@@ -47,18 +48,22 @@ class Time:
 
     def get_stats(self) -> Dict:
         """Return the header stats"""
-        now = arrow.now(tz=self.settings.timezone)
-        if now.weekday() != self.settings.week_start:
-            start = now.shift(weekday=self.settings.week_start).shift(days=-7)
-        else:
-            start = now
+        from app.lib.util.date import humanize_seconds
 
-        records = self.model.select(lambda row: row.start > start.timestamp())
-        total_logged = sum([ record.logged for record in records if record.logged ])
+        now = arrow.now(tz=self.settings.timezone)
+        today = now.replace(hour=0, minute=0)
+        if now.weekday() != self.settings.week_start:
+            start = today.shift(weekday=self.settings.week_start).shift(days=-7)
+        else:
+            start = today
+
+        logged_this_week = sum([ rec.logged() for rec in self.model.since(start.int_timestamp) ])
+        logged_today = sum([ rec.logged() for rec in self.model.since(today.int_timestamp) ])
+        todo_today = (self.settings.hours_per_day * 60 * 60) - logged_today
 
         return {
-            'logged_this_week': start.humanize(start.shift(seconds=total_logged), only_distance=True, granularity=["hour", "minute"]),
-            'hours_left_today': 'TODO',
+            'logged_this_week': humanize_seconds(seconds=logged_this_week),
+            'hours_left_today': humanize_seconds(todo_today),
             'overtime': 0,
         }
 
@@ -69,11 +74,11 @@ class Time:
             date = self.today
 
         start = '{} {}'.format(date, start)
-        start = int(arrow.get(start, tzinfo=self.tz).timestamp())
+        start = arrow.get(start, tzinfo=self.tz).int_timestamp
 
         if end:
             end = '{} {}'.format(date, end)
-            end = int(arrow.get(end, tzinfo=self.tz).timestamp())
+            end = arrow.get(end, tzinfo=self.tz).int_timestamp
 
         return self.model(
             start=start,
@@ -92,8 +97,8 @@ class Time:
             .order_by(pony.desc(self.model.start))
             .first())
 
-        current_record.end = int(end.timestamp())
-        current_record.logged = int(end.timestamp()) - current_record.start
+        current_record.end = end.int_timestamp
+        current_record.logged = end.int_timestamp - current_record.start
 
 
     def delete(self, row_id: int):
