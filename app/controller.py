@@ -61,10 +61,30 @@ class Time:
         logged_today = sum([ rec.logged() for rec in self.model.since(today.int_timestamp) ])
         todo_today = (self.settings.hours_per_day * 60 * 60) - logged_today
 
+        """
+        Start: 2021-07-04 (Sunday: 6)
+        End: 2021-07-24 (Saturday: 5)
+        Days: 20
+        Result: 15
+
+        Work: 21
+        """
+        overtime = 0
+        if first_record := self.model.select().order_by(self.model.start).first():
+            from app.lib.util.date import calculate_expected_hours
+            first_day = arrow.get(first_record.start).to(self.settings.timezone)
+            overtime = calculate_expected_hours(
+                start=first_day,
+                end=today,
+                hours_per_day=self.settings.hours_per_day,
+            )
+
+            # TODO: Count logged time and calculate overtime
+
         return {
             'logged_this_week': humanize_seconds(seconds=logged_this_week),
             'hours_left_today': humanize_seconds(todo_today),
-            'overtime': 0,
+            'overtime': overtime,
         }
 
 
