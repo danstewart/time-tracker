@@ -38,6 +38,9 @@ function initDatePickers() {
         altFormat: "F j, Y",
         dateFormat: "Y-m-d",
         defaultDate: today.d,
+        locale: {
+            firstDayOfWeek: 1
+        }
     });
 
     flatpickr('#form-time', {

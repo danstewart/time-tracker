@@ -31,7 +31,7 @@ def calculate_expected_hours(start: arrow.Arrow, end: arrow.Arrow, hours_per_day
 
     # Special case for handling 1 day
     if work_days == 0:
-        return hours_per_day if start.weekday() < 6 else 0
+        return hours_per_day if start.weekday() < 5 else 0
 
     # Special case for weekend only
     if work_days < 6 and start.weekday() >= 5 and end.weekday() >= 5:

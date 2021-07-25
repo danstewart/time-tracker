@@ -62,21 +62,29 @@ class Time:
         todo_today = (self.settings.hours_per_day * 60 * 60) - logged_today
 
         overtime = 0
+        overtime_prefix = ''
         if first_record := self.model.select().order_by(self.model.start).first():
             from app.lib.util.date import calculate_expected_hours
             first_day = arrow.get(first_record.start).to(self.settings.timezone)
-            overtime = calculate_expected_hours(
+            expected_hours = calculate_expected_hours(
                 start=first_day,
                 end=today,
                 hours_per_day=self.settings.hours_per_day,
             )
 
-            # TODO: Count logged time and calculate overtime
+            overtime = -(expected_hours * 60 * 60)  # Convert to seconds
+            if total_logged := pony.select(sum(row.end - row.start) for row in self.model).first():
+                overtime += total_logged
+
+            if overtime > 0:
+                overtime_prefix = '+'
+            elif overtime < 0:
+                overtime_prefix = '-'
 
         return {
             'logged_this_week': humanize_seconds(seconds=logged_this_week),
             'hours_left_today': humanize_seconds(todo_today),
-            'overtime': overtime,
+            'overtime': '{}{}'.format(overtime_prefix, humanize_seconds(seconds=overtime))
         }
 
 
