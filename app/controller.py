@@ -57,10 +57,16 @@ class Time:
         else:
             start = today
 
+        # Time logged this week
         logged_this_week = sum([ rec.logged() for rec in self.model.since(start.int_timestamp) ])
-        logged_today = sum([ rec.logged() for rec in self.model.since(today.int_timestamp) ])
-        todo_today = (self.settings.hours_per_day * 60 * 60) - logged_today
 
+        # Time left to log today
+        todo_today = 0
+        if today.weekday() < 5:
+            logged_today = sum([ rec.logged() for rec in self.model.since(today.int_timestamp) ])
+            todo_today = (self.settings.hours_per_day * 60 * 60) - logged_today
+
+        # Overtime (all time)
         overtime = 0
         overtime_prefix = ''
         if first_record := self.model.select().order_by(self.model.start).first():
