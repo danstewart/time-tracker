@@ -12,50 +12,70 @@ def calculate_expected_hours(start: arrow.Arrow, end: arrow.Arrow, hours_per_day
     Calculates the expected work hours between two dates
     Assumes the work week is 5 days Mon-Fri
 
+    Date range is inclusive of both the start and end
+
     Will adjust both dates to be Mondays, calculated the total weekends, remove them then remove the adjustment
     """
-    work_days = (end - start).days + 1
+    # TODO:
+    # - This can probably be simplified
+    # - Figure out how to support different work days - good luck...
 
-    if not work_days:
+    # Adjust our dates to be midnight
+    start = start.replace(hour=0, minute=0, second=0, microsecond=0)
+    end = end.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    work_days = (end - start).days
+
+    if work_days < 0:
         return 0
 
-    import sys
+    # Special case for handling 1 day
+    if work_days == 0:
+        return hours_per_day if start.weekday() < 6 else 0
 
-    start_adjust = 0
-    if start.weekday() > 0:
-        start_adjust = start.weekday()
+    # Special case for weekend only
+    if work_days < 6 and start.weekday() >= 5 and end.weekday() >= 5:
+        return 0
 
-    end_adjust = 0
-    if end.weekday() > 0:
-        end_adjust = 7 - end.weekday()
+    # If we are spanning over a week then adjust the counter
+    # to count from Monday to Monday
+    # This makes the weekend calculation easier
+    # We push both dates back to their previous Mondays
+    start_adjust, end_adjust = 0, 0
 
-    print(f'work_days = {work_days}', file=sys.stderr)
-    print(f'start_adjust = {start_adjust}', file=sys.stderr)
-    print(f'end_adjust = {end_adjust}', file=sys.stderr)
+    if work_days >= 6:
+        if start.weekday() > 0:
+            start_adjust = start.weekday()
 
-    work_days += start_adjust
+        if end.weekday() > 0:
+            end_adjust = end.weekday()
+
+        # Add out Monday adjustments
+        work_days += start_adjust
+        work_days -= end_adjust
+
+        # Work out how many weekend days there are
+        weeks = work_days / 7
+        weekends = weeks * 2
+
+        # Take off the weekends
+        work_days -= weekends
+
+    # If we start or end on a weekend then adjust to ignore those days
+    if start.weekday() >= 5:
+        work_days += 7 - start.weekday()
+
+    if end.weekday() >= 5:
+        work_days -= end.weekday() - 4
+
+    # Take off our Monday adjustments
+    work_days -= start_adjust
     work_days += end_adjust
 
-    weeks = work_days / 7
-    weekends = weeks * 2
-
-    work_days -= weekends
-
-    work_days -= start_adjust
-    work_days -= end_adjust
-
-    if end_adjust:
-        work_days += 2
-
+    # Calculate the expected hours
+    # Add 1 here to include the start day
+    work_days += 1
     expected_hours = work_days * hours_per_day
     overtime = expected_hours
 
-    print('---', file=sys.stderr)
-
-    print(f'work_days = {work_days}', file=sys.stderr)
-    print(f'weeks = {weeks}', file=sys.stderr)
-    print(f'weekends = {weekends}', file=sys.stderr)
-    print(f'expected_hours = {expected_hours}', file=sys.stderr)
-
     return overtime
-
