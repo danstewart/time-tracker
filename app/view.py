@@ -17,8 +17,9 @@ def inject_settings():
 
 @v.get('/')
 def home():
-    time_entries = Time().get_all()
-    stats = Time().get_stats()
+    time = Time()
+    time_entries = time.get_all()
+    stats = time.get_stats()
     return render_template('pages/home.html.j2', time_entries=time_entries, tz=Time().tz, arrow=arrow, stats=stats)
 
 

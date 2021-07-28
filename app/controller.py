@@ -94,7 +94,7 @@ class Time:
         }
 
 
-    def create(self, start: int, end: Optional[int] = None, date: Optional[str] = None) -> None:
+    def create(self, start: int, end: Optional[int] = None, date: Optional[str] = None, note: Optional[str] = "") -> None:
         """Create a new time record"""
         if not date:
             date = self.today
@@ -109,7 +109,7 @@ class Time:
         return self.model(
             start=start,
             end=end if end else None,
-            note="Testing",
+            note=note,
         )
 
 

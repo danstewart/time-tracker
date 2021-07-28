@@ -6,7 +6,6 @@ import spacetime from 'https://cdn.jsdelivr.net/npm/spacetime/+esm';
 
 window.addEventListener('DOMContentLoaded', () => {
     const app = new Application();
-    app.register(FormSwitcherController);
 
     // Events
     [...document.querySelectorAll('.delete-time-entry')].forEach(btn => btn.addEventListener('click', async e => {
