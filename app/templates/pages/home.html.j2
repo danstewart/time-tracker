@@ -6,7 +6,8 @@
     {% set date_fmt = 'Do [of] MMM YYYY [at] HH:mm' %}
     {% set clocked_in = time_entries.first() and not time_entries.first().end %}
 
-    <div class="row mb-5">
+    <!-- Header Stats -->
+    <section id="stats" class="row mb-5">
         <div class="col-md-4 mb-2">
             <div class="card border-dark">
                 <div class="card-body">
@@ -34,60 +35,108 @@
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div id="form" data-controller="form-switcher">
-        <ul class="nav nav-tabs mb-3">
-            <li class="nav-item" @form-switcher="click::changeTab">
-                <a :form-switcher="tab" class="nav-link active" aria-current="page">Relative Form</a>
-            </li>
-            <li class="nav-item" @form-switcher="click::changeTab">
-                <a :form-switcher="tab" class="nav-link">Manual Form</a>
-            </li>
-        </ul>
+    <!-- Clock in/out Form -->
+    <section id="main">
+        <form method="post" action="/time/add" data-controller="form-switcher">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Time</label>
+                    <input class="form-control" type="text" name="time" id="form-time" type="time" required>
+                </div>
+            </div>
 
-        <div :form-switcher="content">
-            {% include 'partials/relative_form.html.j2' %}
-        </div>
-        <div class="d-none" :form-switcher="content">
-            {% include 'partials/manual_form.html.j2' %}
-        </div>
-    </div>
+            {% if clocked_in %}
+                <button class="btn btn-primary" name="clock" value="out" type="submit">Clock Out</button>
+            {% else %}
+                <button class="btn btn-primary" name="clock" value="in" type="submit">Clock In</button>
+            {% endif %}
+        </form>
+    </section>
 
     <hr />
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">Start</th>
-                <th scope="col">End</th>
-                <th scope="col">Time Logged</th>
-                <th scope="col">Notes</th>
-                <th scope="col"></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for time in time_entries %}
+    <!-- Add/Edit Modal -->
+    <section class="modal" tabindex="-1" id="form-modal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Log Time</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addEditForm" method="post" action="/time/add" data-controller="form-switcher">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Date</label>
+                                <input class="form-control" type="text" name="date" id="form-date" type="date" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Start Time</label>
+                                <input class="form-control" type="text" name="start" id="form-start-time" type="time" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">End Time</label>
+                                <input class="form-control" type="text" name="end" id="form-end-time" type="time" required>
+                            </div>
+
+                            <div class="mt-3">
+                                <label class="form-label">Note</label>
+                                <textarea class="form-control" name="note" rows="3"></textarea>
+                            </div>
+
+                            <input type="hidden" name="clock" value="manual">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" onclick="document.getElementById('addEditForm').submit()" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Time Log Table -->
+    <section id="records">
+        <table class="table">
+            <thead>
                 <tr>
-                    {% set start = arrow.get(time.start).to(tz) %}
-                    {% set end = arrow.get(time.end).to(tz) if time.end else '' %}
-
-                    {% set range_end = end or arrow.now().to(tz) %}
-                    {% set duration = range_end.timestamp() | int - start.timestamp() | int %}
-
-                    <td>{{ start.format(date_fmt) }}</td>
-                    <td>{{ end.format(date_fmt) if end else 'Still clocked in' }}</td>
-                    <td>{{ start.humanize(range_end, only_distance=True, granularity=["hour", "minute"]) }}</td>
-                    <td>{{ time.note }}</td>
-                    <td>
-                        <a role="button" class="delete-time-entry">
-                            <i class="bi bi-x-lg" data-time-id="{{ time.id }}"></i>
-                        </a>
-                    </td>
+                    <th scope="col">Start</th>
+                    <th scope="col">End</th>
+                    <th scope="col">Time Logged</th>
+                    <th scope="col">Notes</th>
+                    <th scope="col"><!-- Edit button --></th>
+                    <th scope="col"><!-- Delete button --></th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for time in time_entries %}
+                    <tr>
+                        {% set start = arrow.get(time.start).to(tz) %}
+                        {% set end = arrow.get(time.end).to(tz) if time.end else '' %}
+                        {% set range_end = end or arrow.now().to(tz) %}
+                        {% set duration = range_end.timestamp() | int - start.timestamp() | int %}
+
+                        <td>{{ start.format(date_fmt) }}</td>
+                        <td>{{ end.format(date_fmt) if end else 'Still clocked in' }}</td>
+                        <td>{{ start.humanize(range_end, only_distance=True, granularity=["hour", "minute"]) }}</td>
+                        <td>{{ time.note }}</td>
+                        <td>
+                            <a role="button" class="edit-time-entry" data-bs-toggle="modal" data-bs-target="#form-modal">
+                                <i class="bi bi-pencil-square" data-time-id="{{ time.id }}"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <a role="button" class="delete-time-entry">
+                                <i class="bi bi-x-lg" data-time-id="{{ time.id }}"></i>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
 
     {% if not time_entries %}
         <p>No time entries found</p>
