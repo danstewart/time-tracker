@@ -9,17 +9,7 @@ class ModalFrame extends Controller {
             <section class="modal fade" id="${this.modalId}">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">${this.modalTitle}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <dynamic-frame :render-on-init="false" :url="${this.url}"></dynamic-frame>
-                        </div>
-                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary">Save changes</button>
-                        </div>
+                        <dynamic-frame :render-on-init="false" :url="${this.url}"></dynamic-frame>
                     </div>
                 </div>
             </section>

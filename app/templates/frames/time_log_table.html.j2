@@ -28,7 +28,7 @@
                         <td>{{ start.humanize(range_end, only_distance=True, granularity=["hour", "minute"]) }}</td>
                         <td>{{ time.note }}</td>
                         <td>
-                            <modal-frame :url="/frames/time_add_edit" :modal-id="time-edit-modal-{{ time.id }}" :modal-title="Edit time record - {{ time.id }}" :param-time-id="{{ time.id }}"></modal-frame>
+                            <modal-frame :url="/frames/time_form/{{time.id}}" :modal-id="time-edit-modal-{{ time.id }}" :modal-title="Edit time record - {{ time.id }}"></modal-frame>
 
                             <a role="button" class="edit-time-entry" data-bs-toggle="modal" data-bs-target="#time-edit-modal-{{ time.id }}">
                                 <i class="bi bi-pencil-square"></i>

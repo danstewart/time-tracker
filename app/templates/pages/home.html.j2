@@ -6,7 +6,7 @@
     {% set date_fmt = 'Do [of] MMM YYYY [at] HH:mm' %}
     {% set clocked_in = time_entries.first() and not time_entries.first().end %}
 
-    <modal-frame :url="/frames/time_add_edit" :modal-id="time-add-modal" :modal-title="Add new time record"></modal-frame>
+    <modal-frame :url="/frames/time_form" :modal-id="time-add-modal" :modal-title="Add new time record"></modal-frame>
 
     <!-- Header Stats -->
     <section id="stats" class="row mb-5">
@@ -41,7 +41,7 @@
 
     <!-- Clock in/out Form -->
     <section id="main">
-        <form method="post" action="/time/add" data-controller="form-switcher">
+        <form method="post" action="/time/add">
             <div class="row mb-3">
                 <div class="col-md-4">
                     <label class="form-label">Time</label>

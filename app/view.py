@@ -1,3 +1,5 @@
+from typing import Optional
+
 import arrow
 from flask import Blueprint
 from flask import current_app as app
@@ -65,11 +67,15 @@ def time_log_table():
     return render_template("frames/time_log_table.html.j2", time_entries=time_entries, tz=Time().tz, arrow=arrow)
 
 
+@v.route("/frames/time_form", methods=["GET", "POST"])
+@v.route("/frames/time_form/<row_id>", methods=["GET", "POST"])
+def time_form(row_id: Optional[str] = None):
+    return render_template("frames/time_form.html.j2", row_id=row_id)
+
+
 @v.get("/frames/<frame>")
 def render_frame(frame: str):
+    """
+    Default handler for rendering frames
+    """
     return render_template("frames/{}.html.j2".format(frame))
-
-
-@v.get("/lightboxes/<box>")
-def render_lightbox(box: str):
-    return render_template("lightboxes/{}.html.j2".format(box))
