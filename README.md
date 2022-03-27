@@ -4,7 +4,7 @@ Basic time tracker tool.
 
 ### Setup
 
-Start:
+Start on http://localhost:4000/:
 ```bash
 docker-compose up -d --build app
 ```

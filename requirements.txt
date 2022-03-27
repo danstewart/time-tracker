@@ -1,14 +1,19 @@
 arrow==1.2.2
 attrs==21.4.0
+black==22.1.0
 click==8.0.4
 flake8==3.9.2
 Flask==2.0.1
 iniconfig==1.1.1
+isort==5.10.1
 itsdangerous==2.1.2
 Jinja2==3.0.1
 MarkupSafe==2.1.1
 mccabe==0.6.1
+mypy-extensions==0.4.3
 packaging==21.3
+pathspec==0.9.0
+platformdirs==2.5.1
 pluggy==0.13.1
 pony==0.7.16
 py==1.11.0
@@ -19,4 +24,5 @@ pytest==6.2.4
 python-dateutil==2.8.2
 six==1.16.0
 toml==0.10.2
+tomli==2.0.1
 Werkzeug==2.0.1

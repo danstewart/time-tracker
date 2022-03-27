@@ -12,3 +12,8 @@
 .cog {
     color: black;
 }
+
+.edit-time-entry {
+    cursor: pointer;
+    color: #0d6efd;
+}

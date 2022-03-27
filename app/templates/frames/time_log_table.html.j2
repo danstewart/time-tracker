@@ -1,0 +1,43 @@
+{% set date_fmt = 'Do [of] MMM YYYY [at] HH:mm' %}
+
+{% if not time_entries %}
+    <p>No time entries found</p>
+{% else %}
+    <section id="records">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Start</th>
+                    <th scope="col">End</th>
+                    <th scope="col">Time Logged</th>
+                    <th scope="col">Notes</th>
+                    <th scope="col"><!-- Edit button --></th>
+                    <th scope="col"><!-- Delete button --></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for time in time_entries %}
+                    <tr>
+                        {% set start = arrow.get(time.start).to(tz) %}
+                        {% set end = arrow.get(time.end).to(tz) if time.end else '' %}
+                        {% set range_end = end or arrow.now().to(tz) %}
+                        {% set duration = range_end.timestamp() | int - start.timestamp() | int %}
+
+                        <td>{{ start.format(date_fmt) }}</td>
+                        <td>{{ end.format(date_fmt) if end else 'Still clocked in' }}</td>
+                        <td>{{ start.humanize(range_end, only_distance=True, granularity=["hour", "minute"]) }}</td>
+                        <td>{{ time.note }}</td>
+                        <td>
+                            <i class="edit-time-entry glightbox bi bi-pencil-square" data-time-id="{{ time.id }}" href="/lightboxes/time_add_edit"></i>
+                        </td>
+                        <td>
+                            <a role="button" class="delete-time-entry">
+                                <i class="bi bi-x-lg" data-time-id="{{ time.id }}"></i>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+{% endif %}
