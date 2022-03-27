@@ -28,7 +28,11 @@
                         <td>{{ start.humanize(range_end, only_distance=True, granularity=["hour", "minute"]) }}</td>
                         <td>{{ time.note }}</td>
                         <td>
-                            <i class="edit-time-entry glightbox bi bi-pencil-square" data-time-id="{{ time.id }}" href="/lightboxes/time_add_edit"></i>
+                            <modal-frame :url="/frames/time_add_edit" :modal-id="time-edit-modal-{{ time.id }}" :modal-title="Edit time record - {{ time.id }}" :param-time-id="{{ time.id }}"></modal-frame>
+
+                            <a role="button" class="edit-time-entry" data-bs-toggle="modal" data-bs-target="#time-edit-modal-{{ time.id }}">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
                         </td>
                         <td>
                             <a role="button" class="delete-time-entry">

@@ -6,6 +6,8 @@
     {% set date_fmt = 'Do [of] MMM YYYY [at] HH:mm' %}
     {% set clocked_in = time_entries.first() and not time_entries.first().end %}
 
+    <modal-frame :url="/frames/time_add_edit" :modal-id="time-add-modal" :modal-title="Add new time record"></modal-frame>
+
     <!-- Header Stats -->
     <section id="stats" class="row mb-5">
         <div class="col-md-4 mb-2">
@@ -53,15 +55,12 @@
                 <button class="btn btn-primary" name="clock" value="in" type="submit">Clock In</button>
             {% endif %}
 
-            <button class="btn btn-secondary" type="button" data-bs-toggle="modal" data-bs-target="#form-modal">Add Manually</button>
+            <button class="btn btn-secondary" type="button" data-bs-toggle="modal" data-bs-target="#time-add-modal">Add Manually</button>
         </form>
     </section>
 
     <hr />
 
-    <!-- Add/Edit Modal -->
-
     <!-- Time Log Table -->
     <dynamic-frame :url="/frames/time-log-table"></dynamic-frame>
-
 {% endblock content %}
