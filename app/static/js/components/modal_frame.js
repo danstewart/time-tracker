@@ -9,7 +9,7 @@ class ModalFrame extends Controller {
             <section class="modal fade" id="${this.modalId}">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
-                        <dynamic-frame :render-on-init="false" :url="${this.url}"></dynamic-frame>
+                        <dynamic-frame :execute-scripts="true" :render-on-init="false" :url="${this.url}"></dynamic-frame>
                     </div>
                 </div>
             </section>
@@ -18,6 +18,8 @@ class ModalFrame extends Controller {
         this.loaded = false;
         this.modal = this.querySelector('.modal');
         this.modal.addEventListener("show.bs.modal", e => this.onShow(e));
+
+        this.listenFor(`${this.modalId}:close`, e => this.modal('hide'));
     }
 
     onShow(e) {

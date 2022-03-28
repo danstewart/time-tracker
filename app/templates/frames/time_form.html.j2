@@ -1,36 +1,68 @@
 
-<div class="modal-header">
-    <h5 class="modal-title">{{ title }}</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-</div>
-<div class="modal-body">
-    {# TODO: Handle form POST target, it defaults to / since it's in a modal #}
-    <form id="addEditForm" method="post">
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <label class="form-label">Date</label>
-                <input class="form-control" type="text" name="date" id="form-date" type="date" required>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Start Time</label>
-                <input class="form-control" type="text" name="start" id="form-start-time" type="time" required>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">End Time</label>
-                <input class="form-control" type="text" name="end" id="form-end-time" type="time" required>
-            </div>
+<section>
+    <div class="modal-header">
+        <h5 class="modal-title">{{ title }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        {# TODO: Handle form POST target, it defaults to / since it's in a modal #}
+        <form id="addEditForm" method="post" action="/frames/time_form/{{ row_id }}">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Date</label>
+                    <input class="form-control" type="text" name="date" id="form-date" type="date" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Start Time</label>
+                    <input class="form-control" type="text" name="start" id="form-start-time" type="time" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">End Time</label>
+                    <input class="form-control" type="text" name="end" id="form-end-time" type="time" required>
+                </div>
 
-            <div class="mt-3">
-                <label class="form-label">Note</label>
-                <textarea class="form-control" name="note" rows="3"></textarea>
-            </div>
+                <div class="mt-3">
+                    <label class="form-label">Note</label>
+                    <textarea class="form-control" name="note" rows="3"></textarea>
+                </div>
 
-            <input type="hidden" name="clock" value="manual">
-        </div>
-    </form>
-</div>
-<div class="modal-footer">
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-    {# TODO: Deal with this hacky line #}
-    <button type="button" class="btn btn-primary" onclick="this.parentNode.previousElementSibling.querySelector('form').submit()">Save changes</button>
-</div>
+                <input type="hidden" name="clock" value="manual">
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button id="close" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button id="submit" type="button" class="btn btn-primary">Save changes</button>
+    </div>
+
+    <script>
+        // NOTE: Using an IIFE here means our top level variables are function scoped instead of document scoped
+        // If we don't do this then the we get variable re-decleration warnings
+        // It might be worth while adding this automatically in dynamic-frame
+        (function() {
+            const frame = document.currentScript.parentNode;
+
+            frame.querySelector("#submit").addEventListener('click', async e => {
+                const modal = frame.closest(".modal.show");
+                const form = frame.querySelector("form");
+
+                let response = await fetch('/frames/time_form/{{ row_id }}', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        // TODO: Actually send the form data here
+                        id: 123
+                    })
+                });
+
+                if (response.ok) {
+                    // Close modal and refresh log table
+                    modal.querySelector("#close").click();
+                    // TODO: Refresh table
+                } else {
+                    // TODO: Show flash here
+                    alert("ERROR");
+                }
+            });
+        })();
+    </script>
+</section>

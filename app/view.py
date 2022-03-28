@@ -67,9 +67,9 @@ def time_log_table():
     return render_template("frames/time_log_table.html.j2", time_entries=time_entries, tz=Time().tz, arrow=arrow)
 
 
-@v.route("/frames/time_form", methods=["GET", "POST"])
+@v.route("/frames/time_form/", methods=["GET", "POST"])
 @v.route("/frames/time_form/<row_id>", methods=["GET", "POST"])
-def time_form(row_id: Optional[str] = None):
+def time_form(row_id: str = ""):
     return render_template("frames/time_form.html.j2", row_id=row_id)
 
 
