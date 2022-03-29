@@ -1,7 +1,7 @@
 # syntax = docker/dockerfile:1.2
 
 # Use slim buster images
-FROM python:3.9-slim-buster
+FROM python:3.10-slim-buster
 
 LABEL version="0.0.1"
 
@@ -15,7 +15,7 @@ RUN rm /etc/apt/apt.conf.d/docker-clean
 
 # Install updates and cache across builds
 ENV DEBIAN_FRONTEND=noninteractive
-RUN --mount=type=cache,target=/var/cache/apt,id=apt apt-get update && apt-get -y upgrade && apt-get -y install sqlite3 libsqlite3-dev
+RUN --mount=type=cache,target=/var/cache/apt,id=apt apt-get update && apt-get -y upgrade && apt-get -y install curl sqlite3 libsqlite3-dev
 
 # Create user and work dir
 RUN useradd --create-home app
@@ -31,11 +31,16 @@ RUN echo ".headers on\n.mode columns" > /home/app/.sqliterc
 ENV PATH "/home/app/.local/bin/:${PATH}"
 ENV PROJECT_ROOT '/home/app/time-tracker'
 
+# Install poetry
+RUN curl -sSL https://install.python-poetry.org | python3 -
+
+# Disable use of virtualenvs - we don't need them in a container
+RUN poetry config virtualenvs.create false
+
 # Install python deps
-# TODO: Pip caching isn't working due to a permission error
-COPY --chown=app:app ./requirements.txt ./
-RUN pip install --upgrade pip
-RUN --mount=type=cache,target=/home/app/.cache/pip,id=pip pip install -r requirements.txt
+COPY --chown=app:app ./pyproject.toml ./
+COPY --chown=app:app ./poetry.lock ./
+RUN poetry install --no-dev
 
 # Get traceback for C crashes
 ENV PYTHONFAULTHANDLER=1

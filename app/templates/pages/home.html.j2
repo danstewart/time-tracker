@@ -6,13 +6,16 @@
     {% set date_fmt = 'Do [of] MMM YYYY [at] HH:mm' %}
     {% set clocked_in = time_entries.first() and not time_entries.first().end %}
 
-    <div class="row mb-5">
+    <modal-frame :url="/frames/time_form" :modal-id="time-add-modal" :modal-title="Add new time record"></modal-frame>
+
+    <!-- Header Stats -->
+    <section id="stats" class="row mb-5">
         <div class="col-md-4 mb-2">
             <div class="card border-dark">
                 <div class="card-body">
                     <h4 class="card-title">Time Logged</h3>
                     <h6 class="card-subtitle mb-2 text-muted">This Week</h6>
-                    <p class="card-text fw-bold fs-3">{{ stats.get('logged_this_week', 0) }}</p>
+                    <p class="card-text fw-bold fs-4">{{ stats.get('logged_this_week', 0) }}</p>
                 </div>
             </div>
         </div>
@@ -21,7 +24,7 @@
                 <div class="card-body">
                     <h4 class="card-title">Time Left</h4>
                     <h6 class="card-subtitle mb-2 text-muted">Today</h6>
-                    <p class="card-text fw-bold fs-3">{{ stats.get('hours_left_today', 'N/A') }}</p>
+                    <p class="card-text fw-bold fs-4">{{ stats.get('hours_left_today', 'N/A') }}</p>
                 </div>
             </div>
         </div>
@@ -30,66 +33,34 @@
                 <div class="card-body">
                     <h4 class="card-title">Overtime</h4>
                     <h6 class="card-subtitle mb-2 text-muted">&nbsp;</h6>
-                    <p class="card-text fw-bold fs-3">{{ stats.get('overtime', 0) }}</p>
+                    <p class="card-text fw-bold fs-4">{{ stats.get('overtime', 0) }}</p>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div id="form" data-controller="form-switcher">
-        <ul class="nav nav-tabs mb-3">
-            <li class="nav-item" @form-switcher="click::changeTab">
-                <a :form-switcher="tab" class="nav-link active" aria-current="page">Relative Form</a>
-            </li>
-            <li class="nav-item" @form-switcher="click::changeTab">
-                <a :form-switcher="tab" class="nav-link">Manual Form</a>
-            </li>
-        </ul>
+    <!-- Clock in/out Form -->
+    <section id="main">
+        <form method="post" action="/time/add">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Time</label>
+                    <input class="form-control flatpickr" type="text" name="time" id="form-time" data-date-type="datetime" required>
+                </div>
+            </div>
 
-        <div :form-switcher="content">
-            {% include 'partials/relative_form.html.j2' %}
-        </div>
-        <div class="d-none" :form-switcher="content">
-            {% include 'partials/manual_form.html.j2' %}
-        </div>
-    </div>
+            {% if clocked_in %}
+                <button class="btn btn-primary" name="clock" value="out" type="submit">Clock Out</button>
+            {% else %}
+                <button class="btn btn-primary" name="clock" value="in" type="submit">Clock In</button>
+            {% endif %}
+
+            <button class="btn btn-secondary" type="button" data-bs-toggle="modal" data-bs-target="#time-add-modal">Add Manually</button>
+        </form>
+    </section>
 
     <hr />
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">Start</th>
-                <th scope="col">End</th>
-                <th scope="col">Time Logged</th>
-                <th scope="col">Notes</th>
-                <th scope="col"></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for time in time_entries %}
-                <tr>
-                    {% set start = arrow.get(time.start).to(tz) %}
-                    {% set end = arrow.get(time.end).to(tz) if time.end else '' %}
-
-                    {% set range_end = end or arrow.now().to(tz) %}
-                    {% set duration = range_end.timestamp() | int - start.timestamp() | int %}
-
-                    <td>{{ start.format(date_fmt) }}</td>
-                    <td>{{ end.format(date_fmt) if end else 'Still clocked in' }}</td>
-                    <td>{{ start.humanize(range_end, only_distance=True, granularity=["hour", "minute"]) }}</td>
-                    <td>{{ time.note }}</td>
-                    <td>
-                        <a role="button" class="delete-time-entry">
-                            <i class="bi bi-x-lg" data-time-id="{{ time.id }}"></i>
-                        </a>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    {% if not time_entries %}
-        <p>No time entries found</p>
-    {% endif %}
+    <!-- Time Log Table -->
+    <dynamic-frame id="log-table" :url="/frames/time-log-table"></dynamic-frame>
 {% endblock content %}

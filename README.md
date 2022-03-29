@@ -4,14 +4,27 @@ Basic time tracker tool.
 
 ### Setup
 
-Start:
+Start on http://localhost:4000/:
 ```bash
 docker-compose up -d --build app
 ```
 
+Installing dependencies locally:
+```bash
+pyenv local 3.10.0
+pyenv exec poetry config virtualenvs.create true --local
+pyenv exec poetry install
+pyenv exec poetry shell
+```
+
 Database:
 ```bash
-docker exec -it time-tracker sqlite3 ./db/time.db
+./scripts/sql.sh
+```
+
+Test:
+```bash
+./scripts/run_tests.sh
 ```
 
 ### Built with
