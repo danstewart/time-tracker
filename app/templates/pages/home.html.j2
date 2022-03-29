@@ -45,7 +45,7 @@
             <div class="row mb-3">
                 <div class="col-md-4">
                     <label class="form-label">Time</label>
-                    <input class="form-control" type="text" name="time" id="form-time" type="time" required>
+                    <input class="form-control flatpickr" type="text" name="time" id="form-time" data-date-type="datetime" required>
                 </div>
             </div>
 
@@ -62,5 +62,5 @@
     <hr />
 
     <!-- Time Log Table -->
-    <dynamic-frame :url="/frames/time-log-table"></dynamic-frame>
+    <dynamic-frame id="log-table" :url="/frames/time-log-table"></dynamic-frame>
 {% endblock content %}
