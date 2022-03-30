@@ -7,7 +7,7 @@ logger = get_logger(__name__)
 
 
 @v.route("/settings", methods=["GET", "POST"])
-def settings():
+def form():
     if request.form:
         settings.update(**request.form)
 

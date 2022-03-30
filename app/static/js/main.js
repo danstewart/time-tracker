@@ -19,6 +19,7 @@ window.addEventListener("dynamic-frame:updated", () => {
 function initDatePickers() {
     const tz = document.getElementById('timezone').innerText;
     const today = spacetime.now(tz);
+    let date = today.format('Y-m-d');
     let hour = today.hour();
     let mins = today.minute();
     mins = Math.floor(mins / 5) * 5;  // Round minutes to nearest 5 mins
@@ -47,7 +48,7 @@ function initDatePickers() {
                 altInput: true,
                 altFormat: "F j, Y",
                 dateFormat: "Y-m-d",
-                defaultDate: value || today.d,
+                defaultDate: value || date,
                 locale: {
                     firstDayOfWeek: 1
                 }
@@ -59,7 +60,7 @@ function initDatePickers() {
                 enableTime: true,
                 time_24hr: true,
                 dateFormat: "Y-m-d H:i",
-                defaultDate: value || today.d,
+                defaultDate: value || `${date} ${hour}:${mins}`,
                 locale: {
                     firstDayOfWeek: 1
                 },
