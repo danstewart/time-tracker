@@ -34,8 +34,6 @@ function initDatePickers() {
             value = Number(value) * 1000;
         }
 
-        console.log(value)
-
         if (pickerType === "time") {
             flatpickr(picker, {
                 enableTime: true,

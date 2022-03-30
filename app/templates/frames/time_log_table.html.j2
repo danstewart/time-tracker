@@ -45,3 +45,23 @@
         </table>
     </section>
 {% endif %}
+
+<script>
+    (function() {
+        const frame = document.currentScript.parentNode;
+
+        // Events
+        [...document.querySelectorAll('.delete-time-entry')].forEach(btn => btn.addEventListener('click', async e => {
+            const id = e.target.getAttribute('data-time-id');
+            let response = await fetch(`/time/delete/${id}`, {
+                method: 'delete'
+            });
+
+            if (response.status == 200) {
+                frame.refresh();
+            } else {
+                console.error(`Failed to delete time record ${id}: ${response.text}`)
+            }
+        }));
+    })();
+</script>
