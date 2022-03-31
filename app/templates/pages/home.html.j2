@@ -14,8 +14,16 @@
             <div class="card border-dark">
                 <div class="card-body">
                     <h4 class="card-title">Time Logged</h3>
-                    <h6 class="card-subtitle mb-2 text-muted">This Week</h6>
-                    <p class="card-text fw-bold fs-4">{{ stats.get('logged_this_week', 0) }}</p>
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-subtitle mb-2 text-muted">Today</h6>
+                            <p class="card-text fw-bold fs-4">{{ stats.logged_today }}</p>
+                        </div>
+                        <div>
+                            <h6 class="card-subtitle mb-2 text-muted">This Week</h6>
+                            <p class="card-text fw-bold fs-4">{{ stats.logged_this_week }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -23,8 +31,16 @@
             <div class="card border-dark">
                 <div class="card-body">
                     <h4 class="card-title">Time Left</h4>
-                    <h6 class="card-subtitle mb-2 text-muted">Today</h6>
-                    <p class="card-text fw-bold fs-4">{{ stats.get('hours_left_today', 'N/A') }}</p>
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-subtitle mb-2 text-muted">Today</h6>
+                            <p class="card-text fw-bold fs-4">{{ stats.remaining_today }}</p>
+                        </div>
+                        <div>
+                            <h6 class="card-subtitle mb-2 text-muted">This Week</h6>
+                            <p class="card-text fw-bold fs-4">{{ stats.remaining_this_week }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -33,7 +49,7 @@
                 <div class="card-body">
                     <h4 class="card-title">Overtime</h4>
                     <h6 class="card-subtitle mb-2 text-muted">&nbsp;</h6>
-                    <p class="card-text fw-bold fs-4">{{ stats.get('overtime', 0) }}</p>
+                    <p class="card-text fw-bold fs-4">{{ stats.overtime }}</p>
                 </div>
             </div>
         </div>

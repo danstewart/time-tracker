@@ -1,9 +1,41 @@
 import arrow
 
 
-def humanize_seconds(seconds: int):
+def humanize_seconds(seconds: int, short: bool = False):
+    """
+    Humanizes a duration in seconds
+
+    `seconds`: The number of seconds to humanize
+    `short`: If true then format as a shorter string
+
+    Default is to call out to `arrow.humanize` -> "6 hours and 15 minutes"
+    Short mode displays as "6h 15m"
+    """
     base = arrow.utcnow()
     end = base.shift(seconds=seconds)
+
+
+    if short:
+        sign = ""
+        hours = 0
+        minutes = 0
+
+        if seconds < 0:
+            sign = "-"
+            seconds = abs(seconds)
+
+        while seconds >= 60:
+            seconds -= 60
+            minutes += 1
+
+        while minutes >= 60:
+            minutes -= 60
+            hours += 1
+
+        if seconds > 0:
+            return f"{sign}{hours}h {minutes}m {seconds}s"
+        return f"{sign}{hours}h {minutes}m"
+
     return base.humanize(end, only_distance=True, granularity=["hour", "minute"])
 
 

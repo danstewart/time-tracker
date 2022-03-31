@@ -23,3 +23,4 @@ class Settings(db.Entity):
     timezone = pony.Required(str)
     week_start = pony.Required(int)
     hours_per_day = pony.Required(float)
+    days_per_week = pony.Required(int)

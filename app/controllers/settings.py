@@ -15,6 +15,7 @@ def fetch() -> Settings:
             timezone="Europe/London",
             week_start=0,  # Monday
             hours_per_day=7.5,
+            days_per_week=5,
         )
         pony.commit()
     return settings

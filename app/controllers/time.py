@@ -5,6 +5,7 @@ from app.controllers import settings
 from app.lib.database import pony
 from app.lib.logger import get_logger
 from app.models import Time
+from app.viewmodels import TimeStats
 
 logger = get_logger(__name__)
 
@@ -79,8 +80,8 @@ def clock_out(end: str):
 
 
 @pony.db_session
-def stats() -> dict:
-    """Return the header stats"""
+def stats() -> TimeStats:
+    """Return the weekly stats"""
     from app.lib.util.date import humanize_seconds
 
     now = arrow.now(tz=_tz)
@@ -90,18 +91,21 @@ def stats() -> dict:
     else:
         start = today
 
-    # Time logged this week
+    # Time logged
+    logged_today = sum([rec.logged() for rec in Time.since(today.int_timestamp)])
     logged_this_week = sum([rec.logged() for rec in Time.since(start.int_timestamp)])
 
-    # Time left to log today
-    todo_today = 0
-    if today.weekday() < 5:
-        logged_today = sum([rec.logged() for rec in Time.since(today.int_timestamp)])
-        todo_today = (_settings.hours_per_day * 60 * 60) - logged_today
+    # Time todo
+    todo_today = _settings.hours_per_day * 60 * 60
+    todo_this_week = (_settings.hours_per_day * 60 * 60) * _settings.days_per_week
+
+    # Time remaining
+    remaining_today = todo_today - logged_today
+    remaining_this_week = todo_this_week - logged_this_week
 
     # Overtime (all time)
+    # This is a little inefficient as it must go through all records
     overtime = 0
-    overtime_prefix = ""
     if first_record := Time.select().order_by(Time.start).first():
         from app.lib.util.date import calculate_expected_hours
 
@@ -116,13 +120,10 @@ def stats() -> dict:
         if total_logged := pony.select(sum(row.end - row.start) for row in Time).first():
             overtime += total_logged
 
-        if overtime > 0:
-            overtime_prefix = "+"
-        elif overtime < 0:
-            overtime_prefix = "-"
-
-    return {
-        "logged_this_week": humanize_seconds(seconds=logged_this_week),
-        "hours_left_today": humanize_seconds(todo_today),
-        "overtime": "{}{}".format(overtime_prefix, humanize_seconds(seconds=overtime)),
-    }
+    return TimeStats(
+        logged_this_week=humanize_seconds(logged_this_week, short=True),
+        logged_today=humanize_seconds(logged_today, short=True),
+        remaining_this_week=humanize_seconds(remaining_this_week, short=True),
+        remaining_today=humanize_seconds(remaining_today, short=True),
+        overtime=humanize_seconds(overtime, short=True),
+    )
