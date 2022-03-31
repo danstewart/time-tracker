@@ -55,9 +55,9 @@
                 });
 
                 if (response.ok) {
-                    // Close modal and refresh log table
+                    // Close modal and emit changed event
                     modal.querySelector("#close").click();
-                    document.querySelector("#log-table").refresh();
+                    frame.emit("time:changed");
                 } else {
                     // TODO: Show flash here
                     alert("Something went wrong!");

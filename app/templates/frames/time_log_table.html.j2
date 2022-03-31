@@ -50,6 +50,9 @@
     (function() {
         const frame = document.currentScript.parentNode;
 
+        // If any time data changes then update ourselves
+        window.addEventListener("time:changed", e => frame.refresh());
+
         // Events
         [...document.querySelectorAll('.delete-time-entry')].forEach(btn => btn.addEventListener('click', async e => {
             const id = e.target.getAttribute('data-time-id');
@@ -58,7 +61,7 @@
             });
 
             if (response.status == 200) {
-                frame.refresh();
+                frame.emit("time:changed");
             } else {
                 console.error(`Failed to delete time record ${id}: ${response.text}`)
             }

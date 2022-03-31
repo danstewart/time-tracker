@@ -13,11 +13,8 @@ _settings = settings.fetch()
 
 @v.get("/")
 def home():
-    stats = time.stats()
     time_entries = time.all()
-    return render_template(
-        "pages/home.html.j2", time_entries=time_entries, tz=_settings.timezone, arrow=arrow, stats=stats
-    )
+    return render_template("pages/home.html.j2", time_entries=time_entries, tz=_settings.timezone, arrow=arrow)
 
 
 @v.post("/time/add")
@@ -49,6 +46,12 @@ def time_log_table():
     return render_template(
         "frames/time_log_table.html.j2", time_entries=time_entries, tz=_settings.timezone, arrow=arrow
     )
+
+
+@v.get("/frames/time-stats")
+def time_stats():
+    time_stats = time.stats()
+    return render_template("frames/time_stats.html.j2", stats=time_stats, tz=_settings.timezone, arrow=arrow)
 
 
 @v.route("/frames/time_form/", methods=["GET", "POST"])
