@@ -63,6 +63,7 @@
             if (response.status == 200) {
                 frame.emit("time:changed");
             } else {
+                // TODO: Show flash here
                 console.error(`Failed to delete time record ${id}: ${response.text}`)
             }
         }));
