@@ -10,10 +10,11 @@ def humanize_seconds(seconds: int, short: bool = False):
 
     Default is to call out to `arrow.humanize` -> "6 hours and 15 minutes"
     Short mode displays as "6h 15m"
+
+    Seconds are never shown
     """
     base = arrow.utcnow()
     end = base.shift(seconds=seconds)
-
 
     if short:
         sign = ""
@@ -32,8 +33,6 @@ def humanize_seconds(seconds: int, short: bool = False):
             minutes -= 60
             hours += 1
 
-        if seconds > 0:
-            return f"{sign}{hours}h {minutes}m {seconds}s"
         return f"{sign}{hours}h {minutes}m"
 
     return base.humanize(end, only_distance=True, granularity=["hour", "minute"])

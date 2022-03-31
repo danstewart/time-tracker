@@ -96,6 +96,7 @@ def stats() -> TimeStats:
     logged_this_week = sum([rec.logged() for rec in Time.since(start.int_timestamp)])
 
     # Time todo
+    # TODO: Need to add a setting for working days so we know if today has any hours to be done
     todo_today = _settings.hours_per_day * 60 * 60
     todo_this_week = (_settings.hours_per_day * 60 * 60) * _settings.days_per_week
 

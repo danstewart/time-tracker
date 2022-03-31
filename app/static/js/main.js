@@ -39,9 +39,11 @@ function initDatePickers() {
             flatpickr(picker, {
                 enableTime: true,
                 noCalendar: true,
-                dateFormat: 'H:i',
+                altInput: true,
+                altFormat: "H:i",
+                dateFormat: "Y-m-d H:i",
                 time_24hr: true,
-                defaultDate: `${hour}:${mins}`,
+                defaultDate: value || `${date} ${hour}:${mins}`,
             });
         } else if (pickerType === "date") {
             flatpickr('#form-date', {
