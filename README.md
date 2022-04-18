@@ -2,30 +2,47 @@
 
 Basic time tracker tool.  
 
-### Setup
+## Setup
 
-Start on http://localhost:4000/:
+#### Running with docker
+
+Start on http://localhost:4000/ via docker
 ```bash
 docker-compose up -d --build app
 ```
 
-Installing dependencies locally:
+#### Install dependencies locally
+
+We use [hermit](https://cashapp.github.io/hermit/usage/get-started/) to manage the python version
+
 ```bash
-pyenv local 3.10.0
-pyenv exec poetry config virtualenvs.create true --local
-pyenv exec poetry install
-pyenv exec poetry shell
+# Install Hermit
+curl -fsSL https://github.com/cashapp/hermit/releases/download/stable/install.sh | /bin/bash
+
+# Active Hermit
+source bin/activate-hermit
+
+# Install poetry
+curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 -
+
+# Install deps with poetry
+poetry install
+
+# Start a poetry shell
+poetry shell
 ```
 
-Database:
+#### Connecting to the database
 ```bash
 ./scripts/sql.sh
 ```
 
-Test:
+#### Running the tests
 ```bash
 ./scripts/run_tests.sh
 ```
+
+---
 
 ### Built with
 
