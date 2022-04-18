@@ -23,7 +23,7 @@ curl -fsSL https://github.com/cashapp/hermit/releases/download/stable/install.sh
 source bin/activate-hermit
 
 # Install poetry
-curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 -
+pip3 install poetry
 
 # Install deps with poetry
 poetry install
