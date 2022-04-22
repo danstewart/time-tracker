@@ -16,7 +16,11 @@ pytest = "^7.1.1"
 black = "^22.3.0"
 flake8 = "^4.0.1"
 devtools = {extras = ["pygments"], version = "^0.8.0"}
+djlint = "^0.7.6"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.djlint]
+ignore = "J018,H021"

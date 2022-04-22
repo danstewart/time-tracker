@@ -9,13 +9,28 @@ class Time(db.Entity):
     end = pony.Optional(int)
     note = pony.Optional(str)
 
+    breaks = pony.Set("Break")
+
     def logged(self):
+        """
+        Return the total duration of a time entry in seconds
+        With any breaks removed
+        """
+        to_remove = sum([_break.end - _break.start for _break in self.breaks])
         end = self.end or arrow.utcnow().int_timestamp
-        return end - self.start
+        duration = end - self.start
+        return duration - to_remove
 
     @classmethod
     def since(cls, timestamp):
         return pony.select(row for row in cls if row.start >= timestamp)
+
+
+class Break(db.Entity):
+    time = pony.Required(Time)
+    start = pony.Required(int)
+    end = pony.Optional(int)
+    note = pony.Optional(str)
 
 
 class Settings(db.Entity):

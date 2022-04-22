@@ -11,6 +11,7 @@ def create_app():
 
     Pony(app)
     db.connect()
+    pony.set_sql_debug(False)
 
     app.jinja_env.add_extension("jinja2.ext.do")
     app.jinja_env.add_extension("jinja2.ext.loopcontrols")

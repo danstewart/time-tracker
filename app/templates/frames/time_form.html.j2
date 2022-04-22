@@ -10,11 +10,11 @@
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label class="form-label">Start Time</label>
-                    <input class="form-control flatpickr" type="text" name="start" data-date-type="datetime" data-date-value="{{ values.get('start', '') }}" required>
+                    <input class="form-control flatpickr" type="text" name="start" data-date-type="datetime" data-date-value="{{ values.get('start', '') }}" required />
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">End Time</label>
-                    <input class="form-control flatpickr" type="text" name="end" data-date-type="datetime" data-date-value="{{ values.get('end', '') }}" required>
+                    <input class="form-control flatpickr" type="text" name="end" data-date-type="datetime" data-date-value="{{ values.get('end', '') }}" required />
                 </div>
 
                 <div class="mt-3">
@@ -22,8 +22,8 @@
                     <textarea class="form-control" name="note" rows="3">{{ values.get('note', '') }}</textarea>
                 </div>
 
-                <input type="hidden" name="clock" value="manual">
-                <input type="hidden" name="row_id" value="{{ row_id }}">
+                <input type="hidden" name="clock" value="manual" />
+                <input type="hidden" name="row_id" value="{{ row_id }}" />
             </div>
         </form>
     </div>

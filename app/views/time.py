@@ -23,12 +23,17 @@ def add_time():
         values = dict(request.form)
         clock = values.pop("clock")
 
-        if clock == "manual":
-            time.create(start=values["start"], end=values["end"] if "end" in values else None, note=values["note"])
-        elif clock == "in":
-            time.create(start=values["time"])
-        else:
-            time.clock_out(end=values["time"])
+        match clock:
+            case "manual":
+                time.create(start=values["start"], end=values["end"] if "end" in values else None, note=values["note"])
+            case "in":
+                time.create(start=values["time"])
+            case "out":
+                time.clock_out(end=values["time"])
+            case "break:start":
+                pass  # TODO
+            case "break:end":
+                pass  # TODO
 
     return redirect("/")
 
