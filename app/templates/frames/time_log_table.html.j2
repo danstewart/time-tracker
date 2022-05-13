@@ -1,51 +1,59 @@
 {% set date_fmt = 'Do [of] MMM YYYY [at] HH:mm' %}
-
 {% if not time_entries %}
-    <p>No time entries found</p>
+    <p>
+        No time entries found
+    </p>
 {% else %}
     <section id="records">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">Start</th>
-                    <th scope="col">End</th>
-                    <th scope="col">Time Logged</th>
-                    <th scope="col">Notes</th>
-                    <th scope="col"><!-- Edit button --></th>
-                    <th scope="col"><!-- Delete button --></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for time in time_entries %}
-                    <tr>
-                        {% set start = arrow.get(time.start).to(tz) %}
-                        {% set end = arrow.get(time.end).to(tz) if time.end else '' %}
-                        {% set range_end = end or arrow.now().to(tz) %}
-                        {% set duration = range_end.timestamp() | int - start.timestamp() | int %}
+        <h4>Time Entries</h4>
+        <div class="accordion">
+            {% for time in time_entries %}
+                {% set start = arrow.get(time.start).to(tz) %}
+                {% set end = arrow.get(time.end).to(tz) if time.end else '' %}
+                {% set range_end = end or arrow.now().to(tz) %}
+                {% set duration = range_end.timestamp() | int - start.timestamp() | int %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="accordion-{{ time.id }}-header">
+                        <button class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#accordion-{{ time.id }}-body"
+                                aria-controls="{{ time.id }}-accordion-body">
+                                <div class="d-flex justify-content-between" style="width: 95%">
+                                    <p class="fw-bold">
+                                        {# TODO: Show short date format once here, then in expanded accordion show full dates #}
+                                        {{ start.format(date_fmt) }} - {{ end.format(date_fmt) if end else 'Still clocked in' }}
+                                    </p>
+                                    <span style="height: 20px" class="badge bg-secondary">{{ start.humanize(range_end, only_distance=True, granularity=["hour", "minute"]) }}</span>
+                                </div>
+                        </button>
+                    </h2>
+                    <div id="accordion-{{ time.id }}-body"
+                         class="accordion-collapse collapse"
+                         aria-labelledby="accordion-{{ time.id }}-header"
+                         data-parent="#accordion-{{ time.id }}">
+                        <div class="container mt-2 mb-2">
+                            <p>
+                                {{ time.note | default("No notes") }}
+                            </p>
+                            <div class="d-flex flex-row justify-content-end">
+                                <button class="btn btn-primary me-2"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#time-edit-modal-{{ time.id }}">
+                                    Edit
+                                </button>
+                                <button class="btn btn-danger delete-time-entry" data-time-id="{{ time.id }}">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                        <td>{{ start.format(date_fmt) }}</td>
-                        <td>{{ end.format(date_fmt) if end else 'Still clocked in' }}</td>
-                        <td>{{ start.humanize(range_end, only_distance=True, granularity=["hour", "minute"]) }}</td>
-                        <td>{{ time.note }}</td>
-                        <td>
-                            <modal-frame :url="/frames/time_form/{{ time.id }}" :modal-id="time-edit-modal-{{ time.id }}" :modal-title="Edit time record - {{ time.id }}"></modal-frame>
-
-                            <a role="button" class="edit-time-entry" data-bs-toggle="modal" data-bs-target="#time-edit-modal-{{ time.id }}">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-                        </td>
-                        <td>
-                            <a role="button" class="delete-time-entry">
-                                <i class="bi bi-x-lg" data-time-id="{{ time.id }}"></i>
-                            </a>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                {# TODO: Move this form into the accordion #}
+                <modal-frame :url="/frames/time_form/{{ time.id }}" :modal-id="time-edit-modal-{{ time.id }}" :modal-title="Edit time record - {{ time.id }}"></modal-frame>
+            {% endfor %}
+        </div>
     </section>
 {% endif %}
-
 <script>
     (function() {
         const frame = document.currentScript.parentNode;
