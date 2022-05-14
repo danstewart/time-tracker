@@ -20,9 +20,13 @@
                                 data-bs-target="#accordion-{{ time.id }}-body"
                                 aria-controls="{{ time.id }}-accordion-body">
                                 <div class="d-flex justify-content-between" style="width: 95%">
-                                    <p class="fw-bold">
-                                        {# TODO: Show short date format once here, then in expanded accordion show full dates #}
-                                        {{ start.format(date_fmt) }} - {{ end.format(date_fmt) if end else 'Still clocked in' }}
+                                    <p>
+                                        <span class="fw-bold">
+                                            {{ start.format("Do [of] MMM") }}
+                                        </span>
+                                        <span>
+                                            {{ start.format("HH:mm") }} - {{ end.format("HH:mm") if end else 'Still clocked in' }}
+                                        </span>
                                     </p>
                                     <span style="height: 20px" class="badge bg-secondary">{{ start.humanize(range_end, only_distance=True, granularity=["hour", "minute"]) }}</span>
                                 </div>
@@ -33,23 +37,10 @@
                          aria-labelledby="accordion-{{ time.id }}-header"
                          data-parent="#accordion-{{ time.id }}">
                         <div class="container mt-2 mb-2">
-                            <p>
-                                {{ time.note | default("No notes") }}
-                            </p>
-                            <div class="d-flex flex-row justify-content-end">
-                                <button class="btn btn-primary me-2"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#time-edit-modal-{{ time.id }}">
-                                    Edit
-                                </button>
-                                <button class="btn btn-danger delete-time-entry" data-time-id="{{ time.id }}">Delete</button>
-                            </div>
+                            <dynamic-frame :url="/frames/time_form/{{ time.id }}" :execute-scripts="true"></dynamic-frame>
                         </div>
                     </div>
                 </div>
-
-                {# TODO: Move this form into the accordion #}
-                <modal-frame :url="/frames/time_form/{{ time.id }}" :modal-id="time-edit-modal-{{ time.id }}" :modal-title="Edit time record - {{ time.id }}"></modal-frame>
             {% endfor %}
         </div>
     </section>
@@ -60,20 +51,5 @@
 
         // If any time data changes then update ourselves
         window.addEventListener("time:changed", e => frame.refresh());
-
-        // Events
-        [...document.querySelectorAll('.delete-time-entry')].forEach(btn => btn.addEventListener('click', async e => {
-            const id = e.target.getAttribute('data-time-id');
-            let response = await fetch(`/time/delete/${id}`, {
-                method: 'delete'
-            });
-
-            if (response.status == 200) {
-                frame.emit("time:changed");
-            } else {
-                // TODO: Show flash here
-                console.error(`Failed to delete time record ${id}: ${response.text}`)
-            }
-        }));
     })();
 </script>

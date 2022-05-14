@@ -6,6 +6,7 @@
     {% set date_fmt = 'Do [of] MMM YYYY [at] HH:mm' %}
     {% set clocked_in = time_entries.first() and not time_entries.first().end %}
 
+    {# TODO: This is no longer styled as a modal, needs work #}
     <modal-frame :url="/frames/time_form" :modal-id="time-add-modal" :modal-title="Add new time record"></modal-frame>
 
     <!-- Header Stats -->
