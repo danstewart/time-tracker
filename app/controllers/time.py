@@ -102,6 +102,26 @@ def break_end(end: str):
 
 
 @pony.db_session
+def bulk_update(table, data: dict[int, dict]):
+    """
+    Updates multiple time records at once
+
+    `table`: "time" or "break"
+    `data`: A dict of {row_id: {column1: value1, column2: value2}}
+    """
+    model = Time if table == "time" else Break
+
+    for row_id, row in data.items():
+        for key, value in row.items():
+            # Convert string dates to int timestamps
+            if key in ("start", "end"):
+                value = arrow.get(value, tzinfo=_tz).int_timestamp
+            setattr(model[row_id], key, value)
+
+    pony.commit()
+
+
+@pony.db_session
 def stats() -> TimeStats:
     """Return the weekly stats"""
     from app.lib.util.date import humanize_seconds

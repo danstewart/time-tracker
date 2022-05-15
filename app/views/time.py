@@ -71,6 +71,8 @@ def time_stats():
 @v.route("/frames/time_form/<row_id>", methods=["GET", "POST"])
 def time_form(row_id: str = ""):
     if request.method == "POST" and request.json:
+        from collections import defaultdict
+
         if row_id:
             time.update(
                 row_id,
@@ -78,6 +80,14 @@ def time_form(row_id: str = ""):
                 end=request.json["end"],
                 note=request.json["note"],
             )
+
+            breaks = defaultdict(dict)
+            for key, value in request.json.items():
+                if key.startswith("break-"):
+                    _, field, break_id = key.split("-")
+                    breaks[break_id][field] = value
+
+            time.bulk_update(table="break", data=breaks)
         else:
             time.create(
                 start=request.json["start"],
