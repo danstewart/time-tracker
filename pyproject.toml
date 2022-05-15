@@ -3,6 +3,9 @@ name = "time-tracker"
 version = "0.0.1"
 description = ""
 authors = ["Dan Stewart <git@mail.danstewart.dev>"]
+packages = [
+    { include = "app" }
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
