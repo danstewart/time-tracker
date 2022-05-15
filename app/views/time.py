@@ -14,7 +14,17 @@ _settings = settings.fetch()
 @v.get("/")
 def home():
     time_entries = time.all()
-    return render_template("pages/home.html.j2", time_entries=time_entries, tz=_settings.timezone, arrow=arrow)
+
+    clocked_in = time_entries.first() and not time_entries.first().end
+    on_break = time_entries.first() and time_entries.first().breaks.filter(lambda b: not b.end)
+
+    return render_template("pages/home.html.j2",
+        time_entries=time_entries,
+        tz=_settings.timezone,
+        clocked_in=clocked_in,
+        on_break=on_break,
+        arrow=arrow,
+    )
 
 
 @v.post("/time/add")
@@ -31,9 +41,9 @@ def add_time():
             case "out":
                 time.clock_out(end=values["time"])
             case "break:start":
-                pass  # TODO
+                time.break_start(start=values["time"])
             case "break:end":
-                pass  # TODO
+                time.break_end(end=values["time"])
 
     return redirect("/")
 

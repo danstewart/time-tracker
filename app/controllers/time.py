@@ -4,7 +4,7 @@ import arrow
 from app.controllers import settings
 from app.lib.database import pony
 from app.lib.logger import get_logger
-from app.models import Time
+from app.models import Break, Time
 from app.viewmodels import TimeStats
 
 logger = get_logger(__name__)
@@ -80,6 +80,28 @@ def clock_out(end: str):
 
 
 @pony.db_session
+def break_start(start: str):
+    """Sets the start time for the current time record"""
+    start_dt = arrow.get(start, tzinfo=_tz)
+
+    current_record = Time.select().filter(lambda t: t.end is None).order_by(pony.desc(Time.start)).first()
+
+    current_record.breaks.add(Break(time=current_record, start=start_dt.int_timestamp))
+
+
+@pony.db_session
+def break_end(end: str):
+    """Sets the start time for the current time record"""
+    end_dt = arrow.get(end, tzinfo=_tz)
+
+    current_record = Time.select().filter(lambda t: t.end is None).order_by(pony.desc(Time.start)).first()
+
+    current_break = current_record.breaks.filter(lambda b: not b.end)
+    if current_break.first():
+        current_break.first().end = end_dt.int_timestamp
+
+
+@pony.db_session
 def stats() -> TimeStats:
     """Return the weekly stats"""
     from app.lib.util.date import humanize_seconds
@@ -118,7 +140,8 @@ def stats() -> TimeStats:
         )
 
         overtime = -(expected_hours * 60 * 60)  # Convert to seconds
-        if total_logged := pony.select(sum(row.end - row.start) for row in Time).first():
+
+        if total_logged := sum([rec.logged() for rec in Time.select()]):
             overtime += total_logged
 
     return TimeStats(

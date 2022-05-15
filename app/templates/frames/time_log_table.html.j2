@@ -7,11 +7,44 @@
     <section id="records">
         <h4>Time Entries</h4>
         <div class="accordion">
+            {# Add new record button #}
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="accordion-add-header">
+                    <button class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#accordion-add-body"
+                            aria-controls="add-accordion-body">
+                        <div class="d-flex justify-content-center" style="width: 95%">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 width="32"
+                                 height="32"
+                                 fill="currentColor"
+                                 class="bi bi-plus"
+                                 viewBox="0 0 16 16">
+                                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                            </svg>
+                        </div>
+                    </button>
+                </h2>
+                <div id="accordion-add-body"
+                     class="accordion-collapse collapse"
+                     aria-labelledby="accordion-add-header"
+                     data-parent="#accordion-add">
+                    <div class="container mt-2 mb-2">
+                        <dynamic-frame :url="/frames/time_form" :execute-scripts="true"></dynamic-frame>
+                    </div>
+                </div>
+            </div>
+            {# List of existing time records #}
             {% for time in time_entries %}
+                {% set now = arrow.now() %}
                 {% set start = arrow.get(time.start).to(tz) %}
                 {% set end = arrow.get(time.end).to(tz) if time.end else '' %}
-                {% set range_end = end or arrow.now().to(tz) %}
-                {% set duration = range_end.timestamp() | int - start.timestamp() | int %}
+
+                {# Calculate the duration minus all breaks #}
+                {% set duration = now.shift(seconds=time.logged()) %}
+
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="accordion-{{ time.id }}-header">
                         <button class="accordion-button collapsed"
@@ -19,17 +52,15 @@
                                 data-bs-toggle="collapse"
                                 data-bs-target="#accordion-{{ time.id }}-body"
                                 aria-controls="{{ time.id }}-accordion-body">
-                                <div class="d-flex justify-content-between" style="width: 95%">
-                                    <p>
-                                        <span class="fw-bold">
-                                            {{ start.format("Do [of] MMM") }}
-                                        </span>
-                                        <span>
-                                            {{ start.format("HH:mm") }} - {{ end.format("HH:mm") if end else 'Still clocked in' }}
-                                        </span>
-                                    </p>
-                                    <span style="height: 20px" class="badge bg-secondary">{{ start.humanize(range_end, only_distance=True, granularity=["hour", "minute"]) }}</span>
-                                </div>
+                            <div class="d-flex justify-content-between" style="width: 95%">
+                                <p>
+                                    <span class="fw-bold">{{ start.format("Do [of] MMM") }}</span>
+                                    <span>{{ start.format("HH:mm") }} - {{ end.format("HH:mm") if end else 'Still clocked in' }}</span>
+                                </p>
+                                <span style="height: 20px" class="badge bg-secondary">
+                                    {{ now.humanize(duration, only_distance=True, granularity=["hour", "minute"]).title() }}
+                                </span>
+                            </div>
                         </button>
                     </h2>
                     <div id="accordion-{{ time.id }}-body"
@@ -38,6 +69,19 @@
                          data-parent="#accordion-{{ time.id }}">
                         <div class="container mt-2 mb-2">
                             <dynamic-frame :url="/frames/time_form/{{ time.id }}" :execute-scripts="true"></dynamic-frame>
+
+                            {# TODO: Should show these on the form and make them editable #}
+                            {% if time.breaks %}
+                                <h4>Breaks</h4>
+                            {% endif %}
+                            {% for break in time.breaks %}
+
+                                {% set break_start = arrow.get(break.start).to(tz) %}
+                                {% set break_end = arrow.get(break.end).to(tz) if break.end else '' %}
+                                <p>
+                                    {{ break_start.format(date_fmt) }} - {{ break_end.format(date_fmt) if break_end else "Still on break" }}
+                                </p>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>

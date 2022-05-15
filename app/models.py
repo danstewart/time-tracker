@@ -16,9 +16,11 @@ class Time(db.Entity):
         Return the total duration of a time entry in seconds
         With any breaks removed
         """
-        to_remove = sum([_break.end - _break.start for _break in self.breaks])
-        end = self.end or arrow.utcnow().int_timestamp
+        now = arrow.utcnow().int_timestamp
+        to_remove = sum([(_break.end or now) - _break.start for _break in self.breaks])
+        end = self.end or now
         duration = end - self.start
+
         return duration - to_remove
 
     @classmethod

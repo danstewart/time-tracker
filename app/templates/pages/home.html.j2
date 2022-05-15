@@ -4,10 +4,6 @@
     <script type="module" defer src="/static/js/home.js"></script>
 
     {% set date_fmt = 'Do [of] MMM YYYY [at] HH:mm' %}
-    {% set clocked_in = time_entries.first() and not time_entries.first().end %}
-
-    {# TODO: This is no longer styled as a modal, needs work #}
-    <modal-frame :url="/frames/time_form" :modal-id="time-add-modal" :modal-title="Add new time record"></modal-frame>
 
     <!-- Header Stats -->
     <dynamic-frame id="time-stats" :execute-scripts="true" :url="/frames/time-stats"></dynamic-frame>
@@ -34,8 +30,6 @@
             {% else %}
                 <button class="btn btn-primary" name="clock" value="in" type="submit">Clock In</button>
             {% endif %}
-
-            <button class="btn btn-secondary" type="button" data-bs-toggle="modal" data-bs-target="#time-add-modal">Add Manually</button>
         </form>
     </section>
 

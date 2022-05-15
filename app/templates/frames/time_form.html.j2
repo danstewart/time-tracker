@@ -21,7 +21,9 @@
         </div>
     </form>
     <div class="d-flex flex-row justify-content-end">
-        <button id="delete" class="btn btn-danger me-3" data-time-id="{{ row_id }}">Delete</button>
+        {% if row_id %}
+            <button id="delete" class="btn btn-danger me-3" data-time-id="{{ row_id }}">Delete</button>
+        {% endif %}
         <button id="submit" type="button" class="btn btn-primary">Save changes</button>
     </div>
 
