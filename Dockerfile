@@ -40,7 +40,7 @@ RUN poetry config virtualenvs.create false
 # Install python deps
 COPY --chown=app:app ./pyproject.toml ./
 COPY --chown=app:app ./poetry.lock ./
-RUN poetry install
+RUN poetry install --no-interaction --no-ansi
 
 # Get traceback for C crashes
 ENV PYTHONFAULTHANDLER=1

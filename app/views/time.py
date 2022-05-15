@@ -21,7 +21,6 @@ def home():
 
     return render_template(
         "pages/home.html.j2",
-        time_entries=time_entries,
         clocked_in=clocked_in,
         on_break=on_break,
     )
