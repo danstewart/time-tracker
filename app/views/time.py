@@ -1,6 +1,7 @@
 import arrow
 from app.controllers import settings, time
 from app.lib.logger import get_logger
+from app.lib.util.date import humanize_seconds
 from flask import Blueprint
 from flask import current_app as app
 from flask import redirect, render_template, request
@@ -18,12 +19,11 @@ def home():
     clocked_in = time_entries.first() and not time_entries.first().end
     on_break = time_entries.first() and time_entries.first().breaks.filter(lambda b: not b.end)
 
-    return render_template("pages/home.html.j2",
+    return render_template(
+        "pages/home.html.j2",
         time_entries=time_entries,
-        tz=_settings.timezone,
         clocked_in=clocked_in,
         on_break=on_break,
-        arrow=arrow,
     )
 
 
@@ -58,15 +58,13 @@ def delete_time(row_id):
 @v.get("/frames/time-log-table")
 def time_log_table():
     time_entries = time.all()
-    return render_template(
-        "frames/time_log_table.html.j2", time_entries=time_entries, tz=_settings.timezone, arrow=arrow
-    )
+    return render_template("frames/time_log_table.html.j2", time_entries=time_entries)
 
 
 @v.get("/frames/time-stats")
 def time_stats():
     time_stats = time.stats()
-    return render_template("frames/time_stats.html.j2", stats=time_stats, tz=_settings.timezone, arrow=arrow)
+    return render_template("frames/time_stats.html.j2", stats=time_stats)
 
 
 @v.route("/frames/time_form/", methods=["GET", "POST"])
@@ -89,5 +87,7 @@ def time_form(row_id: str = ""):
         return "", 200
 
     return render_template(
-        "frames/time_form.html.j2", row_id=row_id, values=time.get(row_id).to_dict() if row_id else {}
+        "frames/time_form.html.j2",
+        row_id=row_id,
+        time=time.get(row_id) if row_id else None,
     )

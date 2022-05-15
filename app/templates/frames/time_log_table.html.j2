@@ -34,10 +34,8 @@
         {# List of existing time records #}
         {% for time in time_entries %}
             {% set now = arrow.now() %}
-            {% set start = arrow.get(time.start).to(tz) %}
-            {% set end = arrow.get(time.end).to(tz) if time.end else '' %}
-            {# Calculate the duration minus all breaks #}
-            {% set duration = now.shift(seconds=time.logged()) %}
+            {% set start = arrow.get(time.start).to(settings.timezone) %}
+            {% set end = arrow.get(time.end).to(settings.timezone) if time.end else '' %}
             <div class="accordion-item">
                 <h2 class="accordion-header" id="accordion-{{ time.id }}-header">
                     <button class="accordion-button collapsed"
@@ -51,7 +49,7 @@
                                 <span>{{ start.format("HH:mm") }} - {{ end.format("HH:mm") if end else 'Still clocked in' }}</span>
                             </p>
                             <span style="height: 20px" class="badge bg-secondary">
-                                {{ now.humanize(duration, only_distance=True, granularity=["hour", "minute"]).title() }}
+                                {{ humanize_seconds(time.logged(), short=True) }}
                             </span>
                         </div>
                     </button>
@@ -61,16 +59,8 @@
                      aria-labelledby="accordion-{{ time.id }}-header"
                      data-parent="#accordion-{{ time.id }}">
                     <div class="container mt-2 mb-2">
+                        {# TODO: Make this frame lazily loaded #}
                         <dynamic-frame :url="/frames/time_form/{{ time.id }}" :execute-scripts="true"></dynamic-frame>
-                        {# TODO: Should show these on the form and make them editable #}
-                        {% if time.breaks %}<h4>Breaks</h4>{% endif %}
-                        {% for break in time.breaks %}
-                            {% set break_start = arrow.get(break.start).to(tz) %}
-                            {% set break_end = arrow.get(break.end).to(tz) if break.end else '' %}
-                            <p>
-                                {{ break_start.format(date_fmt) }} - {{ break_end.format(date_fmt) if break_end else "Still on break" }}
-                            </p>
-                        {% endfor %}
                     </div>
                 </div>
             </div>

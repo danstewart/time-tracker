@@ -1,30 +1,42 @@
+{% set date_fmt = 'Do [of] MMM YYYY [at] HH:mm' %}
 
 <section>
-    <form id="addEditForm" method="post" action="/frames/time_form/{{ row_id }}">
+    <form id="addEditForm" method="post" action="/frames/time_form/{{ time.id if time else '' }}">
         <div class="row mb-3">
             <div class="col-md-6">
                 <label class="form-label">Start Time</label>
-                <input class="form-control flatpickr" type="text" name="start" data-date-type="datetime" data-date-value="{{ values.get('start', '') }}" required />
+                <input class="form-control flatpickr" type="text" name="start" data-date-type="datetime" data-date-value="{{ time.start if time else '' }}" required />
             </div>
             <div class="col-md-6">
                 <label class="form-label">End Time</label>
-                <input class="form-control flatpickr" type="text" name="end" data-date-type="datetime" data-date-value="{{ values.get('end', '') }}" required />
+                <input class="form-control flatpickr" type="text" name="end" data-date-type="datetime" data-date-value="{{ time.end if time else '' }}" required />
             </div>
 
             <div class="mt-3">
                 <label class="form-label">Note</label>
-                <textarea class="form-control" name="note" rows="5">{{ values.get('note', '') }}</textarea>
+                <textarea class="form-control" name="note" rows="5">{{ time.note if time else '' }}</textarea>
             </div>
 
             <input type="hidden" name="clock" value="manual" />
-            <input type="hidden" name="row_id" value="{{ row_id }}" />
+            <input type="hidden" name="row_id" value="{{ time.id if time else '' }}" />
+
+            {% if time and time.breaks %}
+                <h4 class="mt-4">Breaks</h4>
+                {% for break in time.breaks %}
+                    {% set break_start = arrow.get(break.start).to(settings.timezone) %}
+                    {% set break_end = arrow.get(break.end).to(settings.timezone) if break.end else '' %}
+                    <p>
+                        {{ break_start.format(date_fmt) }} - {{ break_end.format(date_fmt) if break_end else "Still on break" }}
+                    </p>
+                {% endfor %}
+            {% endif %}
         </div>
     </form>
     <div class="d-flex flex-row justify-content-end">
-        {% if row_id %}
-            <button id="delete" class="btn btn-danger me-3" data-time-id="{{ row_id }}">Delete</button>
-        {% endif %}
         <button id="submit" type="button" class="btn btn-primary">Save changes</button>
+        {% if time %}
+            <button id="delete" class="btn btn-danger ms-3" data-time-id="{{ time.id }}">Delete</button>
+        {% endif %}
     </div>
 
     <script>
@@ -40,7 +52,7 @@
                 let formData = new FormData(form);
                 let jsonRequest = JSON.stringify(Object.fromEntries(formData));
 
-                let response = await fetch('/frames/time_form/{{ row_id }}', {
+                let response = await fetch("/frames/time_form/{{ time.id if time else '' }}", {
                     method: 'POST',
                     body: jsonRequest,
                     headers: {

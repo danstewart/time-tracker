@@ -26,9 +26,13 @@ def create_app():
 
         # Inject our settings into all templates
         @app.context_processor
-        def inject_settings():
-            from app.controllers.settings import fetch
+        def inject_globals():
+            import arrow
 
-            return dict(settings=fetch())
+            from app.controllers.settings import fetch
+            from app.lib.util.date import humanize_seconds
+
+            user_settings = fetch()
+            return dict(settings=user_settings, arrow=arrow, humanize_seconds=humanize_seconds)
 
     return app
