@@ -2,6 +2,14 @@
 
 Basic time tracker tool.  
 
+## Demo
+
+![file](https://user-images.githubusercontent.com/10670565/168468584-cb9182ad-d82e-4fe5-aa96-c937a826611c.gif)
+
+
+---
+
+
 ## Setup
 
 #### Running with docker
