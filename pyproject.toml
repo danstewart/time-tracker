@@ -14,8 +14,16 @@ pony = "^0.7.16"
 click = "^8.1.0"
 Flask = "^2.1.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.test]
+optional = true
+
+[tool.poetry.group.test.dependencies]
 pytest = "^7.1.1"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
 black = "^22.3.0"
 flake8 = "^4.0.1"
 devtools = {extras = ["pygments"], version = "^0.8.0"}

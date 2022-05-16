@@ -31,9 +31,10 @@ curl -fsSL https://github.com/cashapp/hermit/releases/download/stable/install.sh
 source bin/activate-hermit
 
 # Install poetry
-pip3 install poetry
+curl -sSL https://install.python-poetry.org | python3 - --version 1.2.0b1
 
 # Install deps with poetry
+poetry config virtualenvs.in-project true
 poetry install
 
 # Start a poetry shell
