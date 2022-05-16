@@ -1,0 +1,5 @@
+.venv
+bin
+dist
+.hermit
+.pytest_cache

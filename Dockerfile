@@ -35,8 +35,7 @@ ENV PROJECT_ROOT '/home/app/time-tracker'
 RUN curl -sSL https://install.python-poetry.org | python3 - --version 1.2.0b1
 
 # Install python deps
-COPY --chown=app:app ./pyproject.toml ./
-COPY --chown=app:app ./poetry.lock ./
+COPY --chown=app:app pyproject.toml poetry.lock ./
 RUN poetry install --no-interaction --no-ansi --no-root --with dev,test
 
 # Get traceback for C crashes
