@@ -90,7 +90,7 @@
                 }
             });
 
-            frame.querySelector("#delete").addEventListener("click", async e => {
+            frame.querySelector("#delete")?.addEventListener("click", async e => {
                 const id = e.target.getAttribute('data-time-id');
                 let response = await fetch(`/time/delete/${id}`, {
                     method: 'delete'
