@@ -14,15 +14,8 @@ _settings = settings.fetch()
 
 @v.get("/")
 def home():
-    time_entries = time.all()
-
-    clocked_in = time_entries.first() and not time_entries.first().end
-    on_break = time_entries.first() and time_entries.first().breaks.filter(lambda b: not b.end)
-
     return render_template(
         "pages/home.html.j2",
-        clocked_in=clocked_in,
-        on_break=on_break,
     )
 
 
@@ -64,6 +57,16 @@ def time_log_table():
 def time_stats():
     time_stats = time.stats()
     return render_template("frames/time_stats.html.j2", stats=time_stats)
+
+
+@v.get("/frames/clock_in_form")
+def clock_in_form():
+    time_entries = time.all()
+
+    clocked_in = time_entries.first() and not time_entries.first().end
+    on_break = time_entries.first() and time_entries.first().breaks.filter(lambda b: not b.end)
+
+    return render_template("frames/clock_in_form.html.j2", clocked_in=clocked_in, on_break=on_break)
 
 
 @v.route("/frames/time_form/", methods=["GET", "POST"])

@@ -9,29 +9,7 @@
     <dynamic-frame id="time-stats" :execute-scripts="true" :url="/frames/time-stats"></dynamic-frame>
 
     <!-- Clock in/out Form -->
-    <section id="main">
-        <!-- TODO: Change this to NOT submit a form and refresh the page on change -->
-        <form method="post" action="/time/add">
-            <div class="row mb-3">
-                <div class="col-md-4">
-                    <label class="form-label">Time</label>
-                    <input class="form-control flatpickr" type="text" name="time" id="form-time" data-date-type="time" required />
-                </div>
-            </div>
-
-            {% if clocked_in %}
-                <button class="btn btn-primary" name="clock" value="out" type="submit">Clock Out</button>
-
-                {% if on_break %}
-                    <button class="btn btn-primary" name="clock" value="break:end" type="submit">End Break</button>
-                {% else %}
-                    <button class="btn btn-warning" name="clock" value="break:start" type="submit">Start Break</button>
-                {% endif %}
-            {% else %}
-                <button class="btn btn-primary" name="clock" value="in" type="submit">Clock In</button>
-            {% endif %}
-        </form>
-    </section>
+    <dynamic-frame id="clock-form" :execute-scripts="true" :url="/frames/clock_in_form"></dynamic-frame>
 
     <hr />
 
