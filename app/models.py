@@ -40,4 +40,17 @@ class Settings(db.Entity):
     timezone = pony.Required(str)
     week_start = pony.Required(int)
     hours_per_day = pony.Required(float)
-    days_per_week = pony.Required(int)
+    work_days = pony.Required(
+        str
+    )  # This is stored as a 7 char string, the day char if the day is a work day and a hyphen if not, eg: MTWTF--
+
+    def work_days_list(self) -> list[str]:
+        work_days = []
+        day_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        for day, day_name in zip(self.work_days, day_names):
+            if day != "-":
+                work_days.append(day_name)
+        return work_days
+
+    def total_work_days(self):
+        return sum([1 if day != "-" else 0 for day in self.work_days])

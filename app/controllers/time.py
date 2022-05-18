@@ -10,10 +10,6 @@ from app.viewmodels import TimeStats
 logger = get_logger(__name__)
 
 
-_settings = settings.fetch()
-_tz = _settings.timezone
-
-
 @pony.db_session
 def get(row_id: str) -> Time:
     return Time[row_id]
@@ -28,6 +24,9 @@ def all() -> Iterator[Time]:
 @pony.db_session
 def create(start: str, end: Optional[str] = None, date: Optional[str] = None, note: str = "") -> Time:
     """Create a new time record"""
+    _settings = settings.fetch()
+    _tz = _settings.timezone
+
     start_dt = arrow.get(start, tzinfo=_tz).int_timestamp
 
     end_dt = None
@@ -43,6 +42,9 @@ def create(start: str, end: Optional[str] = None, date: Optional[str] = None, no
 
 @pony.db_session
 def update(row_id: str, start: str, end: Optional[str] = None, note: str = "") -> Time:
+    _settings = settings.fetch()
+    _tz = _settings.timezone
+
     start_dt = arrow.get(start, tzinfo=_tz).int_timestamp
 
     end_dt = None
@@ -71,6 +73,9 @@ def delete(row_id: int) -> bool:
 @pony.db_session
 def clock_out(end: str):
     """Sets the end time for the current time record"""
+    _settings = settings.fetch()
+    _tz = _settings.timezone
+
     end_dt = arrow.get(end, tzinfo=_tz)
 
     current_record = Time.select().filter(lambda t: t.end is None).order_by(pony.desc(Time.start)).first()
@@ -82,6 +87,9 @@ def clock_out(end: str):
 @pony.db_session
 def break_start(start: str):
     """Sets the start time for the current time record"""
+    _settings = settings.fetch()
+    _tz = _settings.timezone
+
     start_dt = arrow.get(start, tzinfo=_tz)
 
     current_record = Time.select().filter(lambda t: t.end is None).order_by(pony.desc(Time.start)).first()
@@ -92,6 +100,9 @@ def break_start(start: str):
 @pony.db_session
 def break_end(end: str):
     """Sets the start time for the current time record"""
+    _settings = settings.fetch()
+    _tz = _settings.timezone
+
     end_dt = arrow.get(end, tzinfo=_tz)
 
     current_record = Time.select().filter(lambda t: t.end is None).order_by(pony.desc(Time.start)).first()
@@ -109,6 +120,9 @@ def bulk_update(table, data: dict[int, dict]):
     `table`: "time" or "break"
     `data`: A dict of {row_id: {column1: value1, column2: value2}}
     """
+    _settings = settings.fetch()
+    _tz = _settings.timezone
+
     model = Time if table == "time" else Break
 
     for row_id, row in data.items():
@@ -126,6 +140,9 @@ def stats() -> TimeStats:
     """Return the weekly stats"""
     from app.lib.util.date import humanize_seconds
 
+    _settings = settings.fetch()
+    _tz = _settings.timezone
+
     now = arrow.now(tz=_tz)
     today = now.replace(hour=0, minute=0)
     if now.weekday() != _settings.week_start:
@@ -138,9 +155,12 @@ def stats() -> TimeStats:
     logged_this_week = sum([rec.logged() for rec in Time.since(start.int_timestamp)])
 
     # Time todo
-    # TODO: Need to add a setting for working days so we know if today has any hours to be done
-    todo_today = _settings.hours_per_day * 60 * 60
-    todo_this_week = (_settings.hours_per_day * 60 * 60) * _settings.days_per_week
+    current_day = now.format("dddd")
+    work_days = _settings.work_days_list()
+    total_work_days = _settings.total_work_days()
+
+    todo_today = _settings.hours_per_day * 60 * 60 if current_day in work_days else 0
+    todo_this_week = (_settings.hours_per_day * 60 * 60) * total_work_days
 
     # Time remaining
     remaining_today = todo_today - logged_today

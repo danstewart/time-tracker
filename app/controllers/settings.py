@@ -15,7 +15,7 @@ def fetch() -> Settings:
             timezone="Europe/London",
             week_start=0,  # Monday
             hours_per_day=7.5,
-            days_per_week=5,
+            work_days="MTWTF--",
         )
         pony.commit()
     return settings
@@ -25,5 +25,15 @@ def fetch() -> Settings:
 def update(**values):
     """Updates the settings row"""
     settings = Settings.get()
+
+    work_days = []
+    for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]:
+        if values.get("work_day_" + day):
+            work_days.append(day[0])
+            values.pop("work_day_" + day)
+        else:
+            work_days.append("-")
+
+    values["work_days"] = "".join(work_days)
     settings.set(**values)
     pony.commit()
