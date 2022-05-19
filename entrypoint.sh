@@ -12,6 +12,5 @@ else
     --log-level debug \
     --capture-output \
     --enable-stdio-inheritance \
-    --daemon \
     'app:create_app()'
 fi
