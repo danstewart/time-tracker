@@ -1,5 +1,5 @@
-import arrow
 from app.controllers import settings, time
+from app.controllers.user import login_required
 from app.lib.logger import get_logger
 from app.lib.util.date import humanize_seconds
 from flask import Blueprint
@@ -9,10 +9,9 @@ from flask import redirect, render_template, request
 v = Blueprint("time", __name__)
 logger = get_logger(__name__)
 
-_settings = settings.fetch()
-
 
 @v.get("/")
+@login_required
 def home():
     return render_template(
         "pages/home.html.j2",
@@ -20,6 +19,7 @@ def home():
 
 
 @v.post("/time/add")
+@login_required
 def add_time():
     if request.form:
         values = dict(request.form)
@@ -41,6 +41,7 @@ def add_time():
 
 
 @v.delete("/time/delete/<row_id>")
+@login_required
 def delete_time(row_id):
     time.delete(row_id)
     return "OK", 200
@@ -48,18 +49,21 @@ def delete_time(row_id):
 
 # FRAMES
 @v.get("/frames/time-log-table")
+@login_required
 def time_log_table():
     time_entries = time.all()
     return render_template("frames/time_log_table.html.j2", time_entries=time_entries)
 
 
 @v.get("/frames/time-stats")
+@login_required
 def time_stats():
     time_stats = time.stats()
     return render_template("frames/time_stats.html.j2", stats=time_stats)
 
 
 @v.get("/frames/clock_in_form")
+@login_required
 def clock_in_form():
     time_entries = time.all()
 
@@ -71,6 +75,7 @@ def clock_in_form():
 
 @v.route("/frames/time_form/", methods=["GET", "POST"])
 @v.route("/frames/time_form/<row_id>", methods=["GET", "POST"])
+@login_required
 def time_form(row_id: str = ""):
     if request.method == "POST" and request.json:
         from collections import defaultdict

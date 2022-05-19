@@ -1,4 +1,5 @@
 from app.controllers import settings
+from app.controllers.user import login_required
 from app.lib.logger import get_logger
 from flask import Blueprint, render_template, request
 
@@ -7,6 +8,7 @@ logger = get_logger(__name__)
 
 
 @v.route("/settings", methods=["GET", "POST"])
+@login_required
 def form():
     if request.form:
         from flask import flash, redirect

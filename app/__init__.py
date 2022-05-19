@@ -18,6 +18,7 @@ def create_app():
     app.jinja_env.add_extension("jinja2.ext.debug")
 
     with app.app_context():
+        from app.controllers.user import is_logged_in
         from app.views import core, settings, time
 
         app.register_blueprint(time.v)
@@ -32,7 +33,15 @@ def create_app():
             from app.controllers.settings import fetch
             from app.lib.util.date import humanize_seconds
 
-            user_settings = fetch()
-            return dict(settings=user_settings, arrow=arrow, humanize_seconds=humanize_seconds)
+            globals = {
+                "arrow": arrow,
+                "humanize_seconds": humanize_seconds,
+                "settings": None,
+            }
+
+            if is_logged_in():
+                globals["settings"] = fetch()
+
+            return globals
 
     return app

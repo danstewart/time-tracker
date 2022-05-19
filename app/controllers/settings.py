@@ -7,6 +7,8 @@ logger = get_logger(__name__)
 
 @pony.db_session
 def fetch() -> Settings:
+    from app.controllers.user import get_user
+
     settings = Settings.get()
 
     if not settings:
@@ -16,6 +18,7 @@ def fetch() -> Settings:
             week_start=0,  # Monday
             hours_per_day=7.5,
             work_days="MTWTF--",
+            user=get_user(),
         )
         pony.commit()
     return settings

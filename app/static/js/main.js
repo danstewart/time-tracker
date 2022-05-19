@@ -17,7 +17,9 @@ window.addEventListener("dynamic-frame:updated", () => {
 
 
 function initDatePickers() {
-    const tz = document.getElementById('timezone').innerText;
+    const tz = document.getElementById('timezone')?.innerText;
+    if (!tz) return;
+
     const today = spacetime.now(tz);
     let date = today.format('Y-m-d');
     let hour = today.hour();

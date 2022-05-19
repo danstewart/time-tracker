@@ -1,6 +1,56 @@
+from typing import Optional
+
 import arrow
 
 from app.lib.database import db, pony
+
+
+def hasher():
+    import argon2
+
+    return argon2.PasswordHasher(time_cost=3, memory_cost=64 * 1024, parallelism=1, hash_len=32, salt_len=16)
+
+
+class UserExistsError(Exception):
+    ...
+
+
+class User(db.Entity):
+    id = pony.PrimaryKey(int, auto=True)
+    email = pony.Required(str, unique=True)
+    password = pony.Required(str)
+    locked = pony.Optional(bool, default=False)
+    verified = pony.Optional(bool, default=False)
+
+    settings = pony.Optional("Settings")
+    time_entries = pony.Set("Time")
+
+    @classmethod
+    def create(cls, email: str, password: str) -> "User":
+        user = User.get(email=email)
+
+        if user:
+            raise UserExistsError(email)
+
+        password = hasher().hash(password)
+
+        return User(email=email, password=password)
+
+    @classmethod
+    def authenticate(cls, email: str, password: str) -> Optional["User"]:
+        user = User.get(email=email)
+
+        if not user:
+            return
+
+        if not hasher().verify(user.password, password):
+            return
+
+        return user
+
+    def send_password_reset_email(self):
+        # TODO
+        pass
 
 
 class Time(db.Entity):
@@ -10,6 +60,7 @@ class Time(db.Entity):
     note = pony.Optional(str)
 
     breaks = pony.Set("Break")
+    user = pony.Required(User)
 
     def logged(self):
         """
@@ -43,6 +94,8 @@ class Settings(db.Entity):
     work_days = pony.Required(
         str
     )  # This is stored as a 7 char string, the day char if the day is a work day and a hyphen if not, eg: MTWTF--
+
+    user = pony.Required(User)
 
     def work_days_list(self) -> list[str]:
         work_days = []
