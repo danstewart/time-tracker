@@ -1,18 +1,6 @@
-from typing import Optional
-
 import arrow
 
 from app.lib.database import db, pony
-
-
-def hasher():
-    import argon2
-
-    return argon2.PasswordHasher(time_cost=3, memory_cost=64 * 1024, parallelism=1, hash_len=32, salt_len=16)
-
-
-class UserExistsError(Exception):
-    ...
 
 
 class User(db.Entity):
@@ -20,37 +8,10 @@ class User(db.Entity):
     email = pony.Required(str, unique=True)
     password = pony.Required(str)
     locked = pony.Optional(bool, default=False)
-    verified = pony.Optional(bool, default=False)
+    verified = pony.Optional(bool, default=True)  # TODO: Change this to default to false
 
     settings = pony.Optional("Settings")
     time_entries = pony.Set("Time")
-
-    @classmethod
-    def create(cls, email: str, password: str) -> "User":
-        user = User.get(email=email)
-
-        if user:
-            raise UserExistsError(email)
-
-        password = hasher().hash(password)
-
-        return User(email=email, password=password)
-
-    @classmethod
-    def authenticate(cls, email: str, password: str) -> Optional["User"]:
-        user = User.get(email=email)
-
-        if not user:
-            return
-
-        if not hasher().verify(user.password, password):
-            return
-
-        return user
-
-    def send_password_reset_email(self):
-        # TODO
-        pass
 
 
 class Time(db.Entity):

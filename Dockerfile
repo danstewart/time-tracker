@@ -6,9 +6,9 @@ FROM python:3.10-slim-buster
 LABEL version="0.0.1"
 
 # Set env vars
-ENV FLASK_ENV "${FLASK_ENV}"
-ENV FLASK_APP "${FLASK_APP}"
-ENV FLASK_DEBUG "${FLASK_DEBUG}"
+ENV FLASK_ENV="${FLASK_ENV}"
+ENV FLASK_APP="${FLASK_APP}"
+ENV FLASK_DEBUG="${FLASK_DEBUG}"
 
 # Disable auto-cleanup after install:
 RUN rm /etc/apt/apt.conf.d/docker-clean
@@ -28,8 +28,8 @@ RUN touch /home/app/.sqliterc
 RUN echo ".headers on\n.mode columns" > /home/app/.sqliterc
 
 # Set PATH
-ENV PATH "/home/app/.local/bin/:${PATH}"
-ENV PROJECT_ROOT '/home/app/time-tracker'
+ENV PATH="/home/app/.local/bin/:${PATH}"
+ENV PROJECT_ROOT='/home/app/time-tracker'
 
 # Install poetry
 RUN curl -sSL https://install.python-poetry.org | python3 - --version 1.2.0b1

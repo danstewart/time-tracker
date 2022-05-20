@@ -2,7 +2,7 @@ from flask import Flask
 from pony.flask import Pony
 
 from app.lib.database import db, pony
-from app.models import Settings, Time
+from app.models import Settings, Time  # noqa: F401
 
 
 def create_app():
@@ -19,13 +19,13 @@ def create_app():
 
     with app.app_context():
         from app.controllers.user import is_logged_in
-        from app.views import core, settings, time
+        from app.views import settings, time, user
 
         app.register_blueprint(time.v)
         app.register_blueprint(settings.v)
-        app.register_blueprint(core.v)
+        app.register_blueprint(user.v)
 
-        # Inject our settings into all templates
+        # Inject some values into ALL templates
         @app.context_processor
         def inject_globals():
             import arrow
@@ -36,10 +36,11 @@ def create_app():
             globals = {
                 "arrow": arrow,
                 "humanize_seconds": humanize_seconds,
+                "is_logged_in": is_logged_in(),
                 "settings": None,
             }
 
-            if is_logged_in():
+            if globals["is_logged_in"]:
                 globals["settings"] = fetch()
 
             return globals

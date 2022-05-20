@@ -3,6 +3,7 @@ version: "2.4"
 
 volumes:
   db:
+  cache:
 
 services:
   app:
@@ -22,3 +23,15 @@ services:
       - 'db:/home/app/time-tracker/db/'
     ports:
       - ${FLASK_PORT:-4000}:5000
+
+  cache:
+    mem_limit: 2147484000  # 2 GiB
+    cpus: 2
+    image: redis:6-alpine
+    restart: always
+    container_name: 'time-tracker-cache'
+    command: redis-server
+    volumes:
+      - 'cache:/var/lib/redis'
+    environment:
+      - REDIS_REPLICATION_MODE=master
