@@ -11,6 +11,7 @@ from flask import flash, redirect
 class UserNotLoggedIn(Exception):
     ...
 
+
 class UserAlreadyExistsError(Exception):
     ...
 
@@ -28,6 +29,9 @@ def register(email: str, password: str) -> User:
     Registers and returns a new user
     If the email is already in use, a UserAlreadyExistsError is raised
     """
+    from app.lib.email import send_email
+    from flask import render_template
+
     user = User.get(email=email)
 
     if user:
@@ -36,7 +40,12 @@ def register(email: str, password: str) -> User:
 
     password = PasswordHasher().hash(password)
 
-    # TODO: Send verification email to user
+    # TODO: Add verification link
+    send_email(
+        to_email=email,
+        subject="Welcome to Time Tracker",
+        html=render_template("email/welcome.html.j2", verify_url="/"),
+    )
     new_user = User(email=email, password=password)
     pony.commit()
 
@@ -77,6 +86,7 @@ def get_user() -> User:
     if user_id := session.get("login"):
         return User.get(id=int(user_id))
     raise UserNotLoggedIn()
+
 
 def is_logged_in() -> bool:
     """Returns True if the user is logged in"""
