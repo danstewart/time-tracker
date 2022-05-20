@@ -19,11 +19,12 @@ def create_app():
 
     with app.app_context():
         from app.controllers.user import is_logged_in
-        from app.views import settings, time, user
+        from app.views import core, settings, time, user
 
         app.register_blueprint(time.v)
         app.register_blueprint(settings.v)
         app.register_blueprint(user.v)
+        app.register_blueprint(core.v)
 
         # Inject some values into ALL templates
         @app.context_processor
