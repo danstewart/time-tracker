@@ -1,6 +1,7 @@
 from app.controllers.user import is_logged_in
 from app.lib.redis import session
 from flask import Blueprint, flash, redirect, render_template, request
+from flask import session as flask_session
 
 v = Blueprint("user", __name__)
 
@@ -25,14 +26,9 @@ def handle_login():
     - register
     - password reset
     """
-    from app.controllers.user import (
-        UserAlreadyExistsError,
-        UserAuthFailed,
-        UserNotVerifiedError,
-        login,
-        register,
-        send_password_reset,
-    )
+    from app.controllers.user import (UserAlreadyExistsError, UserAuthFailed,
+                                      UserNotVerifiedError, login, register,
+                                      send_password_reset)
 
     action = request.form["action"]
     email = request.form["email"]
@@ -41,8 +37,8 @@ def handle_login():
     match [action, email, password]:
         case ["login", email, password]:
             try:
-                user = login(email, password)
-                session.set("login", user.id)
+                login_session = login(email, password)
+                flask_session["login_session_key"] = login_session.key
                 return redirect("/")
             except UserAuthFailed:
                 flash("Invalid username or password.", "danger")
@@ -79,6 +75,6 @@ def handle_login():
 
 @v.get("/logout")
 def logout():
-    if session.get("login"):
-        session.delete("login")
+    if "login_session_key" in flask_session:
+        flask_session.pop("login_session_key")
     return redirect("/login")

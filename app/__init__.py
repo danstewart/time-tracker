@@ -2,7 +2,7 @@ from flask import Flask
 from pony.flask import Pony
 
 from app.lib.database import db, pony
-from app.models import Settings, Time  # noqa: F401
+from app.models import *  # noqa: F401
 
 
 def create_app():

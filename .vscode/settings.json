@@ -1,0 +1,57 @@
+{
+    "files.trimTrailingWhitespace": false,
+
+    "files.exclude": {
+        "**/__pycache__": true,
+        "**/venv/": true
+    },
+
+    "files.watcherExclude": {
+        "**/venv/**": true,
+        "**/__pycache__": true
+    },
+
+    "[markdown]": {
+        "files.trimTrailingWhitespace": false
+    },
+
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "ms-python.python",
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+
+    "[jinja-html]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "monosans.djlint"
+    },
+
+    "[jinja-css][css][postcss][javascript]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+
+    "prettier.documentSelectors": ["**/*.css.j2"],
+
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Path": "./venv/bin/pflake8",
+    "python.languageServer": "Pylance",
+    "python.testing.pytestEnabled": true,
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportGeneralTypeIssues": "information",
+        "reportOptionalMemberAccess": "information",
+        "reportOptionalCall": "information",
+        "reportPrivateImportUsage": "information",
+    },
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--line-length=120"
+    ],
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
+}

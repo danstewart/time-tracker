@@ -1,0 +1,11 @@
+{
+    "recommendations": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "usernamehw.errorlens",
+        "WyattFerguson.jinja2-snippet-kit",
+        "samuelcolvin.jinjahtml",
+        "monosans.djlint",
+        "esbenp.prettier-vscode"
+    ]
+}

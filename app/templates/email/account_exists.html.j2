@@ -1,7 +1,7 @@
 {#
-Welcome and verify email
+Account exists but re-registered email
 Expected replacers:
-- verify_url: Absolute email verification URL with token
+- password_reset_url: Absolute password reset URL with token
 #}
 {% extends "layouts/email_wrapper.html.j2" %}
 {% block content %}
@@ -12,9 +12,9 @@ Expected replacers:
                 <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                     <tr>
                         <td>
-                            <p>👋 Welcome to Time Tracker.</p>
-                            <p>Click the link below to verify your email and get started.</p>
-                            <p>If you don't verify within 7 days we'll delete your email address from our system (you can always re-register though).</p>
+                            <p>👋 Welcome back to Time Tracker.</p>
+                            <p>You tried to register but you already have an account.</p>
+                            <p>If you've forgotten your password click the button below to reset it.</p>
                             <table role="presentation"
                                    border="0"
                                    cellpadding="0"
@@ -27,7 +27,7 @@ Expected replacers:
                                                 <tbody>
                                                     <tr>
                                                         <td>
-                                                            <a href="{{ verify_url }}" target="_blank">Verify</a>
+                                                            <a href="{{ password_reset_url }}" target="_blank">Reset Password</a>
                                                         </td>
                                                     </tr>
                                                 </tbody>

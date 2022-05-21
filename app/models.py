@@ -8,10 +8,26 @@ class User(db.Entity):
     email = pony.Required(str, unique=True)
     password = pony.Required(str)
     locked = pony.Optional(bool, default=False)
-    verified = pony.Optional(bool, default=True)  # TODO: Change this to default to false
+    verified = pony.Optional(bool, default=True)
 
     settings = pony.Optional("Settings")
     time_entries = pony.Set("Time")
+
+    login_session = pony.Set("LoginSession")
+
+    def get_verify_token(self) -> str:
+        return ""
+
+    def get_password_reset_token(self) -> str:
+        return ""
+
+
+class LoginSession(db.Entity):
+    id = pony.PrimaryKey(int, auto=True)
+    key = pony.Required(str, unique=True)  # Unique session ID, stored in user cookies
+    expires = pony.Required(int)  # Unix timestamp
+
+    user = pony.Required(User)
 
 
 class Time(db.Entity):
