@@ -15,11 +15,36 @@ class User(db.Entity):
 
     login_session = pony.Set("LoginSession")
 
-    def get_verify_token(self) -> str:
-        return ""
+    def get_token(self, token_type: str, timeout: int = 3600, force_new: bool = False) -> str:
+        """
+        Returns a cryptographically secure token for the user and a specific token type
 
-    def get_password_reset_token(self) -> str:
-        return ""
+        First checks if the specified token type exists in the session
+        If so it is returned, otherwise a new token is generated and stored in the session
+        This is so it can be fetched back out for comparison later
+
+        `token_type`
+            The type of token, used to make the key in the session
+        `timeout`
+            The number of seconds the token is valid for
+        `force_new`
+            If True then a new token is always generated and stored in the session
+            Overwriting and invalidating any existing token
+        """
+        import secrets
+
+        from app.lib.redis import session
+
+        token_key = "{}:token:{}".format(self.id, token_type)
+
+        if not force_new:
+            if token := session.get(token_key):
+                return token.decode("utf-8")
+
+        token = secrets.token_hex()
+        session.set(token_key, token)
+        session.expire(token_key, timeout)
+        return token
 
 
 class LoginSession(db.Entity):

@@ -2,7 +2,6 @@ from functools import wraps
 
 from app.lib.database import pony
 from app.lib.email import send_email
-from app.lib.redis import session
 from app.models import LoginSession, User
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
@@ -26,24 +25,31 @@ def register(email: str, password: str) -> User:
     user = User.get(email=email)
 
     if user:
-        # TODO: Add reset link
+        reset_token = user.get_token("password-reset")
         send_email(
             to_email=email,
             subject="Welcome to Time Tracker",
-            html=render_template("email/account_exists.html.j2", password_reset_url="/"),
+            html=render_template(
+                "email/account_exists.html.j2",
+                password_reset_url=f"http://localhost:4000/password-reset/{reset_token}",
+            ),
         )
         raise UserAlreadyExistsError(email)
 
     password = PasswordHasher().hash(password)
 
-    # TODO: Add verification link
+    new_user = User(email=email, password=password)
+    pony.commit()
+
+    verify_token = new_user.get_token("verify", timeout=604800)  # 7 days
     send_email(
         to_email=email,
         subject="Welcome to Time Tracker",
-        html=render_template("email/welcome.html.j2", verify_url="/"),
+        html=render_template(
+            "email/welcome.html.j2",
+            verify_url=f"http://localhost:4000/verify/{verify_token}",
+        ),
     )
-    new_user = User(email=email, password=password)
-    pony.commit()
 
     return new_user
 
@@ -59,6 +65,7 @@ def login(email: str, password: str) -> LoginSession:
     import arrow
 
     # TODO: Check if user is verified
+    # do not allow login if not verified
     user = User.get(email=email)
 
     if not user:
@@ -84,12 +91,15 @@ def send_password_reset(email: str):
     If an email exists in the system then send a password reset email
     """
     if user := User.get(email=email):
-        # TODO: Add reset token
+        reset_token = user.get_token("password-reset")
         # TODO: Auto verify email if not already done
         send_email(
             to_email=user.email,
             subject="Time Tracker: Password Reset",
-            html=render_template("email/password_reset.html.j2", password_reset_url="/"),
+            html=render_template(
+                "email/password_reset.html.j2",
+                password_reset_url=f"http://localhost:4000/password-reset/{reset_token}",
+            ),
         )
 
 
