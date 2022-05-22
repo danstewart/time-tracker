@@ -18,7 +18,7 @@ def create_app():
     app.jinja_env.add_extension("jinja2.ext.debug")
 
     with app.app_context():
-        from app.controllers.user import is_logged_in
+        from app.controllers.user.util import is_logged_in
         from app.views import core, settings, time, user
 
         app.register_blueprint(time.v)

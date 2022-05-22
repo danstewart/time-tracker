@@ -1,5 +1,5 @@
 from app.controllers import settings, time
-from app.controllers.user import login_required
+from app.controllers.user.util import login_required
 from app.lib.logger import get_logger
 from app.lib.util.date import humanize_seconds
 from flask import Blueprint

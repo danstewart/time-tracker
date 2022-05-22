@@ -1,20 +1,18 @@
 from functools import wraps
 
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
+from flask import render_template
+
+from app.controllers.user.exceptions import (
+    UserAlreadyExistsError,
+    UserAuthFailed,
+    UserNotVerifiedError,
+)
+from app.controllers.user.token import create_token
 from app.lib.database import pony
 from app.lib.email import send_email
 from app.models import LoginSession, User
-from argon2 import PasswordHasher
-from argon2.exceptions import VerifyMismatchError
-from flask import flash, redirect, render_template
-from flask import session as flask_session
-
-
-# fmt:off
-class UserNotLoggedIn(Exception): ...
-class UserAlreadyExistsError(Exception): ...
-class UserAuthFailed(Exception): ...
-class UserNotVerifiedError(Exception): ...
-# fmt:on
 
 
 def register(email: str, password: str) -> User:
@@ -24,8 +22,14 @@ def register(email: str, password: str) -> User:
     """
     user = User.get(email=email)
 
+    # If a user already exists with this email then send them a password reset link instead
     if user:
-        reset_token = user.get_token("password-reset")
+        reset_token = create_token(
+            {
+                "type": "password-reset",
+                "user_id": user.id,
+            }
+        )
         send_email(
             to_email=email,
             subject="Welcome to Time Tracker",
@@ -36,12 +40,19 @@ def register(email: str, password: str) -> User:
         )
         raise UserAlreadyExistsError(email)
 
+    # Otherwise create the new user
     password = PasswordHasher().hash(password)
-
     new_user = User(email=email, password=password)
     pony.commit()
 
-    verify_token = new_user.get_token("verify", timeout=604800)  # 7 days
+    verify_token = create_token(
+        payload={
+            "type": "verify",
+            "user_id": new_user.id,
+        },
+        timeout=604800,  # 7 days
+    )
+
     send_email(
         to_email=email,
         subject="Welcome to Time Tracker",
@@ -64,20 +75,18 @@ def login(email: str, password: str) -> LoginSession:
 
     import arrow
 
-    # TODO: Check if user is verified
-    # do not allow login if not verified
     user = User.get(email=email)
 
     if not user:
         raise UserAuthFailed("User not found")
 
+    if not user.verified:
+        raise UserNotVerifiedError("User not verified")
+
     try:
         PasswordHasher().verify(user.password, password)
     except VerifyMismatchError:
         raise UserAuthFailed("Password mismatch")
-
-    if not user.verified:
-        raise UserNotVerifiedError("User not verified")
 
     return LoginSession(
         key=secrets.token_hex(),
@@ -91,7 +100,12 @@ def send_password_reset(email: str):
     If an email exists in the system then send a password reset email
     """
     if user := User.get(email=email):
-        reset_token = user.get_token("password-reset")
+        reset_token = create_token(
+            {
+                "type": "password-reset",
+                "user_id": user.id,
+            }
+        )
         # TODO: Auto verify email if not already done
         send_email(
             to_email=user.email,
@@ -101,46 +115,3 @@ def send_password_reset(email: str):
                 password_reset_url=f"http://localhost:4000/password-reset/{reset_token}",
             ),
         )
-
-
-def get_user() -> User:
-    """
-    Fetch the user ID from the login session and return the User
-    """
-    import arrow
-
-    if login_session_key := flask_session.get("login_session_key"):
-        if login_session := LoginSession.get(key=login_session_key):
-            if login_session.expires < arrow.utcnow().int_timestamp:
-                flask_session.pop("login_session_key")
-            else:
-                return login_session.user
-    raise UserNotLoggedIn()
-
-
-def is_logged_in() -> bool:
-    """Returns True if the user is logged in"""
-    from contextlib import suppress
-
-    with suppress(UserNotLoggedIn):
-        get_user()
-        return True
-    return False
-
-
-def login_required(f):
-    """
-    View decorator that will ensures user is logged in
-    If not they are redirected to the login form and a flash message is shown
-    """
-
-    @wraps(f)
-    def decorated(*args, **kwargs):
-
-        if is_logged_in():
-            return f(*args, **kwargs)
-        else:
-            flash("You need to login first.", "warning")
-            return redirect("/login")
-
-    return decorated

@@ -7,7 +7,7 @@ logger = get_logger(__name__)
 
 @pony.db_session
 def fetch() -> Settings:
-    from app.controllers.user import get_user
+    from app.controllers.user.util import get_user
 
     settings = Settings.get()
 

@@ -1,7 +1,7 @@
-from app.controllers.user import is_logged_in
-from app.lib.redis import session
 from flask import Blueprint, flash, redirect, render_template, request
 from flask import session as flask_session
+
+from app.controllers.user.util import is_logged_in
 
 v = Blueprint("user", __name__)
 
@@ -26,9 +26,12 @@ def handle_login():
     - register
     - password reset
     """
-    from app.controllers.user import (UserAlreadyExistsError, UserAuthFailed,
-                                      UserNotVerifiedError, login, register,
-                                      send_password_reset)
+    from app.controllers.user import login, register, send_password_reset
+    from app.controllers.user.exceptions import (
+        UserAlreadyExistsError,
+        UserAuthFailed,
+        UserNotVerifiedError,
+    )
 
     action = request.form["action"]
     email = request.form["email"]
@@ -78,3 +81,23 @@ def logout():
     if "login_session_key" in flask_session:
         flask_session.pop("login_session_key")
     return redirect("/login")
+
+
+@v.get("/verify/<token>")
+def verify_user_email(token: str):
+    from app.controllers.user.token import parse_token
+    from app.models import User
+
+    payload = parse_token(token)
+
+    user = User.get(id=payload["user_id"])
+    user.verify()
+
+    flash("Your email has been verified.", "success")
+    return redirect("/login")
+
+
+@v.get("/password-reset/<token>")
+def password_reset(token: str):
+    # TODO
+    return "TODO: Reset password"
