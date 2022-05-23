@@ -1,7 +1,9 @@
 from typing import Iterator, Optional
 
 import arrow
+
 from app.controllers import settings
+from app.controllers.user.util import get_user
 from app.lib.database import pony
 from app.lib.logger import get_logger
 from app.models import Break, Time
@@ -37,6 +39,7 @@ def create(start: str, end: Optional[str] = None, date: Optional[str] = None, no
         start=start_dt,
         end=end_dt,
         note=note,
+        user=get_user(),
     )
 
 
