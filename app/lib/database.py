@@ -11,7 +11,7 @@ class DBConnection:
         if self._connected:
             return
 
-        self.pony.bind(provider="sqlite", filename="/home/app/time-tracker/db/time.db", create_db=True)
+        self.pony.bind(provider="sqlite", filename="/home/app/log-my-time/db/time.db", create_db=True)
         self.pony.generate_mapping(create_tables=True)
         self._connected = True
 

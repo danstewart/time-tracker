@@ -12,6 +12,6 @@ services:
       FLASK_DEBUG: ${FLASK_DEBUG:-1}
       LOG_LEVEL: ${LOG_LEVEL:-warning}
     volumes:
-      - './app:/home/app/time-tracker/app'
-      - './config:/home/app/time-tracker/config'
-      - './tests:/home/app/time-tracker/tests'
+      - './app:/home/app/log-my-time/app'
+      - './config:/home/app/log-my-time/config'
+      - './tests:/home/app/log-my-time/tests'

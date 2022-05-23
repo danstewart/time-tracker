@@ -16,11 +16,11 @@ services:
       FLASK_ENV: ${FLASK_ENV:-production}
       FLASK_DEBUG: ${FLASK_DEBUG:-0}
       LOG_LEVEL: ${LOG_LEVEL:-info}
-    container_name: 'time-tracker'
-    image: 'time-tracker:latest'
+    container_name: 'log-my-time'
+    image: 'log-my-time:latest'
     restart: always
     volumes:
-      - 'db:/home/app/time-tracker/db/'
+      - 'db:/home/app/log-my-time/db/'
     ports:
       - ${FLASK_PORT:-4000}:5000
 
@@ -29,7 +29,7 @@ services:
     cpus: 2
     image: redis:6-alpine
     restart: always
-    container_name: 'time-tracker-cache'
+    container_name: 'log-my-time-cache'
     command: redis-server
     volumes:
       - 'cache:/var/lib/redis'

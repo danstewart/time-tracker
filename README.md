@@ -1,6 +1,6 @@
-# Time Tracker
+# Log My Time
 
-Basic time tracker tool.  
+Basic time logging tool.  
 
 ## Demo
 

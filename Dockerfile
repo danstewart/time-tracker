@@ -21,15 +21,15 @@ RUN --mount=type=cache,target=/var/cache/apt,id=apt apt-get update && apt-get -y
 RUN useradd --create-home app
 
 USER app
-WORKDIR /home/app/time-tracker
-RUN mkdir --parents /home/app/time-tracker
-RUN mkdir --parents /home/app/time-tracker/db/
+WORKDIR /home/app/log-my-time
+RUN mkdir --parents /home/app/log-my-time
+RUN mkdir --parents /home/app/log-my-time/db/
 RUN touch /home/app/.sqliterc
 RUN echo ".headers on\n.mode columns" > /home/app/.sqliterc
 
 # Set PATH
 ENV PATH="/home/app/.local/bin/:${PATH}"
-ENV PROJECT_ROOT='/home/app/time-tracker'
+ENV PROJECT_ROOT='/home/app/log-my-time'
 
 # Install poetry
 RUN curl -sSL https://install.python-poetry.org | python3 - --version 1.2.0b1

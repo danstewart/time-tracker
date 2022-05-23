@@ -15,18 +15,18 @@ LEVEL_OVERRIDE = None
 # Format is ${LEVEL}:${LOG_NAME_1},${LOG_NAME_2},${LOG_NAME_N}
 # LOG_NAME is an optional comma separate list of log handler names
 # If not specified then the level will apply to all handlers
-if level_override := os.getenv('LOG_LEVEL'):
+if level_override := os.getenv("LOG_LEVEL"):
     applies_to = ()
-    if ':' in level_override:
-        level_override, applies_to = level_override.split(':')
-        applies_to = applies_to.split(',')
+    if ":" in level_override:
+        level_override, applies_to = level_override.split(":")
+        applies_to = applies_to.split(",")
 
     if hasattr(logging, level_override.upper()):
         LEVEL_OVERRIDE = getattr(logging, level_override.upper())
         LEVEL_OVERRIDE_APPLIES_TO = tuple(applies_to)
 
 
-def get_logger(name='time-tracker-log', level=logging.WARNING, force_init=False):
+def get_logger(name="log-my-time-log", level=logging.WARNING, force_init=False):
     logger = logging.getLogger(name)
 
     if LEVEL_OVERRIDE and (not LEVEL_OVERRIDE_APPLIES_TO or name in LEVEL_OVERRIDE_APPLIES_TO):

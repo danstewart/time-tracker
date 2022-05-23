@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "time-tracker"
+name = "log-my-time"
 version = "0.0.1"
 description = ""
 authors = ["Dan Stewart <git@mail.danstewart.dev>"]

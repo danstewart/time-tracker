@@ -29,7 +29,7 @@ def register(email: str, password: str) -> User:
         )
         send_email(
             to_email=email,
-            subject="Welcome to Time Tracker",
+            subject="Welcome to LogMyTime",
             html=render_template(
                 "email/account_exists.html.j2",
                 password_reset_url=f"{app.config['HOST']}/password-reset/{reset_token}",
@@ -51,7 +51,7 @@ def register(email: str, password: str) -> User:
 
     send_email(
         to_email=email,
-        subject="Welcome to Time Tracker",
+        subject="Welcome to LogMyTime",
         html=render_template(
             "email/welcome.html.j2",
             verify_url=f"{app.config['HOST']}/verify/{verify_token}",
@@ -101,10 +101,10 @@ def send_password_reset(email: str):
                 "user_id": user.id,
             }
         )
-        # TODO: Auto verify email if not already done
+
         send_email(
             to_email=user.email,
-            subject="Time Tracker: Password Reset",
+            subject="LogMyTime: Password Reset",
             html=render_template(
                 "email/password_reset.html.j2",
                 password_reset_url=f"{app.config['HOST']}/password-reset/{reset_token}",
