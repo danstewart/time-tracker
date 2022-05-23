@@ -27,7 +27,8 @@
                  aria-labelledby="accordion-add-header"
                  data-parent="#accordion-add">
                 <div class="container mt-2 mb-2">
-                    <dynamic-frame :url="/frames/time_form" :execute-scripts="true"></dynamic-frame>
+                    <dynamic-frame :url="/frames/time_form/" :execute-scripts="true">
+                    </dynamic-frame>
                 </div>
             </div>
         </div>
@@ -48,9 +49,7 @@
                                 <span class="fw-bold">{{ start.format("Do [of] MMM") }}</span>
                                 <span>{{ start.format("HH:mm") }} - {{ end.format("HH:mm") if end else 'Still clocked in' }}</span>
                             </p>
-                            <span style="height: 20px" class="badge bg-secondary">
-                                {{ humanize_seconds(time.logged(), short=True) }}
-                            </span>
+                            <span style="height: 20px" class="badge bg-secondary">{{ humanize_seconds(time.logged(), short=True) }}</span>
                         </div>
                     </button>
                 </h2>
@@ -60,7 +59,8 @@
                      data-parent="#accordion-{{ time.id }}">
                     <div class="container mt-2 mb-2">
                         {# TODO: Make this frame lazily loaded #}
-                        <dynamic-frame :url="/frames/time_form/{{ time.id }}" :execute-scripts="true"></dynamic-frame>
+                        <dynamic-frame :url="/frames/time_form/{{ time.id }}" :execute-scripts="true">
+                        </dynamic-frame>
                     </div>
                 </div>
             </div>
