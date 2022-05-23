@@ -1,7 +1,4 @@
-from functools import wraps
-
-from argon2 import PasswordHasher
-from argon2.exceptions import VerifyMismatchError
+from flask import current_app as app
 from flask import render_template
 
 from app.controllers.user.exceptions import (
@@ -35,14 +32,13 @@ def register(email: str, password: str) -> User:
             subject="Welcome to Time Tracker",
             html=render_template(
                 "email/account_exists.html.j2",
-                password_reset_url=f"http://localhost:4000/password-reset/{reset_token}",
+                password_reset_url=f"{app.config['HOST']}/password-reset/{reset_token}",
             ),
         )
         raise UserAlreadyExistsError(email)
 
     # Otherwise create the new user
-    password = PasswordHasher().hash(password)
-    new_user = User(email=email, password=password)
+    new_user = User(email=email).set_password(password)
     pony.commit()
 
     verify_token = create_token(
@@ -58,7 +54,7 @@ def register(email: str, password: str) -> User:
         subject="Welcome to Time Tracker",
         html=render_template(
             "email/welcome.html.j2",
-            verify_url=f"http://localhost:4000/verify/{verify_token}",
+            verify_url=f"{app.config['HOST']}/verify/{verify_token}",
         ),
     )
 
@@ -83,9 +79,8 @@ def login(email: str, password: str) -> LoginSession:
     if not user.verified:
         raise UserNotVerifiedError("User not verified")
 
-    try:
-        PasswordHasher().verify(user.password, password)
-    except VerifyMismatchError:
+    ok = user.check_password(password)
+    if not ok:
         raise UserAuthFailed("Password mismatch")
 
     return LoginSession(
@@ -112,6 +107,6 @@ def send_password_reset(email: str):
             subject="Time Tracker: Password Reset",
             html=render_template(
                 "email/password_reset.html.j2",
-                password_reset_url=f"http://localhost:4000/password-reset/{reset_token}",
+                password_reset_url=f"{app.config['HOST']}/password-reset/{reset_token}",
             ),
         )

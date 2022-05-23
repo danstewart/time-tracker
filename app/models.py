@@ -1,4 +1,6 @@
 import arrow
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
 
 from app.lib.database import db, pony
 
@@ -6,8 +8,7 @@ from app.lib.database import db, pony
 class User(db.Entity):
     id = pony.PrimaryKey(int, auto=True)
     email = pony.Required(str, unique=True)
-    password = pony.Required(str)
-    locked = pony.Optional(bool, default=False)
+    password = pony.Optional(str)
     verified = pony.Optional(bool, default=False)
 
     settings = pony.Optional("Settings")
@@ -16,8 +17,32 @@ class User(db.Entity):
     login_session = pony.Set("LoginSession")
 
     def verify(self):
+        """
+        Sets `user.verified` to True and commits
+        """
         self.verified = True
         pony.commit()
+
+    def set_password(self, password: str) -> "User":
+        """
+        Update the given users password
+        """
+        self.password = PasswordHasher().hash(password)
+        pony.commit()
+        return self
+
+    def check_password(self, password: str) -> bool:
+        """
+        Check if the provided password is correct for a given account
+        """
+        if not self.password:
+            return False
+
+        try:
+            PasswordHasher().verify(self.password, password)
+        except VerifyMismatchError:
+            return False
+        return True
 
 
 class LoginSession(db.Entity):

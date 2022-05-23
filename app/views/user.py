@@ -85,12 +85,22 @@ def logout():
 
 @v.get("/verify/<token>")
 def verify_user_email(token: str):
+    """
+    Verifies a user account
+    """
     from app.controllers.user.token import parse_token
     from app.models import User
 
     payload = parse_token(token)
+    if not payload:
+        flash("Invalid token", "danger")
+        return redirect("/login")
 
     user = User.get(id=payload["user_id"])
+    if not user:
+        flash("Invalid token", "danger")
+        return redirect("/login")
+
     user.verify()
 
     flash("Your email has been verified.", "success")
@@ -98,6 +108,27 @@ def verify_user_email(token: str):
 
 
 @v.get("/password-reset/<token>")
-def password_reset(token: str):
-    # TODO
-    return "TODO: Reset password"
+def password_reset_form(token: str):
+    return render_template("pages/password-reset.html.j2")
+
+
+@v.post("/password-reset/<token>")
+def password_reset_handler(token):
+    from app.controllers.user.token import parse_token
+    from app.models import User
+
+    payload = parse_token(token)
+    if not payload:
+        flash("Invalid token", "danger")
+        return redirect("/login")
+
+    user = User.get(id=payload["user_id"])
+    if not user:
+        flash("Invalid token", "danger")
+        return redirect("/login")
+
+    user.verify()
+    user.set_password(request.form["password"])
+
+    flash("Password successfully updated.", "success")
+    return redirect("/login")

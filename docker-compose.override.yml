@@ -14,4 +14,4 @@ services:
     volumes:
       - './app:/home/app/time-tracker/app'
       - './config:/home/app/time-tracker/config'
-      - './test:/home/app/time-tracker/test'
+      - './tests:/home/app/time-tracker/tests'

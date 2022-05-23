@@ -2,5 +2,5 @@
 
 # Installs test dependencies and runs the tests
 
-docker exec -it time-tracker poetry install
-docker exec -it time-tracker pytest
+docker exec -it time-tracker poetry install --with test
+docker exec -it time-tracker poetry run pytest

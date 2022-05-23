@@ -39,6 +39,7 @@ def create_app():
                 "humanize_seconds": humanize_seconds,
                 "is_logged_in": is_logged_in(),
                 "settings": None,
+                "host": app.config["HOST"],
             }
 
             if globals["is_logged_in"]:

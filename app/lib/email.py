@@ -1,6 +1,7 @@
 import sendgrid
-from app.lib.logger import get_logger
 from flask import current_app as app
+
+from app.lib.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -14,7 +15,7 @@ def send_email(to_email: str, subject: str, html: str):
     `html`: The HTML mail body
     """
     message = sendgrid.Mail(
-        from_email="noreply@danstewart.xyz",
+        from_email=app.config["FROM_EMAIL"],
         to_emails=to_email,
         subject=subject,
         html_content=html,
