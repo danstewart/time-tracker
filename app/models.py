@@ -1,3 +1,5 @@
+from typing import Optional
+
 import arrow
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
@@ -5,16 +7,16 @@ from argon2.exceptions import VerifyMismatchError
 from app.lib.database import db, pony
 
 
-class User(db.Entity):
-    id = pony.PrimaryKey(int, auto=True)
-    email = pony.Required(str, unique=True)
-    password = pony.Optional(str)
-    verified = pony.Optional(bool, default=False)
+class User(db.Entity):  # type:ignore
+    id: int = pony.PrimaryKey(int, auto=True)  # type:ignore
+    email: str = pony.Required(str, unique=True)  # type:ignore
+    password: Optional[str] = pony.Optional(str)  # type:ignore
+    verified: Optional[bool] = pony.Optional(bool, default=False)  # type:ignore
 
-    settings = pony.Optional("Settings")
-    time_entries = pony.Set("Time")
+    settings: Optional["Settings"] = pony.Optional("Settings")  # type:ignore
+    time_entries: list["Time"] = pony.Set("Time")  # type:ignore
 
-    login_session = pony.Set("LoginSession")
+    login_session: list["LoginSession"] = pony.Set("LoginSession")  # type:ignore
 
     def verify(self):
         """
@@ -45,22 +47,26 @@ class User(db.Entity):
         return True
 
 
-class LoginSession(db.Entity):
-    id = pony.PrimaryKey(int, auto=True)
-    key = pony.Required(str, unique=True)  # Unique session ID, stored in user cookies
-    expires = pony.Required(int)  # Unix timestamp
+class LoginSession(db.Entity):  # type:ignore
+    id: int = pony.PrimaryKey(int, auto=True)  # type:ignore
+
+    # Unique session ID, stored in user cookies
+    key: str = pony.Required(str, unique=True)  # type:ignore
+
+    # Unix timestamp
+    expires: int = pony.Required(int)  # type:ignore
 
     user = pony.Required(User)
 
 
-class Time(db.Entity):
-    id = pony.PrimaryKey(int, auto=True)
-    start = pony.Required(int)
-    end = pony.Optional(int)
-    note = pony.Optional(str)
+class Time(db.Entity):  # type:ignore
+    id: int = pony.PrimaryKey(int, auto=True)  # type:ignore
+    start: int = pony.Required(int)  # type:ignore
+    end: Optional[int] = pony.Optional(int)  # type:ignore
+    note: Optional[str] = pony.Optional(str)  # type:ignore
 
-    breaks = pony.Set("Break")
-    user = pony.Required(User)
+    breaks: list["Break"] = pony.Set("Break")  # type:ignore
+    user: User = pony.Required(User)  # type:ignore
 
     def logged(self):
         """
@@ -79,23 +85,23 @@ class Time(db.Entity):
         return pony.select(row for row in cls if row.start >= timestamp)
 
 
-class Break(db.Entity):
-    time = pony.Required(Time)
-    start = pony.Required(int)
-    end = pony.Optional(int)
-    note = pony.Optional(str)
+class Break(db.Entity):  # type:ignore
+    time: Time = pony.Required(Time)  # type:ignore
+    start: int = pony.Required(int)  # type:ignore
+    end: Optional[int] = pony.Optional(int)  # type:ignore
+    note: Optional[str] = pony.Optional(str)  # type:ignore
 
 
-class Settings(db.Entity):
-    id = pony.PrimaryKey(int, auto=True)
-    timezone = pony.Required(str)
-    week_start = pony.Required(int)
-    hours_per_day = pony.Required(float)
-    work_days = pony.Required(
+class Settings(db.Entity):  # type:ignore
+    id: int = pony.PrimaryKey(int, auto=True)  # type:ignore
+    timezone: str = pony.Required(str)  # type:ignore
+    week_start: int = pony.Required(int)  # type:ignore
+    hours_per_day: float = pony.Required(float)  # type:ignore
+    work_days: str = pony.Required(  # type:ignore
         str
     )  # This is stored as a 7 char string, the day char if the day is a work day and a hyphen if not, eg: MTWTF--
 
-    user = pony.Required(User)
+    user: User = pony.Required(User)  # type:ignore
 
     def work_days_list(self) -> list[str]:
         work_days = []
