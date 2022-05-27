@@ -171,6 +171,14 @@ def stats() -> TimeStats:
     remaining_today = todo_today - logged_today
     remaining_this_week = todo_this_week - logged_this_week
 
+    # You can't have negative time remaining
+    # Any extra time is displayed as overtime
+    if remaining_today < 0:
+        remaining_today = 0
+
+    if remaining_this_week < 0:
+        remaining_this_week = 0
+
     # Overtime (all time)
     # This is a little inefficient as it must go through all records
     overtime = 0
