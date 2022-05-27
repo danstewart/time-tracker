@@ -1,6 +1,6 @@
 #header a {
     text-decoration: none;
-    color: black
+    color: black;
 }
 
 #header a:hover {
@@ -16,4 +16,14 @@ a.icon {
 .edit-time-entry {
     cursor: pointer;
     color: #0d6efd;
+}
+
+.accordion-button::after,
+.accordion-button:not(.collapsed)::after {
+    background-image: none;
+}
+
+.time-badge {
+    height: 20px;
+    width: 60px;
 }
