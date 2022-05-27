@@ -1,18 +1,17 @@
 {% extends "layouts/wrapper.html.j2" %}
-
 {% block content %}
     <script type="module" defer src="/static/js/home.js"></script>
-
     {% set date_fmt = 'Do [of] MMM YYYY [at] HH:mm' %}
-
     <!-- Header Stats -->
-    <dynamic-frame id="time-stats" :execute-scripts="true" :url="/frames/time-stats"></dynamic-frame>
-
+    <dynamic-frame id="time-stats" :execute-scripts="true" :url="/frames/time-stats">
+    </dynamic-frame>
     <!-- Clock in/out Form -->
-    <dynamic-frame id="clock-form" :execute-scripts="true" :url="/frames/clock_in_form"></dynamic-frame>
-
-    <hr />
-
+    <dynamic-frame class="mt-5 mb-5 d-block"
+                   id="clock-form"
+                   :execute-scripts="true"
+                   :url="/frames/clock_in_form">
+    </dynamic-frame>
     <!-- Time Log Table -->
-    <dynamic-frame id="log-table" :execute-scripts="true" :url="/frames/time-log-table"></dynamic-frame>
+    <dynamic-frame id="log-table" :execute-scripts="true" :url="/frames/time-log-table">
+    </dynamic-frame>
 {% endblock content %}
