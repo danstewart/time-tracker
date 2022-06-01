@@ -116,6 +116,25 @@ def break_end(end: str):
 
 
 @pony.db_session
+def add_break(time_id: str, break_start: str, break_end: str | None):
+    time_record = Time[time_id]
+
+    _settings = settings.fetch()
+    _tz = _settings.timezone
+
+    start_dt = arrow.get(break_start, tzinfo=_tz)
+    end_dt = arrow.get(break_end, tzinfo=_tz) if break_end else None
+
+    time_record.breaks.add(
+        Break(
+            time=time_record,
+            start=start_dt.int_timestamp,
+            end=end_dt.int_timestamp,
+        )
+    )
+
+
+@pony.db_session
 def bulk_update(table, data: dict[int, dict]):
     """
     Updates multiple time records at once

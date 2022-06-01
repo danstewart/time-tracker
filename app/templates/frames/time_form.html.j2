@@ -1,53 +1,63 @@
 {% set date_fmt = 'Do [of] MMM YYYY [at] HH:mm' %}
-
 {% set row = namespace(id="", start="", end="", note="") %}
-
 {% if time %}
     {% set row.id = time.id %}
     {% set row.start = arrow.get(time.start).to(settings.timezone) %}
     {% set row.note = time.note %}
-
     {% if time.end %}
         {% set row.end = arrow.get(time.end).to(settings.timezone) %}
     {% endif %}
 {% endif %}
-
 <section>
-    <form id="addEditForm" method="post" action="/frames/time_form/{{ time.id if time else '' }}">
+    <form id="addEditForm"
+          method="post"
+          action="/frames/time_form/{{ time.id if time else '' }}">
         <div class="row mb-3">
             <div class="col-md-6">
                 <label class="form-label">Start Time</label>
-                <input class="form-control flatpickr" type="text" name="start" data-date-type="datetime" data-date-value="{{ row.start }}" required />
+                <input class="form-control flatpickr"
+                       type="text"
+                       name="start"
+                       data-date-type="datetime"
+                       data-date-value="{{ row.start }}"
+                       required/>
             </div>
             <div class="col-md-6">
                 <label class="form-label">End Time</label>
-                <input class="form-control flatpickr" type="text" name="end" data-date-type="datetime" data-date-value="{{ row.end }}" required />
+                <input class="form-control flatpickr"
+                       type="text"
+                       name="end"
+                       data-date-type="datetime"
+                       data-date-value="{{ row.end }}"
+                       required/>
             </div>
-
             <div class="mt-3">
                 <label class="form-label">Note</label>
                 <textarea class="form-control" name="note" rows="5">{{ row.note }}</textarea>
             </div>
-
             <input type="hidden" name="clock" value="manual" />
             <input type="hidden" name="row_id" value="{{ row.id }}" />
-
             {% if time %}
-                <div>
+                <div class="break-list">
                     <h4 class="mt-4">Breaks</h4>
-                    {# TODO: Clicking this should add a new empty break row #}
-                    <button type="button" class="btn btn-link p-0">Add Break</button>
-
+                    <button type="button" class="add-break btn btn-link p-0 mb-2">Add Break</button>
                     {% for break in time.breaks %}
                         {% set break_start = arrow.get(break.start).to(settings.timezone) %}
                         {% set break_end = arrow.get(break.end).to(settings.timezone) if break.end else "" %}
-
-                        <div class="row">
+                        <div class="row mb-2">
                             <div class="col-3">
-                                <input class="flatpickr" type="text" name="break-start-{{ break.id }}" data-date-type="datetime" data-date-value="{{ break_start }}" />
+                                <input class="flatpickr"
+                                       type="text"
+                                       name="break-start-{{ break.id }}"
+                                       data-date-type="datetime"
+                                       data-date-value="{{ break_start }}"/>
                             </div>
                             <div class="col-3">
-                                <input class="flatpickr col-3" type="text" name="break-end-{{ break.id }}" data-date-type="datetime" data-date-value="{{ break_end }}" />
+                                <input class="flatpickr col-3"
+                                       type="text"
+                                       name="break-end-{{ break.id }}"
+                                       data-date-type="datetime"
+                                       data-date-value="{{ break_end }}"/>
                             </div>
                         </div>
                     {% endfor %}
@@ -57,11 +67,8 @@
     </form>
     <div class="d-flex flex-row justify-content-end">
         <button id="submit" type="button" class="btn btn-primary">Save changes</button>
-        {% if time %}
-            <button id="delete" class="btn btn-danger ms-3" data-time-id="{{ row.id }}">Delete</button>
-        {% endif %}
+        {% if time %}<button id="delete" class="btn btn-danger ms-3" data-time-id="{{ row.id }}">Delete</button>{% endif %}
     </div>
-
     <script>
         // NOTE: Using an IIFE here means our top level variables are function scoped instead of document scoped
         // If we don't do this then the we get variable re-decleration warnings
@@ -72,12 +79,25 @@
             frame.querySelector("#submit").addEventListener('click', async e => {
                 const form = frame.querySelector("form");
 
+                let jsonRequest = {};
                 let formData = new FormData(form);
-                let jsonRequest = JSON.stringify(Object.fromEntries(formData));
+
+                formData.forEach((value, key) => {
+                    if (!jsonRequest.hasOwnProperty(key)) {
+                        jsonRequest[key] = value;
+                        return;
+                    }
+
+                    if (!Array.isArray(jsonRequest[key])) {
+                        jsonRequest[key] = [jsonRequest[key]];
+                    }
+
+                    jsonRequest[key].push(value);
+                });
 
                 let response = await fetch("/frames/time_form/{{ row.id }}", {
                     method: 'POST',
-                    body: jsonRequest,
+                    body: JSON.stringify(jsonRequest),
                     headers: {
                         'Content-Type': 'application/json'
                     }
@@ -87,7 +107,7 @@
                     frame.emit("time:changed");
                 } else {
                     // TODO: Show flash here
-                    console.error(`Failed to add time record: ${response.text}`)
+                    console.error(`Failed to add time record: ${await response.text()}`)
                 }
             });
 
@@ -101,9 +121,29 @@
                     frame.emit("time:changed");
                 } else {
                     // TODO: Show flash here
-                    console.error(`Failed to delete time record ${id}: ${response.text}`)
+                    console.error(`Failed to delete time record ${id}: ${await response.text()}`)
                 }
             });
+
+            /**
+             * When clicking `Add Break` add a new break row
+             */
+            frame.querySelectorAll(".add-break").forEach(btn => btn.addEventListener("click", e => {
+                const breakList = btn.closest(".break-list");
+                breakList.insertAdjacentHTML("beforeend", `
+                    <div class="row mb-2">
+                        <div class="col-3">
+                            <input class="flatpickr" type="text" name="new-break-start" data-date-type="datetime"/>
+                        </div>
+                        <div class="col-3">
+                            <input class="flatpickr col-3" type="text" name="new-break-end" data-date-type="datetime"/>
+                        </div>
+                    </div>
+                `);
+
+                const newBreakRow = [ ...breakList.querySelectorAll(".row") ].pop()
+                newBreakRow.querySelectorAll(".flatpickr").forEach(picker => window.initDatePicker(picker));
+            }))
         })();
     </script>
 </section>

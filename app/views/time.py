@@ -1,10 +1,11 @@
+from flask import Blueprint
+from flask import current_app as app
+from flask import redirect, render_template, request
+
 from app.controllers import settings, time
 from app.controllers.user.util import login_required
 from app.lib.logger import get_logger
 from app.lib.util.date import humanize_seconds
-from flask import Blueprint
-from flask import current_app as app
-from flask import redirect, render_template, request
 
 v = Blueprint("time", __name__)
 logger = get_logger(__name__)
@@ -77,6 +78,8 @@ def clock_in_form():
 @v.route("/frames/time_form/<row_id>", methods=["GET", "POST"])
 @login_required
 def time_form(row_id: str = ""):
+    from app.lib.util.ensure import ensure_list
+
     if request.method == "POST" and request.json:
         from collections import defaultdict
 
@@ -89,12 +92,27 @@ def time_form(row_id: str = ""):
             )
 
             breaks = defaultdict(dict)
+
+            # Handle any edits to existing breaks
             for key, value in request.json.items():
                 if key.startswith("break-"):
                     _, field, break_id = key.split("-")
                     breaks[break_id][field] = value
 
             time.bulk_update(table="break", data=breaks)
+
+            # Handle any new breaks
+            new_breaks_starts = ensure_list(request.json.get("new-break-start", []))
+            new_breaks_ends = ensure_list(request.json.get("new-break-end", []))
+            new_breaks = zip(new_breaks_starts, new_breaks_ends)
+
+            for new_break in new_breaks:
+                time.add_break(
+                    time_id=row_id,
+                    break_start=new_break[0],
+                    break_end=new_break[1],
+                )
+
         else:
             time.create(
                 start=request.json["start"],
