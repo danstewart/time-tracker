@@ -42,6 +42,7 @@ def handle_login():
             try:
                 login_session = login(email, password)
                 flask_session["login_session_key"] = login_session.key
+                flask_session.permanent = True
                 return redirect("/")
             except UserAuthFailed:
                 flash("Invalid username or password.", "danger")
