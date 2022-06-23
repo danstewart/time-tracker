@@ -16,7 +16,11 @@ Basic time logging tool.
 
 Start on http://localhost:4000/ via docker
 ```bash
+# Dev mode
 docker-compose up -d --build app
+
+# Prod mode
+docker compose -f docker-compose.yml up -d --build
 ```
 
 #### Install dependencies locally
