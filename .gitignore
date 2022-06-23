@@ -1,6 +1,8 @@
 # Config
 config/app_config.py
 
+db/
+
 # Temp files
 tmp/*
 !tmp/.keep
