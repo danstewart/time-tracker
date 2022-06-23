@@ -1,6 +1,6 @@
 import flatpickr from "https://cdn.jsdelivr.net/npm/flatpickr/+esm";
 import spacetime from "https://cdn.jsdelivr.net/npm/spacetime/+esm";
-import { registerControllers } from "/static/js/vendor/binder.js";
+import { registerControllers } from "/static/js/vendor/binder/binder.js";
 import { DynamicFrame } from "/static/js/components/dynamic_frame.js";
 import { ModalFrame } from "/static/js/components/modal_frame.js";
 
@@ -65,7 +65,7 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 // Whenever a dynamic-frame updates re-initialise the datepickers and lightboxes
-window.addEventListener("dynamic-frame:updated", () => {
-    const pickers = document.querySelectorAll(".flatpickr");
+window.addEventListener("dynamic-frame:updated", e => {
+    const pickers = e.target.querySelectorAll(".flatpickr");
     pickers.forEach(picker => window.initDatePicker(picker));
 });

@@ -1,4 +1,4 @@
-import { Controller, html } from '/static/js/vendor/binder.js';
+import { Controller, html } from "/static/js/vendor/binder/binder.js";
 
 // A Bootstrap 5 modal with a dynamic-frame as it's content
 // The dynamic-frame is lazily loaded the first time the modal is shown
@@ -16,10 +16,10 @@ class ModalFrame extends Controller {
         `;
 
         this.loaded = false;
-        this.modal = this.querySelector('.modal');
+        this.modal = this.querySelector(".modal");
         this.modal.addEventListener("show.bs.modal", e => this.onShow(e));
 
-        this.listenFor(`${this.modalId}:close`, e => this.modal('hide'));
+        this.listenFor(`${this.modalId}:close`, e => this.modal("hide"));
     }
 
     onShow(e) {
