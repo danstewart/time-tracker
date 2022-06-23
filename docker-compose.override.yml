@@ -13,5 +13,6 @@ services:
       LOG_LEVEL: ${LOG_LEVEL:-warning}
     volumes:
       - './app:/home/app/log-my-time/app'
+      - './db:/home/app/log-my-time/db'
       - './config:/home/app/log-my-time/config'
       - './tests:/home/app/log-my-time/tests'
