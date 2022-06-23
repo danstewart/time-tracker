@@ -12,6 +12,70 @@
                    :url="/frames/clock_in_form">
     </dynamic-frame>
     <!-- Time Log Table -->
-    <dynamic-frame id="log-table" :execute-scripts="true" :url="/frames/time-log-table">
+    <dynamic-frame id="log-table"
+                   :execute-scripts="true"
+                   :url="/frames/time-log-table"
+                   :param-week=""
+                   :mount-point=".content">
+        {# Control which week we are viewing in the list #}
+        {# NOTE: This does not impact the stats above #}
+        <div class="d-flex align-items-end justify-content-end pb-2">
+            <div class="input-group" style="width: auto">
+                <button data-type="prev" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i>
+                </button>
+                <select class="form-select">
+                    <option value="">
+                        This Week
+                    </option>
+                    {% for week in week_list %}
+                        <option value="{{ week }}">
+                            {% if loop.index == 1 %}
+                                Last Week
+                            {% else %}
+                                {{ loop.index }} weeks ago
+                            {% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+                <button data-type="next" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+        <div class="content"></div>
     </dynamic-frame>
+    <script>
+        // Handle week change
+        const frame = document.querySelector("#log-table");
+        const select = frame.querySelector("select");
+        select.addEventListener("change", (e) => {
+            frame.setAttribute(":param-week", e.target.value);
+            frame.refresh();
+        });
+
+        frame.querySelectorAll("button").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const selectedIndex = select.selectedIndex;
+                const type = e.target.closest("button").getAttribute("data-type");
+
+                if (type === "prev" && selectedIndex < select.options.length - 1) {
+                    select.selectedIndex = selectedIndex + 1;
+                    select.dispatchEvent(new Event("change"))
+                } else if (type === "next" && selectedIndex > 0) {
+                    select.selectedIndex = selectedIndex - 1;
+                    select.dispatchEvent(new Event("change"))
+                }
+
+            });
+        });
+    </script>
+    <style>
+        #log-table select {
+            background-image: none;
+            padding: 0;
+            padding-left: 10px;
+            margin: 0;
+        }
+    </style>
 {% endblock content %}

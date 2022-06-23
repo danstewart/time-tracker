@@ -16,6 +16,7 @@ logger = get_logger(__name__)
 def home():
     return render_template(
         "pages/home.html.j2",
+        week_list=time.week_list(),
     )
 
 
@@ -52,7 +53,8 @@ def delete_time(row_id):
 @v.get("/frames/time-log-table")
 @login_required
 def time_log_table():
-    time_entries = time.all()
+    week_number = request.args.get("week")
+    time_entries = time.all_for_week(week_number)
     return render_template("frames/time_log_table.html.j2", time_entries=time_entries)
 
 

@@ -95,6 +95,7 @@ class Break(db.Entity):  # type:ignore
 class Settings(db.Entity):  # type:ignore
     id: int = pony.PrimaryKey(int, auto=True)  # type:ignore
     timezone: str = pony.Required(str)  # type:ignore
+    # 1 = Monday, 7 = Sunday
     week_start: int = pony.Required(int)  # type:ignore
     hours_per_day: float = pony.Required(float)  # type:ignore
     work_days: str = pony.Required(  # type:ignore

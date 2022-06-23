@@ -44,10 +44,10 @@
                             data-bs-target="#accordion-{{ time.id }}-body"
                             aria-controls="{{ time.id }}-accordion-body">
                         <div class="d-flex justify-content-between flex-grow-1">
-                            <p>
-                                <span class="fw-bold">{{ start.format("Do [of] MMM") }}</span>
-                                <span>{{ start.format("HH:mm") }} - {{ end.format("HH:mm") if end else 'Still clocked in' }}</span>
-                            </p>
+                            <div class="d-flex flex-column">
+                                <p class="fw-bold mb-1">{{ start.format("dddd Do [of] MMM") }}</p>
+                                <p>{{ start.format("HH:mm") }} - {{ end.format("HH:mm") if end else 'Still clocked in' }}</p>
+                            </div>
                             <span class="badge bg-secondary time-badge">{{ humanize_seconds(time.logged(), short=True) }}</span>
                         </div>
                     </button>

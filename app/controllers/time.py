@@ -24,6 +24,40 @@ def all() -> Iterator[Time]:
 
 
 @pony.db_session
+def all_for_week(week: str = "") -> Iterator[Time]:
+    """
+    Return all time records sorted by start date for the given week
+
+    Week should be in the format ${YEAR}-W${WEEK_NUMBER}, eg 2022-W25
+    """
+    _settings = settings.fetch()
+    _tz = _settings.timezone
+
+    local_now = arrow.now(tz=_tz)
+
+    if not week:
+        now = arrow.utcnow()
+        week = "{}-W{}".format(now.year, now.week)
+
+    week_start = arrow.get(week)
+
+    # Adjust for `settings.week_start`
+    week_start_day_0 = _settings.week_start - 1  # Settings are 1-indexed but we need 0-indexed here
+    if week_start_day_0 > 0:
+        week_start = week_start.shift(weekday=week_start_day_0)
+
+        if week_start_day_0 > local_now.weekday():
+            week_start = week_start.shift(weeks=-1)
+
+    week_end = week_start.shift(days=7)
+    return (
+        Time.select()
+        .filter(lambda t: t.start > week_start.int_timestamp and t.start < week_end.int_timestamp)
+        .order_by(pony.desc(Time.start), pony.desc(Time.id))
+    )
+
+
+@pony.db_session
 def create(start: str, end: Optional[str] = None, date: Optional[str] = None, note: str = "") -> Time:
     """Create a new time record"""
     _settings = settings.fetch()
@@ -223,3 +257,19 @@ def stats() -> TimeStats:
         remaining_today=humanize_seconds(remaining_today, short=True),
         overtime=humanize_seconds(overtime, short=True),
     )
+
+
+def week_list() -> list[str]:
+    """
+    Returns a list of weeks since the first record in the format ${year}-W${week}, eg. 2022-W25
+    """
+    first_record = Time.select().order_by(Time.start).first()
+    record = arrow.get(first_record.start)
+    now = arrow.utcnow()
+
+    weeks = []
+    while record.year < now.year or record.week < now.week:
+        weeks.append("{}-W{}".format(record.year, record.week))
+        record = record.shift(weeks=1)
+
+    return list(reversed(weeks))

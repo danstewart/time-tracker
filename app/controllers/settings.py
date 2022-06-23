@@ -15,7 +15,7 @@ def fetch() -> Settings:
         # These are the default settings
         settings = Settings(
             timezone="Europe/London",
-            week_start=0,  # Monday
+            week_start=1,  # Monday
             hours_per_day=7.5,
             work_days="MTWTF--",
             user=get_user(),
