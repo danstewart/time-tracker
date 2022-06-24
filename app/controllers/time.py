@@ -1,6 +1,7 @@
 from typing import Iterator, Optional
 
 import arrow
+from flask import abort
 
 from app.controllers import settings
 from app.controllers.user.util import get_user
@@ -14,13 +15,16 @@ logger = get_logger(__name__)
 
 @pony.db_session
 def get(row_id: str) -> Time:
-    return Time[row_id]
+    t = Time.select().filter(lambda row: row.id == row_id and row.user == get_user()).first()
+    if not t:
+        abort(403)
+    return t
 
 
 @pony.db_session
 def all() -> Iterator[Time]:
     """Return all time records sorted by start date"""
-    return Time.select().order_by(pony.desc(Time.start), pony.desc(Time.id))
+    return Time.select().filter(lambda row: row.user == get_user()).order_by(pony.desc(Time.start), pony.desc(Time.id))
 
 
 @pony.db_session
@@ -52,7 +56,9 @@ def all_for_week(week: str = "") -> Iterator[Time]:
     week_end = week_start.shift(days=7)
     return (
         Time.select()
-        .filter(lambda t: t.start > week_start.int_timestamp and t.start < week_end.int_timestamp)
+        .filter(
+            lambda t: t.start > week_start.int_timestamp and t.start < week_end.int_timestamp and t.user == get_user()
+        )
         .order_by(pony.desc(Time.start), pony.desc(Time.id))
     )
 
@@ -88,7 +94,10 @@ def update(row_id: str, start: str, end: Optional[str] = None, note: str = "") -
     if end:
         end_dt = arrow.get(end, tzinfo=_tz).int_timestamp
 
-    t = Time[row_id]
+    t = Time.select().filter(lambda row: row.id == row_id and row.user == get_user()).first()
+    if not t:
+        abort(403)
+
     t.start = start_dt
     t.end = end_dt
     t.note = note
@@ -101,7 +110,7 @@ def delete(row_id: int) -> bool:
     Deletes a time record by ID
     Returns True if deleted and False if not
     """
-    if record := Time.get(id=row_id):
+    if record := Time.select().filter(lambda row: row.id == row_id and row.user == get_user()):
         record.delete()
         return True
     return False
@@ -115,7 +124,9 @@ def clock_out(end: str):
 
     end_dt = arrow.get(end, tzinfo=_tz)
 
-    current_record = Time.select().filter(lambda t: t.end is None).order_by(pony.desc(Time.start)).first()
+    current_record = (
+        Time.select().filter(lambda t: t.end is None and t.user == get_user()).order_by(pony.desc(Time.start)).first()
+    )
 
     current_record.end = end_dt.int_timestamp
     current_record.logged = end_dt.int_timestamp - current_record.start
@@ -129,7 +140,9 @@ def break_start(start: str):
 
     start_dt = arrow.get(start, tzinfo=_tz)
 
-    current_record = Time.select().filter(lambda t: t.end is None).order_by(pony.desc(Time.start)).first()
+    current_record = (
+        Time.select().filter(lambda t: t.end is None and t.user == get_user()).order_by(pony.desc(Time.start)).first()
+    )
 
     current_record.breaks.add(Break(time=current_record, start=start_dt.int_timestamp))
 
@@ -142,7 +155,9 @@ def break_end(end: str):
 
     end_dt = arrow.get(end, tzinfo=_tz)
 
-    current_record = Time.select().filter(lambda t: t.end is None).order_by(pony.desc(Time.start)).first()
+    current_record = (
+        Time.select().filter(lambda t: t.end is None and t.user == get_user()).order_by(pony.desc(Time.start)).first()
+    )
 
     current_break = current_record.breaks.filter(lambda b: not b.end)
     if current_break.first():
@@ -151,7 +166,9 @@ def break_end(end: str):
 
 @pony.db_session
 def add_break(time_id: str, break_start: str, break_end: str | None):
-    time_record = Time[time_id]
+    time_record = Time.select().filter(lambda t: t.id == time_id and t.user == get_user()).first()
+    if not time_record:
+        abort(403)
 
     _settings = settings.fetch()
     _tz = _settings.timezone
@@ -263,7 +280,7 @@ def week_list() -> list[str]:
     """
     Returns a list of weeks since the first record in the format ${year}-W${week}, eg. 2022-W25
     """
-    first_record = Time.select().order_by(Time.start).first()
+    first_record = Time.select().filter(lambda t: t.user == get_user()).order_by(Time.start).first()
     record = arrow.get(first_record.start)
     now = arrow.utcnow()
 

@@ -82,7 +82,10 @@ class Time(db.Entity):  # type:ignore
 
     @classmethod
     def since(cls, timestamp):
-        return pony.select(row for row in cls if row.start >= timestamp)
+        from app.controllers.user.util import get_user
+
+        user = get_user()
+        return pony.select(row for row in cls if row.start >= timestamp and row.user == user)
 
 
 class Break(db.Entity):  # type:ignore
