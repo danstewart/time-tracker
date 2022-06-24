@@ -281,6 +281,9 @@ def week_list() -> list[str]:
     Returns a list of weeks since the first record in the format ${year}-W${week}, eg. 2022-W25
     """
     first_record = Time.select().filter(lambda t: t.user == get_user()).order_by(Time.start).first()
+    if not first_record:
+        return []
+
     record = arrow.get(first_record.start)
     now = arrow.utcnow()
 
