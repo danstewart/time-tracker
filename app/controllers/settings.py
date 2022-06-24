@@ -12,7 +12,7 @@ def fetch() -> Settings:
     from app.controllers.user.util import get_user
 
     user = get_user()
-    settings = Settings.select().filter(lambda s: s.user == user)
+    settings = Settings.select().filter(lambda s: s.user == user).first()
 
     if not settings:
         # These are the default settings
@@ -33,7 +33,7 @@ def update(**values):
     from app.controllers.user.util import get_user
 
     user = get_user()
-    settings = Settings.select().filter(lambda s: s.user == user)
+    settings = Settings.select().filter(lambda s: s.user == user).first()
 
     if not settings:
         abort(403)
