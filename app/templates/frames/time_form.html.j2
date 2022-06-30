@@ -15,23 +15,43 @@
         <div class="row mb-3">
             <div class="col-md-6">
                 <label class="form-label">Start Time</label>
-                <input class="form-control flatpickr"
-                       type="text"
-                       name="start"
-                       data-date-type="datetime"
-                       data-date-value="{{ row.start }}"
-                       {% if not time.id %} data-set-default{% endif %}
-                       required/>
+                <div class="input-group">
+                    <input class="form-control flatpickr"
+                           type="text"
+                           name="start"
+                           data-date-type="datetime"
+                           data-date-value="{{ row.start }}"
+                           {% if not time.id %} data-set-default{% endif %}
+                           required/>
+                    <button class="btn btn-outline-secondary"
+                            type="button"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            onclick="this.previousElementSibling.value = ''"
+                            title="Clear End Time">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
             </div>
             <div class="col-md-6">
                 <label class="form-label">End Time</label>
-                <input class="form-control flatpickr"
-                       type="text"
-                       name="end"
-                       data-date-type="datetime"
-                       data-date-value="{{ row.end }}"
-                       {% if not time.id %} data-set-default{% endif %}
-                       required/>
+                <div class="input-group">
+                    <input class="form-control flatpickr"
+                           type="text"
+                           name="end"
+                           data-date-type="datetime"
+                           data-date-value="{{ row.end }}"
+                           {% if not time.id %} data-set-default{% endif %}
+                           required/>
+                    <button class="btn btn-outline-secondary"
+                            type="button"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            onclick="this.previousElementSibling.value = ''"
+                            title="Clear End Time">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
             </div>
             <div class="mt-3">
                 <label class="form-label">Note</label>
@@ -48,18 +68,38 @@
                         {% set break_end = arrow.get(break.end).to(settings.timezone) if break.end else "" %}
                         <div class="row mb-2">
                             <div class="col-3">
-                                <input class="flatpickr"
-                                       type="text"
-                                       name="break-start-{{ break.id }}"
-                                       data-date-type="datetime"
-                                       data-date-value="{{ break_start }}"/>
+                                <div class="input-group">
+                                    <input class="flatpickr"
+                                           type="text"
+                                           name="break-start-{{ break.id }}"
+                                           data-date-type="datetime"
+                                           data-date-value="{{ break_start }}"/>
+                                    <button class="btn btn-outline-secondary"
+                                            type="button"
+                                            data-toggle="tooltip"
+                                            data-placement="top"
+                                            onclick="this.previousElementSibling.value = ''"
+                                            title="Clear End Time">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="col-3">
-                                <input class="flatpickr col-3"
-                                       type="text"
-                                       name="break-end-{{ break.id }}"
-                                       data-date-type="datetime"
-                                       data-date-value="{{ break_end }}"/>
+                                <div class="input-group">
+                                    <input class="flatpickr col-3"
+                                           type="text"
+                                           name="break-end-{{ break.id }}"
+                                           data-date-type="datetime"
+                                           data-date-value="{{ break_end }}"/>
+                                    <button class="btn btn-outline-secondary"
+                                            type="button"
+                                            data-toggle="tooltip"
+                                            data-placement="top"
+                                            onclick="this.previousElementSibling.value = ''"
+                                            title="Clear End Time">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     {% endfor %}
