@@ -20,6 +20,7 @@
                        name="start"
                        data-date-type="datetime"
                        data-date-value="{{ row.start }}"
+                       {% if not time.id %} data-set-default{% endif %}
                        required/>
             </div>
             <div class="col-md-6">
@@ -29,6 +30,7 @@
                        name="end"
                        data-date-type="datetime"
                        data-date-value="{{ row.end }}"
+                       {% if not time.id %} data-set-default{% endif %}
                        required/>
             </div>
             <div class="mt-3">

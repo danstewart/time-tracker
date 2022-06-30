@@ -16,6 +16,7 @@ window.initDatePicker = picker => {
 
     const pickerType = picker.getAttribute("data-date-type");
     let value = picker.getAttribute("data-date-value");
+    let setDefault = picker.hasAttribute("data-set-default");
 
     // If we have a number then it will be an epoch in seconds
     // Flatpickr expects an epoch to be in milliseconds
@@ -24,6 +25,8 @@ window.initDatePicker = picker => {
     }
 
     if (pickerType === "time") {
+        let defaultValue = value;
+        if (!value && setDefault) defaultValue = `${date} ${hour}:${mins}`;
         flatpickr(picker, {
             enableTime: true,
             noCalendar: true,
@@ -31,26 +34,30 @@ window.initDatePicker = picker => {
             altFormat: "H:i",
             dateFormat: "Y-m-d H:i",
             time_24hr: true,
-            defaultDate: value || `${date} ${hour}:${mins}`,
+            defaultDate: defaultValue,
         });
     } else if (pickerType === "date") {
+        let defaultValue = value;
+        if (!value && setDefault) defaultValue = date;
         flatpickr(picker, {
             altInput: true,
             altFormat: "F j, Y",
             dateFormat: "Y-m-d",
-            defaultDate: value || date,
+            defaultDate: defaultValue,
             locale: {
                 firstDayOfWeek: 1,
             },
         });
     } else if (pickerType === "datetime") {
+        let defaultValue = value;
+        if (!value && setDefault) defaultValue = `${date} ${hour}:${mins}`;
         flatpickr(picker, {
             altInput: true,
             altFormat: "H:i o\\n F j, Y",
             enableTime: true,
             time_24hr: true,
             dateFormat: "Y-m-d H:i",
-            defaultDate: value || `${date} ${hour}:${mins}`,
+            defaultDate: defaultValue,
             locale: {
                 firstDayOfWeek: 1,
             },

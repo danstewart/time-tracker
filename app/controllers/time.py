@@ -201,9 +201,9 @@ def bulk_update(table, data: dict[int, dict]):
     for row_id, row in data.items():
         for key, value in row.items():
             # Convert string dates to int timestamps
-            if key in ("start", "end"):
+            if key in ("start", "end") and value:
                 value = arrow.get(value, tzinfo=_tz).int_timestamp
-            setattr(model[row_id], key, value)
+            setattr(model[row_id], key, value if value else None)
 
     pony.commit()
 
