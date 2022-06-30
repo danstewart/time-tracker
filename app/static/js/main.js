@@ -3,6 +3,7 @@ import spacetime from "https://cdn.jsdelivr.net/npm/spacetime/+esm";
 import { registerControllers } from "/static/js/vendor/binder/binder.js";
 import { DynamicFrame } from "/static/js/components/dynamic_frame.js";
 import { ModalFrame } from "/static/js/components/modal_frame.js";
+import { ClearFlatpickr } from "/static/js/components/clear_flatpickr.js";
 
 window.initDatePicker = picker => {
     const tz = document.getElementById("timezone")?.innerText;
@@ -68,7 +69,7 @@ window.initDatePicker = picker => {
 window.addEventListener("DOMContentLoaded", () => {
     const pickers = document.querySelectorAll(".flatpickr");
     pickers.forEach(picker => window.initDatePicker(picker));
-    registerControllers(DynamicFrame, ModalFrame);
+    registerControllers(DynamicFrame, ModalFrame, ClearFlatpickr);
 });
 
 // Whenever a dynamic-frame updates re-initialise the datepickers and lightboxes
