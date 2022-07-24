@@ -1,20 +1,51 @@
+from flask import Blueprint, render_template, request
+
 from app.controllers import settings
 from app.controllers.user.util import login_required
+from app.lib.database import pony
 from app.lib.logger import get_logger
-from flask import Blueprint, render_template, request
 
 v = Blueprint("settings", __name__)
 logger = get_logger(__name__)
 
 
 @v.route("/settings", methods=["GET", "POST"])
+@v.route("/settings/general", methods=["GET", "POST"])
 @login_required
-def form():
+def general_settings():
     if request.form:
         from flask import flash, redirect
 
         settings.update(**request.form)
-        flash("Settings saved!", "success")
+        flash("Settings saved", "success")
         return redirect("/")
 
-    return render_template("pages/settings.html.j2", settings=settings.fetch())
+    return render_template("pages/settings.html.j2", settings=settings.fetch(), page="general")
+
+
+@v.route("/settings/account", methods=["GET", "POST"])
+@login_required
+def account_settings():
+    from app.controllers.user import update_email
+    from app.controllers.user.util import get_user
+
+    user = get_user()
+
+    # TODO:
+    # - Support data export
+    # - Support account deletion
+    if request.form:
+        from flask import flash, redirect
+
+        if new_password := request.form.get("password"):
+            user.set_password(new_password)
+            flash("Password changed", "success")
+
+        if new_email := request.form.get("email"):
+            if new_email != user.email:
+                update_email(user, new_email)
+                flash("Email updated, please check your email to continue", "success")
+
+        return redirect("/")
+
+    return render_template("pages/settings.html.j2", page="account", email=user.email)

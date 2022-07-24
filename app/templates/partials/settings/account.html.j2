@@ -1,0 +1,28 @@
+<form method="post" action="/settings/account">
+    <div class="mb-3">
+        <div class="mb-2">
+            <label class="form-label">Change Email</label>
+            <input class="form-control"
+                   type="email"
+                   name="email"
+                   id="email"
+                   value="{{ email }}"
+                   required/>
+        </div>
+        <div class="mb-2">
+            <label class="form-label">Change Password</label>
+            {# TODO: Add show password toggle #}
+            <input class="form-control"
+                   type="password"
+                   name="password"
+                   autocomplete="new-password"
+                   value=""
+                   id="password"/>
+        </div>
+    </div>
+    <div class="d-flex justify-content-between">
+        <button class="btn btn-primary" type="submit">Submit</button>
+        {# TODO: Show confirmation pop up #}
+        {# <button class="btn btn-danger" type="delete">Delete Account</button> #}
+    </div>
+</form>

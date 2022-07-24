@@ -1,38 +1,15 @@
 {% extends "layouts/wrapper.html.j2" %}
-
 {% block content %}
-    <form method="post" action="/settings">
-        <div class="mb-3">
-            <div class="mb-2">
-                <label class="form-label">Time Zone</label>
-                <input class="form-control" type="text" name="timezone" id="timezone" value="{{ settings.timezone }}" required />
-            </div>
-            <div class="mb-2">
-                <label class="form-label">Week Start</label>
-                <select class="form-select" name="week_start" id="week_start" value="{{ settings.week_start }}" required>
-                    {% set days = [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday' ] %}
-                    {% for day in days %}
-                        <option value="{{ loop.index }}" {% if loop.index == settings.week_start %}selected{% endif %}>{{ day }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="mb-2">
-                <label class="form-label">Hours Per Day</label>
-                <input class="form-control" type="text" name="hours_per_day" id="hours_per_day" value="{{ settings.hours_per_day }}" required />
-            </div>
-            <div class="mb-2">
-                <label class="form-label">Work Days</label>
-                {% set work_days = settings.work_days_list() | list %}
-
-                {% for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] %}
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="work_day_{{ day }}" id="work_day_{{ day }}" {% if day in work_days %}checked{% endif %}/>
-                        <label class="form-check-label" for="work_day_{{ day }}">{{ day }}</label>
-                    </div>
-                {% endfor %}
-            </div>
+    <div class="row">
+        <div class="col-2 mt-1 pe-5">
+            <nav class="nav nav-pills flex-column">
+                <a class="nav-link{% if page == 'general' %} active{% endif %}"
+                   aria-current="page"
+                   href="/settings/general">General</a>
+                <a class="nav-link{% if page == 'account' %} active{% endif %}"
+                   href="/settings/account">Account</a>
+            </nav>
         </div>
-        <button class="btn btn-primary" type="submit">Submit</button>
-    </form>
+        <div class="col">{% include "partials/settings/" + page + ".html.j2" %}</div>
+    </div>
 {% endblock content %}
-

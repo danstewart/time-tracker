@@ -90,6 +90,15 @@ def login(email: str, password: str) -> LoginSession:
     )
 
 
+def logout():
+    from flask import session as flask_session
+
+    if login_session_key := flask_session.get("login_session_key"):
+        if login_session := LoginSession.get(key=login_session_key):
+            login_session.delete()
+        flask_session.pop("login_session_key")
+
+
 def send_password_reset(email: str):
     """
     If an email exists in the system then send a password reset email
@@ -110,3 +119,28 @@ def send_password_reset(email: str):
                 password_reset_url=f"{app.config['HOST']}/password-reset/{reset_token}",
             ),
         )
+
+
+def update_email(user: User, new_email: str):
+    """
+    Sends a user a verification email to verify their new email address
+    If not clicked then nothing is changed
+    """
+    verify_token = create_token(
+        payload={
+            "type": "verify",
+            "user_id": user.id,
+            "new_email": new_email,
+        },
+        timeout=604800,  # 7 days
+    )
+
+    # TODO: Need to check email is not already in use here
+    send_email(
+        to_email=new_email,
+        subject="Email change for LogMyTime",
+        html=render_template(
+            "email/email_change.html.j2",
+            verify_url=f"{app.config['HOST']}/verify/{verify_token}",
+        ),
+    )

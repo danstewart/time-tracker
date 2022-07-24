@@ -79,8 +79,9 @@ def handle_login():
 
 @v.get("/logout")
 def logout():
-    if "login_session_key" in flask_session:
-        flask_session.pop("login_session_key")
+    from app.controllers.user import logout
+
+    logout()
     return redirect("/login")
 
 
@@ -97,10 +98,14 @@ def verify_user_email(token: str):
         flash("Invalid token", "danger")
         return redirect("/login")
 
-    user = User.get(id=payload["user_id"])
+    user: User = User.get(id=payload["user_id"])
     if not user:
         flash("Invalid token", "danger")
         return redirect("/login")
+
+    # If we're requesting an email change it will be handled here
+    if new_email := payload.get("new_email"):
+        user.email = new_email
 
     user.verify()
 
