@@ -19,6 +19,7 @@
                    value=""
                    id="password"/>
         </div>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
     </div>
     <div class="d-flex justify-content-between">
         <button class="btn btn-primary" type="submit">Submit</button>

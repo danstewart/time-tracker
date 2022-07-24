@@ -48,6 +48,7 @@
                 </div>
             {% endfor %}
         </div>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
     </div>
     <button class="btn btn-primary" type="submit">Submit</button>
 </form>

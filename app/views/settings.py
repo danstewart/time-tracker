@@ -37,14 +37,21 @@ def account_settings():
     if request.form:
         from flask import flash, redirect
 
+        has_changed = False
+
         if new_password := request.form.get("password"):
+            has_changed = True
             user.set_password(new_password)
             flash("Password changed", "success")
 
         if new_email := request.form.get("email"):
             if new_email != user.email:
+                has_changed = True
                 update_email(user, new_email)
                 flash("Email updated, please check your email to continue", "success")
+
+        if not has_changed:
+            flash("No changes made", "info")
 
         return redirect("/")
 

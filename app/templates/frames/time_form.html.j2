@@ -47,6 +47,7 @@
             </div>
             <input type="hidden" name="clock" value="manual" />
             <input type="hidden" name="row_id" value="{{ row.id }}" />
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
             {% if time %}
                 <div class="break-list">
                     <h4 class="mt-4">Breaks</h4>
