@@ -126,6 +126,25 @@ def update_email(user: User, new_email: str):
     Sends a user a verification email to verify their new email address
     If not clicked then nothing is changed
     """
+
+    # If an account already exists for this email then send a different email advising the user to use the existing account
+    if existing_user := User.get(email=new_email):
+        reset_token = create_token(
+            {
+                "type": "password-reset",
+                "user_id": existing_user.id,
+            }
+        )
+        send_email(
+            to_email=new_email,
+            subject="Email change for LogMyTime",
+            html=render_template(
+                "email/email_change_already_exists.html.j2",
+                password_reset_url=f"{app.config['HOST']}/password-reset/{reset_token}",
+            ),
+        )
+        return
+
     verify_token = create_token(
         payload={
             "type": "verify",
@@ -135,7 +154,6 @@ def update_email(user: User, new_email: str):
         timeout=604800,  # 7 days
     )
 
-    # TODO: Need to check email is not already in use here
     send_email(
         to_email=new_email,
         subject="Email change for LogMyTime",
