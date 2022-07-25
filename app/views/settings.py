@@ -31,13 +31,22 @@ def account_settings():
 
     user = get_user()
 
-    # TODO:
-    # - Support data export
-    # - Support account deletion
     if request.form:
         from flask import flash, redirect
 
         has_changed = False
+        submit = request.form.get("submit", "save")
+
+        if submit == "delete-account":
+            from app.controllers.user import delete_account, logout
+
+            user = get_user()
+
+            delete_account(user)
+            logout()
+
+            flash("Your account has been deleted", "success")
+            return redirect("/login")
 
         if new_password := request.form.get("password"):
             has_changed = True

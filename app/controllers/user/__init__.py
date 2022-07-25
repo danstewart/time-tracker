@@ -162,3 +162,15 @@ def update_email(user: User, new_email: str):
             verify_url=f"{app.config['HOST']}/verify/{verify_token}",
         ),
     )
+
+
+def delete_account(user: User):
+    """
+    Deletes a user's account
+    """
+    from app.models import User
+
+    # We have cascading deletes :)
+    User.get(id=user.id).delete()
+
+    pony.commit()

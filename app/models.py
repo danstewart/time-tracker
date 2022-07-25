@@ -13,10 +13,10 @@ class User(db.Entity):  # type:ignore
     password: Optional[str] = pony.Optional(str)  # type:ignore
     verified: Optional[bool] = pony.Optional(bool, default=False)  # type:ignore
 
-    settings: Optional["Settings"] = pony.Optional("Settings")  # type:ignore
-    time_entries: list["Time"] = pony.Set("Time")  # type:ignore
+    settings: Optional["Settings"] = pony.Optional("Settings", cascade_delete=True)  # type:ignore
+    time_entries: list["Time"] = pony.Set("Time", cascade_delete=True)  # type:ignore
 
-    login_session: list["LoginSession"] = pony.Set("LoginSession")  # type:ignore
+    login_session: list["LoginSession"] = pony.Set("LoginSession", cascade_delete=True)  # type:ignore
 
     def verify(self):
         """
@@ -65,7 +65,7 @@ class Time(db.Entity):  # type:ignore
     end: Optional[int] = pony.Optional(int)  # type:ignore
     note: Optional[str] = pony.Optional(str)  # type:ignore
 
-    breaks: list["Break"] = pony.Set("Break")  # type:ignore
+    breaks: list["Break"] = pony.Set("Break", cascade_delete=True)  # type:ignore
     user: User = pony.Required(User)  # type:ignore
 
     def logged(self):
