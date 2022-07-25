@@ -77,3 +77,27 @@ window.addEventListener("dynamic-frame:updated", e => {
     const pickers = e.target.querySelectorAll(".flatpickr");
     pickers.forEach(picker => window.initDatePicker(picker));
 });
+
+window.flash = (message, type = "info") => {
+    const flashContainer = document.querySelector("#flash-messages");
+
+    let newFlash = document.createElement("div");
+    newFlash.innerHTML = `
+        <div class="alert alert-${type}"
+                role="alert"
+                aria-live="assertive"
+                aria-atomic="true"
+                data-bs-autohide="true">
+            <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button onclick="this.parentNode.parentNode.remove()"
+                        type="button"
+                        class="btn-close me-2 m-auto"
+                        data-bs-dismiss="toast"
+                        aria-label="Close">
+                </button>
+            </div>
+        </div>`;
+
+    flashContainer.insertBefore(newFlash, flashContainer.firstChild);
+};
