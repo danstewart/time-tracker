@@ -56,11 +56,9 @@
             window.addEventListener("time:changed", e => frame.refresh());
 
             // TODO: Add this functionality to binderjs
+            // TODO: Only do this while clocked in
             window.setInterval(() => {
-                if (!document.hidden) {
-                    console.log("auto refresh")
-                    frame.refresh();
-                }
+                if (!document.hidden) frame.refresh();
             }, 30000);
 
             frame.initialised = true;
