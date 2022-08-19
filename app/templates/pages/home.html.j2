@@ -43,15 +43,36 @@
                 </button>
             </div>
         </div>
+        {# Spinner #}
+        <div class="text-center">
+            <div class="spinner-border d-none"
+                 style="width: 3rem;
+                        height: 3rem;"
+                 role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        {# Content #}
         <div class="content"></div>
     </dynamic-frame>
     <script>
         // Handle week change
         const frame = document.querySelector("#log-table");
         const select = frame.querySelector("select");
-        select.addEventListener("change", (e) => {
+
+        const content = frame.querySelector(".content");
+        const spinner = frame.querySelector(".spinner-border");
+
+        select.addEventListener("change", async (e) => {
+            content.classList.add("d-none");
+            spinner.classList.remove("d-none");
+
             frame.setAttribute(":param-week", e.target.value);
-            frame.refresh();
+            await frame.refresh();
+            await setTimeout(() => {
+                content.classList.remove("d-none");
+                spinner.classList.add("d-none");
+            }, 200);
         });
 
         frame.querySelectorAll("button").forEach(btn => {
@@ -66,7 +87,6 @@
                     select.selectedIndex = selectedIndex - 1;
                     select.dispatchEvent(new Event("change"))
                 }
-
             });
         });
     </script>
