@@ -47,7 +47,23 @@
     (function() {
         const frame = document.currentScript.parentNode;
 
-        // If any time data changes then update ourselves
-        window.addEventListener("time:changed", e => frame.refresh());
+        // NOTE: We need this initialised to check to avoid adding the event listener
+        // and interval each time the page refreshes
+        // It's a bit hacky, would be good to have a better way to do this
+        // Maybe `runOnce` and `run` functions?
+        if (!frame.initialised) {
+            // If any time data changes then update ourselves
+            window.addEventListener("time:changed", e => frame.refresh());
+
+            // TODO: Add this functionality to binderjs
+            window.setInterval(() => {
+                if (!document.hidden) {
+                    console.log("auto refresh")
+                    frame.refresh();
+                }
+            }, 30000);
+
+            frame.initialised = true;
+        }
     })();
 </script>
