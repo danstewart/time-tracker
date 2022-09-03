@@ -174,3 +174,25 @@ def delete_account(user: User):
     User.get(id=user.id).delete()
 
     pony.commit()
+
+def export_data(user: User) -> str:
+    import json
+
+    from app.controllers import settings, time
+
+    time_records = []
+    for time in time.all():
+        rec = time.to_dict(exclude=["id", "user"])
+        rec["breaks"] = []
+        for brk in time.breaks:
+            rec["breaks"].append(brk.to_dict(exclude=["id", "time"]))
+        
+        time_records.append(rec)
+
+    export = {
+        "time": time_records,
+        "settings": settings.fetch().to_dict(exclude=["id", "user"]),
+        "user": user.to_dict(exclude=["id", "password", "settings"]),
+    }
+
+    return json.dumps(export)
