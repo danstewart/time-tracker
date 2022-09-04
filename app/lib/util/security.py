@@ -25,7 +25,7 @@ def generate_csrf_token() -> str:
 
     csrf_key = f"csrf:{token}"
     session.set(csrf_key, user.id)
-    session.expire(csrf_key, 300)
+    session.expire(csrf_key, 300)  # Expire tokens after 5 minutes
 
     return token
 
@@ -50,8 +50,6 @@ def validate_csrf_token(token: str):
             raise InvalidCSRFToken("Invalid CSRF token")
     except ValueError:
         raise InvalidCSRFToken("Invalid CSRF token")
-    finally:
-        session.delete(f"csrf:{token}")
 
 
 def enable_csrf_protection(app):
