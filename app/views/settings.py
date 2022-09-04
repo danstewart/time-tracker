@@ -40,13 +40,21 @@ def account_settings():
         if submit == "delete-account":
             from app.controllers.user import delete_account, logout
 
-            user = get_user()
-
             delete_account(user)
             logout()
 
             flash("Your account has been deleted", "success")
             return redirect("/login")
+        elif submit == "export":
+            from flask import make_response
+
+            from app.controllers.user import export_data
+
+            response = make_response(
+                export_data(user),
+            )
+            response.headers["Content-Type"] = "application/json"
+            return response
 
         if new_password := request.form.get("password"):
             has_changed = True

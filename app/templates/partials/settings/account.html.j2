@@ -27,13 +27,16 @@
     </div>
     <div class="d-flex justify-content-between">
         <button class="btn btn-primary" name="submit" value="save" type="submit">Save</button>
-        <button class="btn btn-danger"
-                id="delete-account"
-                type="button"
-                data-bs-toggle="modal"
-                data-bs-target="#deleteAccountModal">
-            Delete Account
-        </button>
+        <div>
+            <button name="submit" value="export" type="submit" class="btn btn-secondary">Export Data</button>    
+            <button class="btn btn-danger"
+                    id="delete-account"
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#deleteAccountModal">
+                Delete Account
+            </button>
+        </div>
     </div>
 </form>
 {# Delete account modal #}
