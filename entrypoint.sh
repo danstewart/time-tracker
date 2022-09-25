@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 if [[ $FLASK_ENV == 'dev' ]]; then
-  exec poetry run flask run --host 0.0.0.0 --port 5000
+  exec flask run --host 0.0.0.0 --port 5000
 else
-  exec poetry run gunicorn \
+  exec gunicorn \
     --workers 4 \
     --threads 4 \
     --worker-class gevent \

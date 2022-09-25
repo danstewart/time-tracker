@@ -11,9 +11,9 @@ window.initDatePicker = picker => {
 
     const today = spacetime.now(tz);
     let date = today.format("Y-m-d");
-    let hour = today.hour();
+        let hour = today.hour();
     let mins = today.minute();
-    mins = Math.floor(mins / 5) * 5; // Round minutes to nearest 5 mins
+        mins = Math.floor(mins / 5) * 5; // Round minutes to nearest 5 mins
 
     const pickerType = picker.getAttribute("data-date-type");
     let value = picker.getAttribute("data-date-value");

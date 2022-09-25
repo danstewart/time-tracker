@@ -167,7 +167,7 @@ pygments = ["Pygments (>=2.2.0)"]
 
 [[package]]
 name = "djlint"
-version = "1.1.1"
+version = "1.17.2"
 description = "HTML Template Linter and Formatter"
 category = "dev"
 optional = false

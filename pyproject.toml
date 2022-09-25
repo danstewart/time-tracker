@@ -1,48 +1,16 @@
-[tool.poetry]
-name = "log-my-time"
-version = "0.0.1"
-description = ""
-authors = ["Dan Stewart <git@mail.danstewart.dev>"]
-packages = [
-    { include = "app" }
-]
-
-[tool.poetry.dependencies]
-python = "^3.10"
-arrow = "^1.2.2"
-pony = "^0.7.16"
-click = "^8.1.0"
-Flask = "^2.1.0"
-gunicorn = "^20.1.0"
-gevent = "^21.12.0"
-argon2-cffi = "^21.3.0"
-redis = "^4.3.1"
-sendgrid = "^6.9.7"
-
-[tool.poetry.group.test]
-optional = true
-
-[tool.poetry.group.test.dependencies]
-pytest = "^7.1.1"
-
-[tool.poetry.group.dev]
-optional = true
-
-[tool.poetry.group.dev.dependencies]
-black = "^22.3.0"
-flake8 = "^4.0.1"
-devtools = {extras = ["pygments"], version = "^0.8.0"}
-djlint = "^1.0.3"
-pony-stubs = "^0.5.2"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
-
 [tool.djlint]
 profile = "jinja"
 ignore = "J018,H021,J004,H030,H031"
 custom_html = "\\w+-\\w+,\\w+-\\w+-\\w+,\\w+-\\w+-\\w+-\\w+" 
+preserve_blank_lines = true
+preserve_leading_space = true
+format_js = true
+format_css = true
+
+[tool.djlint.js]
+indent_empty_lines = false
+wrap_line_length = 120
+brace_style = "preserve-inline"
 
 [tool.black]
 line-length = 120

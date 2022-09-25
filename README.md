@@ -25,24 +25,18 @@ docker compose -f docker-compose.yml up -d --build
 
 #### Install dependencies locally
 
-We use [hermit](https://cashapp.github.io/hermit/usage/get-started/) to manage the python version
+Requires python 3.10
 
 ```bash
-# Install Hermit
-curl -fsSL https://github.com/cashapp/hermit/releases/download/stable/install.sh | /bin/bash
+# Install pipenv
+pip install --user pipx
+pipx install pipenv
 
-# Active Hermit
-source bin/activate-hermit
+# Install deps with pipenv
+pipenv install
 
-# Install poetry
-curl -sSL https://install.python-poetry.org | python3 - --version 1.2.0b1
-
-# Install deps with poetry
-poetry config virtualenvs.in-project true
-poetry install
-
-# Start a poetry shell
-poetry shell
+# Start a pipenv shell
+pipenv shell
 ```
 
 #### Connecting to the database

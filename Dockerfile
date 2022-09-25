@@ -31,12 +31,10 @@ RUN echo ".headers on\n.mode columns" > /home/app/.sqliterc
 ENV PATH="/home/app/.local/bin/:${PATH}"
 ENV PROJECT_ROOT='/home/app/log-my-time'
 
-# Install poetry
-RUN curl -sSL https://install.python-poetry.org | python3 - --version 1.2.0b1
-
 # Install python deps
-COPY --chown=app:app pyproject.toml poetry.lock ./
-RUN poetry install --no-interaction --no-ansi --no-root --with dev,test
+RUN pip install pipenv
+COPY --chown=app ./Pipfile.lock ./Pipfile ./
+RUN pipenv install --dev --system
 
 # Get traceback for C crashes
 ENV PYTHONFAULTHANDLER=1
