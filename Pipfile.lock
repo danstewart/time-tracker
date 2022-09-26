@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d013bf3658f933b119f193c71c4a70fcb342a83418050887378cf1ade01b3986"
+            "sha256": "ab723852ae13c7c85a123f61a405cdefecc7884ea322638a2d2c755c8547116c"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -637,11 +637,11 @@
         },
         "djlint": {
             "hashes": [
-                "sha256:37e6ecade721dacd5fae0e5f38d22347fc01b0ea343b3a71f3f9ed2a1cfde870",
-                "sha256:acffa87f2435ead7450d5fb21f9c517a17a1058483e5044bd7a454edd886aaf5"
+                "sha256:06cdebeb00a90e52d785dc8a0eb4bfde0c2aeefb63e01504f3a445b53a55736e",
+                "sha256:db40265bbe0810516e8573e9dd259f36b32dfe2ef1992e8236685915bcbe1185"
             ],
             "index": "pypi",
-            "version": "==1.17.2"
+            "version": "==1.17.3"
         },
         "editorconfig": {
             "hashes": [
@@ -670,7 +670,7 @@
                 "sha256:04924aca48770f36b5a41c27e4d917062507be05118acb0ba869c97389084297",
                 "sha256:eeb69ef21078486b615241f0393a72b41352c5219ee648e7c61f5632d26f0420"
             ],
-            "markers": "python_version >= '3.7' and python_full_version < '4.0.0'",
+            "markers": "python_version >= '3.7' and python_version < '4.0'",
             "version": "==0.1.2"
         },
         "html-void-elements": {
@@ -678,7 +678,7 @@
                 "sha256:784cf39db03cdeb017320d9301009f8f3480f9d7b254d0974272e80e0cb5e0d2",
                 "sha256:931b88f84cd606fee0b582c28fcd00e41d7149421fb673e1e1abd2f0c4f231f0"
             ],
-            "markers": "python_version >= '3.7' and python_full_version < '4.0.0'",
+            "markers": "python_version >= '3.7' and python_version < '4.0'",
             "version": "==0.1.0"
         },
         "importlib-metadata": {

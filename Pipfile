@@ -23,4 +23,4 @@ black = "~=22.3.0"
 flake8 = "~=4.0.1"
 devtools = {extras = ["pygments"], version = "~=0.8.0"}
 pony-stubs = "~=0.5.2"
-djlint = "==1.17.2"
+djlint = "==1.17.3"
