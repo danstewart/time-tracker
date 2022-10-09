@@ -559,6 +559,9 @@
             "version": "==5.4.0"
         }
     },
+    "default,dev,local": {},
+    "dev": {},
+    "dev,local": {},
     "develop": {
         "asttokens": {
             "hashes": [
@@ -976,5 +979,6 @@
             "markers": "python_version >= '3.7'",
             "version": "==3.9.0"
         }
-    }
+    },
+    "local": {}
 }

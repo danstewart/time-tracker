@@ -32,8 +32,8 @@ Requires python 3.10
 pip install --user pipx
 pipx install pipenv
 
-# Install deps with pipenv
-pipenv install
+# Install deps locally with pipenv
+pipenv install --categories="packages dev local"
 
 # Start a pipenv shell
 pipenv shell

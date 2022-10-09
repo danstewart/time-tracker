@@ -17,10 +17,15 @@ argon2-cffi = "*"
 redis = "*"
 sendgrid = "*"
 
+# Packages required in the container for development
 [dev-packages]
 pytest = "*"
+devtools = {extras = ["pygments"], version = "*"}
+
+# Packages required locally for development
+[local-packages]
 black = "*"
 flake8 = "*"
-devtools = {extras = ["pygments"], version = "*"}
+flake8-eradicate = "*"
 pony-stubs = "*"
 djlint = "*"

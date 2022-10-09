@@ -33,7 +33,7 @@ ENV PROJECT_ROOT='/home/app/log-my-time'
 # Install python deps
 RUN pip install pipenv
 COPY --chown=app ./Pipfile.lock ./Pipfile ./
-RUN pipenv install --dev --system
+RUN pipenv install --categories="packages dev" --system
 
 # Get traceback for C crashes
 ENV PYTHONFAULTHANDLER=1
