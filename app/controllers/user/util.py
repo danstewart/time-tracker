@@ -1,9 +1,10 @@
 from functools import wraps
 
-from app.controllers.user.exceptions import UserNotLoggedIn
-from app.models import LoginSession, User
 from flask import flash, redirect
 from flask import session as flask_session
+
+from app.controllers.user.exceptions import UserNotLoggedIn
+from app.models import LoginSession, User
 
 
 def get_user() -> User:
@@ -39,7 +40,6 @@ def login_required(f):
 
     @wraps(f)
     def decorated(*args, **kwargs):
-
         if is_logged_in():
             return f(*args, **kwargs)
         else:

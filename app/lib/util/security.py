@@ -6,53 +6,70 @@ class InvalidCSRFToken(Exception):
     pass
 
 
-def generate_csrf_token() -> str:
+def generate_csrf_token(user_id: str):
     """
-    Generate a CSRF token and store it in the redis session store.
-    The token expires after 5 minutes.
-    A new token is generated with each call.
-
-    The token is used as the cache key, the value is the user ID.
-    When validating we lookup the key in the cache and verify the value is the current user's ID.
+    Generates a new CSRF token for the specified user and stores it in redis under `csrf:{user.id}`
+    The token should be generated upon log in persists for the duration of the login session.
     """
     import secrets
+
+    from app.lib.redis import session
+
+    token = secrets.token_hex()
+    csrf_key = f"csrf:{user_id}"
+    session.set(csrf_key, token)
+
+
+def get_csrf_token() -> str:
+    """
+    Get the generated CSRF token for the current user from redis.
+    If no token is found then an `InvalidCSRFToken` exception is raised.
+    """
 
     from app.controllers.user.util import get_user
     from app.lib.redis import session
 
     user = get_user()
-    token = secrets.token_hex()
+    csrf_key = f"csrf:{user.id}"
 
-    csrf_key = f"csrf:{token}"
-    session.set(csrf_key, user.id)
-    session.expire(csrf_key, 300)  # Expire tokens after 5 minutes
+    token = session.get(csrf_key)
+    if not token:
+        raise InvalidCSRFToken("No CSRF token generated")
 
-    return token
+    return token.decode("utf-8")
 
 
 def validate_csrf_token(token: str):
     """
-    Validate a provided CSRF token against the one stored in the `g` store.
+    Validate a provided CSRF token against the one stored in redis for this user.
     If invalid an `InvalidCSRFToken` exception is raised.
-    When a token is validated it is removed from the session.
     """
     from app.controllers.user.util import get_user
     from app.lib.redis import session
 
     user = get_user()
-    cache_value = session.get(f"csrf:{token}")
+    expected_token = session.get(f"csrf:{user.id}")
 
-    if not cache_value:
+    if not expected_token:
         raise InvalidCSRFToken("Invalid CSRF token")
 
-    try:
-        if int(cache_value.decode("utf-8")) != user.id:
-            raise InvalidCSRFToken("Invalid CSRF token")
-    except ValueError:
+    if expected_token.decode("utf-8") != token:
         raise InvalidCSRFToken("Invalid CSRF token")
 
 
 def enable_csrf_protection(app):
+    """
+    Enables CSRF token protection by checking all form submissions for a CSRF token
+    and validating it against the one stored in redis.
+
+    If the form does not contain a CSRF token then no checks are done, so it is important
+    that any route we want to protect with CSRF tokens has a CSRF token in the form.
+
+    This can be done by adding the following to the template:
+    ```html
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    ```
+    """
 
     from werkzeug.datastructures import ImmutableDict
 

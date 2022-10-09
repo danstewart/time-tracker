@@ -71,6 +71,8 @@ def login(email: str, password: str) -> LoginSession:
 
     import arrow
 
+    from app.lib.util.security import generate_csrf_token
+
     user = User.get(email=email)
 
     if not user:
@@ -83,6 +85,10 @@ def login(email: str, password: str) -> LoginSession:
     if not ok:
         raise UserAuthFailed("Password mismatch")
 
+    # Generate a new CSRF token for this session
+    generate_csrf_token(user.id)
+
+    # Log in
     return LoginSession(
         key=secrets.token_hex(),
         expires=arrow.utcnow().shift(hours=7 * 24).int_timestamp,
@@ -175,6 +181,7 @@ def delete_account(user: User):
 
     pony.commit()
 
+
 def export_data(user: User) -> str:
     import json
 
@@ -186,7 +193,7 @@ def export_data(user: User) -> str:
         rec["breaks"] = []
         for brk in time.breaks:
             rec["breaks"].append(brk.to_dict(exclude=["id", "time"]))
-        
+
         time_records.append(rec)
 
     export = {

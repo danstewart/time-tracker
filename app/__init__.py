@@ -27,7 +27,7 @@ def create_app():
 
     with app.app_context():
         from app.controllers.user.util import is_logged_in
-        from app.lib.util.security import enable_csrf_protection, generate_csrf_token
+        from app.lib.util.security import enable_csrf_protection, get_csrf_token
         from app.views import core, settings, time, user
 
         enable_csrf_protection(app)
@@ -51,7 +51,7 @@ def create_app():
                 "is_logged_in": is_logged_in(),
                 "settings": None,
                 "host": app.config["HOST"],
-                "csrf_token": generate_csrf_token,
+                "csrf_token": get_csrf_token,
             }
 
             if globals["is_logged_in"]:
