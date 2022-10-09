@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask
 from pony.flask import Pony
 
@@ -8,6 +10,12 @@ from app.models import *  # noqa: F401
 def create_app():
     app = Flask(__name__)
     app.config.from_pyfile("../config/app_config.py")
+
+    app.config.update(
+        SESSION_COOKIE_SECURE=not bool(os.getenv("FLASK_DEBUG")),  # Cookies are secure when not running debug mode
+        SESSION_COOKIE_HTTPONLY=True,
+        SESSION_COOKIE_SAMESITE="Lax",
+    )
 
     Pony(app)
     db.connect()

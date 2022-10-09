@@ -6,7 +6,6 @@ FROM python:3.10-slim-buster
 LABEL version="0.0.1"
 
 # Set env vars
-ENV FLASK_ENV="${FLASK_ENV}"
 ENV FLASK_APP="${FLASK_APP}"
 ENV FLASK_DEBUG="${FLASK_DEBUG}"
 

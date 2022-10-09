@@ -13,7 +13,6 @@ services:
     cpus: ${CPU_LIMIT:-0}
     environment:
       FLASK_APP: ${FLASK_APP:-app}
-      FLASK_ENV: ${FLASK_ENV:-production}
       FLASK_DEBUG: ${FLASK_DEBUG:-0}
       LOG_LEVEL: ${LOG_LEVEL:-info}
     container_name: 'log-my-time'
