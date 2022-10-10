@@ -32,6 +32,12 @@
         <script type="module" defer src="/static/js/main.js"></script>
     </head>
     <body style="padding-bottom: 500px;">
+        {% if FLASK_DEBUG %}
+            <div class="debug-bar">
+                DEBUG MODE
+            </div>
+        {% endif %}
+
         <div class="container mt-3">
             {# Header #}
             <div id="header"

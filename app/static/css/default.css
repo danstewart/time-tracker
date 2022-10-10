@@ -30,3 +30,13 @@ a.icon {
 .accordion-button:not(.collapsed)::after {
     content: none;
 }
+
+/* Debug bar */
+.debug-bar {
+    width: 100vw;
+    height: 2.5vh;
+    background-color: rebeccapurple;
+    text-align: center;
+    color: white;
+    font-weight: bold;
+}

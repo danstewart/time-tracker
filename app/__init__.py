@@ -52,6 +52,7 @@ def create_app():
                 "settings": None,
                 "host": app.config["HOST"],
                 "csrf_token": get_csrf_token,
+                "FLASK_DEBUG": os.getenv("FLASK_DEBUG"),
             }
 
             if globals["is_logged_in"]:
