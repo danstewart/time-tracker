@@ -14,7 +14,7 @@ Basic time logging tool.
 
 #### Running with docker
 
-Start on http://localhost:4000/ via docker
+First create the `config/app_config.py`, then start on http://localhost:4000/ via docker
 ```bash
 # Dev mode
 docker-compose up -d --build app
