@@ -16,14 +16,14 @@ gevent = "*"
 argon2-cffi = "*"
 redis = "*"
 sendgrid = "*"
-# Packages required in the container for development
 
+# Packages required in the container for development
 [dev-packages]
 pytest = "*"
 devtools = {extras = ["pygments"], version = "*"}
-# Packages required locally for development
 watchdog = "*"
 
+# Packages required locally for development
 [local-packages]
 black = "*"
 flake8 = "*"
