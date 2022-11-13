@@ -4,22 +4,28 @@
         {# Add new record button #}
         <div class="accordion-item">
             <h2 class="accordion-header" id="accordion-add-header">
-                <button class="accordion-button collapsed"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#accordion-add-body"
-                        aria-controls="add-accordion-body">
-                    <div class="d-flex justify-content-center flex-grow-1">
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                             width="32"
-                             height="32"
-                             fill="currentColor"
-                             class="bi bi-plus"
-                             viewBox="0 0 16 16">
-                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                        </svg>
-                    </div>
-                </button>
+                <div class="d-flex">
+                    <button class="accordion-button collapsed border-end"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#accordion-add-body"
+                            aria-controls="add-accordion-body">
+                        <div class="d-flex justify-content-center flex-grow-1">
+                            Log Time
+                            <i class="bi bi-clock ms-2"></i>
+                        </div>
+                    </button>
+                    <button class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#accordion-add-body"
+                            aria-controls="add-accordion-body">
+                        <div class="d-flex justify-content-center flex-grow-1 align-items-center">
+                            Add Annual Leave
+                            <i class="bi bi-brightness-alt-high ms-2 fs-4"></i>
+                        </div>
+                    </button>
+                </div>
             </h2>
             <div id="accordion-add-body"
                  class="accordion-collapse collapse"
@@ -33,9 +39,11 @@
         </div>
         {# List of existing time records #}
         {% for time in time_entries %}
+            {# djlint:off #}
             {% set now = arrow.now() %}
             {% set start = arrow.get(time.start).to(settings.timezone) %}
             {% set end = arrow.get(time.end).to(settings.timezone) if time.end else '' %}
+            {# djlint:on #}
             <div class="accordion-item">
                 <h2 class="accordion-header" id="accordion-{{ time.id }}-header">
                     <button class="accordion-button collapsed"
