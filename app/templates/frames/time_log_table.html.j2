@@ -1,25 +1,31 @@
 {% set date_fmt = 'Do [of] MMM YYYY [at] HH:mm' %}
 <section id="records">
-    <div class="accordion">
+    <div class="accordion" id="accordion-forms">
         {# Add new record button #}
         <div class="accordion-item">
             <h2 class="accordion-header" id="accordion-add-header">
                 <div class="d-flex">
-                    <button class="accordion-button collapsed border-end"
+
+                    {# Accordion button for logging time #}
+                    <button id="showLogForm"
+                            class="accordion-button collapsed border-end"
                             type="button"
                             data-bs-toggle="collapse"
                             data-bs-target="#accordion-add-body"
-                            aria-controls="add-accordion-body">
+                            aria-controls="accordion-add-body">
                         <div class="d-flex justify-content-center flex-grow-1">
                             Log Time
                             <i class="bi bi-clock ms-2"></i>
                         </div>
                     </button>
-                    <button class="accordion-button collapsed"
+
+                    {# Accordion button for logging annual leave #}
+                    <button id="showLeaveForm"
+                            class="accordion-button collapsed"
                             type="button"
                             data-bs-toggle="collapse"
-                            data-bs-target="#accordion-add-body"
-                            aria-controls="add-accordion-body">
+                            data-bs-target="#accordion-annual-leave-body"
+                            aria-controls="accordion-annual-leave-body">
                         <div class="d-flex justify-content-center flex-grow-1 align-items-center">
                             Add Annual Leave
                             <i class="bi bi-brightness-alt-high ms-2 fs-4"></i>
@@ -27,16 +33,30 @@
                     </button>
                 </div>
             </h2>
+
+            {# Accordion body for logging time #}
             <div id="accordion-add-body"
-                 class="accordion-collapse collapse"
+                 class="accordion-collapse collapse border-bottom"
                  aria-labelledby="accordion-add-header"
-                 data-parent="#accordion-add">
+                 data-bs-parent="#accordion-forms">
                 <div class="container mt-2 mb-2">
                     <dynamic-frame :url="/frames/time_form/" :execute-scripts="true">
                     </dynamic-frame>
                 </div>
             </div>
+
+            {# Accordion body for logging annual leave #}
+            <div id="accordion-annual-leave-body"
+                 class="accordion-collapse collapse border-bottom"
+                 aria-labelledby="accordion-annual-leave-header"
+                 data-bs-parent="#accordion-forms">
+                <div class="container mt-2 mb-2">
+                    <dynamic-frame :url="/frames/leave_form/" :execute-scripts="true">
+                    </dynamic-frame>
+                </div>
+            </div>
         </div>
+
         {# List of existing time records #}
         {% for time in time_entries %}
             {# djlint:off #}
@@ -44,6 +64,7 @@
             {% set start = arrow.get(time.start).to(settings.timezone) %}
             {% set end = arrow.get(time.end).to(settings.timezone) if time.end else '' %}
             {# djlint:on #}
+
             <div class="accordion-item">
                 <h2 class="accordion-header" id="accordion-{{ time.id }}-header">
                     <button class="accordion-button collapsed"
@@ -74,6 +95,7 @@
         {% endfor %}
     </div>
 </section>
+
 <script>
     (function() {
         const frame = document.currentScript.parentNode;
@@ -82,3 +104,32 @@
         window.addEventListener("time:changed", e => frame.refresh());
     })();
 </script>
+
+<style>
+    #showLogForm {
+        border-top-right-radius: 0px !important;
+        border-bottom-right-radius: 0px !important;
+    }
+
+    #showLeaveForm {
+        border-top-left-radius: 0px !important;
+        border-bottom-left-radius: 0px !important;
+    }
+
+    /* Some hacks to make the accordions look the way I want... */
+    .accordion-button {
+        border-bottom: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color);
+    }
+
+    .accordion-item {
+        border-bottom: 0px;
+    }
+
+    .accordion-button:not(.collapsed) {
+        box-shadow: none;
+    }
+
+    .accordion-button:focus {
+        border-color: var(--bs-border-color);
+    }
+</style>

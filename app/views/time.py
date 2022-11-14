@@ -128,3 +128,13 @@ def time_form(row_id: str = ""):
         row_id=row_id,
         time=time.get(row_id) if row_id else None,
     )
+
+
+@v.route("/frames/leave_form/", methods=["GET", "POST"])
+@v.route("/frames/leave_form/<row_id>", methods=["GET", "POST"])
+def leave_form(row_id: str = ""):
+
+    return render_template(
+        "frames/leave_form.html.j2",
+        row_id=row_id,
+    )
