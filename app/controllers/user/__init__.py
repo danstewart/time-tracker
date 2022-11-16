@@ -7,7 +7,6 @@ from app.controllers.user.exceptions import (
     UserNotVerifiedError,
 )
 from app.controllers.user.token import create_token
-from app.lib.database import pony
 from app.lib.email import send_email
 from app.models import LoginSession, User
 
@@ -39,7 +38,6 @@ def register(email: str, password: str) -> User:
 
     # Otherwise create the new user
     new_user = User(email=email).set_password(password)
-    pony.commit()
 
     verify_token = create_token(
         payload={
@@ -100,7 +98,7 @@ def logout():
     from flask import session as flask_session
 
     if login_session_key := flask_session.get("login_session_key"):
-        if login_session := LoginSession.get(key=login_session_key):
+        if login_session := LoginSession.query.filter_by(key=login_session_key).first():
             login_session.delete()
         flask_session.pop("login_session_key")
 
@@ -179,8 +177,6 @@ def delete_account(user: User):
     # We have cascading deletes :)
     User.get(id=user.id).delete()
 
-    pony.commit()
-
 
 def export_data(user: User) -> str:
     import json
@@ -188,10 +184,10 @@ def export_data(user: User) -> str:
     from app.controllers import settings, time
 
     time_records = []
-    for time in time.all():
-        rec = time.to_dict(exclude=["id", "user"])
+    for t in time.all():
+        rec = t.to_dict(exclude=["id", "user"])
         rec["breaks"] = []
-        for brk in time.breaks:
+        for brk in t.breaks:
             rec["breaks"].append(brk.to_dict(exclude=["id", "time"]))
 
         time_records.append(rec)

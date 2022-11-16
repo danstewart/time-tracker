@@ -5,7 +5,6 @@ from flask import abort
 
 from app.controllers import settings
 from app.controllers.user.util import get_user
-from app.lib.database import pony
 from app.lib.logger import get_logger
 from app.models import Break, Time
 from app.viewmodels import TimeStats
@@ -13,21 +12,24 @@ from app.viewmodels import TimeStats
 logger = get_logger(__name__)
 
 
-@pony.db_session
 def get(row_id: str) -> Time:
-    t = Time.select().filter(lambda row: row.id == row_id and row.user == get_user()).first()
+    t = Time.query.filter(Time.id == row_id, Time.user == get_user()).first()
     if not t:
         abort(403)
     return t
 
 
-@pony.db_session
-def all() -> Iterator[Time]:
+def all() -> list[Time]:
     """Return all time records sorted by start date"""
-    return Time.select().filter(lambda row: row.user == get_user()).order_by(pony.desc(Time.start), pony.desc(Time.id))
+    return (
+        Time.query.filter(
+            Time.user == get_user(),
+        )
+        .order_by(Time.start.desc(), Time.id.desc())
+        .all()
+    )
 
 
-@pony.db_session
 def all_for_week(week: str = "") -> Iterator[Time]:
     """
     Return all time records sorted by start date for the given week
@@ -55,15 +57,16 @@ def all_for_week(week: str = "") -> Iterator[Time]:
 
     week_end = week_start.shift(days=7)
     return (
-        Time.select()
-        .filter(
-            lambda t: t.start > week_start.int_timestamp and t.start < week_end.int_timestamp and t.user == get_user()
+        Time.query.filter(
+            Time.user == get_user(),
+            Time.start >= week_start.int_timestamp,
+            Time.start < week_end.int_timestamp,
         )
-        .order_by(pony.desc(Time.start), pony.desc(Time.id))
+        .order_by(Time.start.desc(), Time.id.desc())
+        .all()
     )
 
 
-@pony.db_session
 def create(start: str, end: Optional[str] = None, date: Optional[str] = None, note: str = "") -> Time:
     """Create a new time record"""
     _settings = settings.fetch()
@@ -83,7 +86,6 @@ def create(start: str, end: Optional[str] = None, date: Optional[str] = None, no
     )
 
 
-@pony.db_session
 def update(row_id: str, start: str, end: Optional[str] = None, note: str = "") -> Time:
     _settings = settings.fetch()
     _tz = _settings.timezone
@@ -94,7 +96,7 @@ def update(row_id: str, start: str, end: Optional[str] = None, note: str = "") -
     if end:
         end_dt = arrow.get(end, tzinfo=_tz).int_timestamp
 
-    t = Time.select().filter(lambda row: row.id == row_id and row.user == get_user()).first()
+    t = Time.query.filter(Time.id == row_id, Time.user == get_user()).first()
     if not t:
         abort(403)
 
@@ -104,19 +106,17 @@ def update(row_id: str, start: str, end: Optional[str] = None, note: str = "") -
     return t
 
 
-@pony.db_session
 def delete(row_id: int) -> bool:
     """
     Deletes a time record by ID
     Returns True if deleted and False if not
     """
-    if record := Time.select().filter(lambda row: row.id == row_id and row.user == get_user()):
+    if record := Time.query.filter(Time.id == row_id, Time.user == get_user()).first():
         record.delete()
         return True
     return False
 
 
-@pony.db_session
 def clock_out(end: str):
     """Sets the end time for the current time record"""
     _settings = settings.fetch()
@@ -125,14 +125,18 @@ def clock_out(end: str):
     end_dt = arrow.get(end, tzinfo=_tz)
 
     current_record = (
-        Time.select().filter(lambda t: t.end is None and t.user == get_user()).order_by(pony.desc(Time.start)).first()
+        Time.query.filter(
+            Time.user == get_user(),
+            Time.end == None,
+        )
+        .order_by(Time.start.desc())
+        .first()
     )
 
     current_record.end = end_dt.int_timestamp
     current_record.logged = end_dt.int_timestamp - current_record.start
 
 
-@pony.db_session
 def break_start(start: str):
     """Sets the start time for the current time record"""
     _settings = settings.fetch()
@@ -141,13 +145,17 @@ def break_start(start: str):
     start_dt = arrow.get(start, tzinfo=_tz)
 
     current_record = (
-        Time.select().filter(lambda t: t.end is None and t.user == get_user()).order_by(pony.desc(Time.start)).first()
+        Time.query.filter(
+            Time.user == get_user(),
+            Time.end == None,
+        )
+        .order_by(Time.start.desc())
+        .first()
     )
 
     current_record.breaks.add(Break(time=current_record, start=start_dt.int_timestamp))
 
 
-@pony.db_session
 def break_end(end: str):
     """Sets the start time for the current time record"""
     _settings = settings.fetch()
@@ -156,7 +164,12 @@ def break_end(end: str):
     end_dt = arrow.get(end, tzinfo=_tz)
 
     current_record = (
-        Time.select().filter(lambda t: t.end is None and t.user == get_user()).order_by(pony.desc(Time.start)).first()
+        Time.query.filter(
+            Time.user == get_user(),
+            Time.end == None,
+        )
+        .order_by(Time.start.desc())
+        .first()
     )
 
     current_break = current_record.breaks.filter(lambda b: not b.end)
@@ -164,9 +177,8 @@ def break_end(end: str):
         current_break.first().end = end_dt.int_timestamp
 
 
-@pony.db_session
 def add_break(time_id: str, break_start: str, break_end: str | None):
-    time_record = Time.select().filter(lambda t: t.id == time_id and t.user == get_user()).first()
+    time_record = Time.query.filter(Time.id == time_id, Time.user == get_user()).first()
     if not time_record:
         abort(403)
 
@@ -185,7 +197,6 @@ def add_break(time_id: str, break_start: str, break_end: str | None):
     )
 
 
-@pony.db_session
 def bulk_update(table, data: dict[int, dict]):
     """
     Updates multiple time records at once
@@ -205,10 +216,7 @@ def bulk_update(table, data: dict[int, dict]):
                 value = arrow.get(value, tzinfo=_tz).int_timestamp
             setattr(model[row_id], key, value if value else None)
 
-    pony.commit()
 
-
-@pony.db_session
 def stats() -> TimeStats:
     """Return the weekly stats"""
     from app.lib.util.date import humanize_seconds
@@ -252,7 +260,7 @@ def stats() -> TimeStats:
     # Overtime (all time)
     # This is a little inefficient as it must go through all records
     overtime = 0
-    if first_record := Time.select().order_by(Time.start).first():
+    if first_record := Time.query.order_by(Time.start).first():
         from app.lib.util.date import calculate_expected_hours
 
         first_day = arrow.get(first_record.start).to(_tz)
@@ -264,7 +272,7 @@ def stats() -> TimeStats:
 
         overtime = -(expected_hours * 60 * 60)  # Convert to seconds
 
-        if total_logged := sum([rec.logged() for rec in Time.select()]):
+        if total_logged := sum([rec.logged() for rec in Time.query.filter(Time.user == get_user()).all()]):
             overtime += total_logged
 
     return TimeStats(
@@ -280,7 +288,7 @@ def week_list() -> list[str]:
     """
     Returns a list of weeks since the first record in the format ${year}-W${week}, eg. 2022-W25
     """
-    first_record = Time.select().filter(lambda t: t.user == get_user()).order_by(Time.start).first()
+    first_record = Time.query.filter(Time.user == get_user()).order_by(Time.start).first()
     if not first_record:
         return []
 

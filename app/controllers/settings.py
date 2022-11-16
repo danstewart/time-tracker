@@ -1,18 +1,16 @@
 from flask import abort
 
-from app.lib.database import pony
 from app.lib.logger import get_logger
 from app.models import Settings
 
 logger = get_logger(__name__)
 
 
-@pony.db_session
 def fetch() -> Settings:
     from app.controllers.user.util import get_user
 
     user = get_user()
-    settings = Settings.select().filter(lambda s: s.user == user).first()
+    settings = Settings.query.filter(Settings.user == user).first()
 
     if not settings:
         # These are the default settings
@@ -23,17 +21,15 @@ def fetch() -> Settings:
             work_days="MTWTF--",
             user=user,
         )
-        pony.commit()
     return settings
 
 
-@pony.db_session
 def update(**values):
     """Updates the settings row"""
     from app.controllers.user.util import get_user
 
     user = get_user()
-    settings = Settings.select().filter(lambda s: s.user == user).first()
+    settings = Settings.query.filter(Settings.user == user).first()
 
     if not settings:
         abort(403)
@@ -48,4 +44,3 @@ def update(**values):
 
     values["work_days"] = "".join(work_days)
     settings.set(**values)
-    pony.commit()

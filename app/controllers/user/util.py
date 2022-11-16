@@ -14,7 +14,7 @@ def get_user() -> User:
     import arrow
 
     if login_session_key := flask_session.get("login_session_key"):
-        if login_session := LoginSession.get(key=login_session_key):
+        if login_session := LoginSession.query.filter_by(key=login_session_key).first():
             if login_session.expires < arrow.utcnow().int_timestamp:
                 flask_session.pop("login_session_key")
             else:

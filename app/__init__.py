@@ -1,10 +1,9 @@
 import os
 
 from flask import Flask
-from pony.flask import Pony
+from flask_sqlalchemy import SQLAlchemy
 
-from app.lib.database import db, pony
-from app.models import *  # noqa: F401
+db = SQLAlchemy()
 
 
 def create_app():
@@ -17,9 +16,9 @@ def create_app():
         SESSION_COOKIE_SAMESITE="Lax",
     )
 
-    Pony(app)
-    db.connect()
-    pony.set_sql_debug(False)
+    # Initialise database
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////home/app/log-my-time/db/time.db"
+    db.init_app(app)
 
     app.jinja_env.add_extension("jinja2.ext.do")
     app.jinja_env.add_extension("jinja2.ext.loopcontrols")

@@ -1,11 +1,9 @@
-from flask import Blueprint
-from flask import current_app as app
-from flask import redirect, render_template, request
+from flask import Blueprint, redirect, render_template, request
 
-from app.controllers import settings, time
+from app.controllers import time
 from app.controllers.user.util import login_required
 from app.lib.logger import get_logger
-from app.lib.util.date import humanize_seconds
+from app.models import Break
 
 v = Blueprint("time", __name__)
 logger = get_logger(__name__)
@@ -70,8 +68,8 @@ def time_stats():
 def clock_in_form():
     time_entries = time.all()
 
-    clocked_in = time_entries.first() and not time_entries.first().end
-    on_break = time_entries.first() and time_entries.first().breaks.filter(lambda b: not b.end)
+    clocked_in = time_entries[0] and not time_entries[0].end
+    on_break = time_entries[0] and time_entries[0].breaks.query.filter(Break.end == None).first()
 
     return render_template("frames/clock_in_form.html.j2", clocked_in=clocked_in, on_break=on_break)
 
@@ -130,11 +128,11 @@ def time_form(row_id: str = ""):
     )
 
 
-@v.route("/frames/leave_form/", methods=["GET", "POST"])
-@v.route("/frames/leave_form/<row_id>", methods=["GET", "POST"])
+@v.route("/frames/annual_leave_form/", methods=["GET", "POST"])
+@v.route("/frames/annual_leave_form/<row_id>", methods=["GET", "POST"])
 def leave_form(row_id: str = ""):
 
     return render_template(
-        "frames/leave_form.html.j2",
+        "frames/annual_leave_form.html.j2",
         row_id=row_id,
     )

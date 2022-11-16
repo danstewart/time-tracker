@@ -37,7 +37,7 @@
 
     "python.linting.pylintEnabled": false,
     "python.linting.flake8Enabled": true,
-    "python.linting.flake8Path": "./venv/bin/pflake8",
+    "python.linting.flake8Path": "./.venv/bin/pflake8",
     "python.languageServer": "Pylance",
     "python.testing.pytestEnabled": true,
     "python.analysis.typeCheckingMode": "basic",
@@ -45,12 +45,10 @@
         "reportGeneralTypeIssues": "information",
         "reportOptionalMemberAccess": "information",
         "reportOptionalCall": "information",
-        "reportPrivateImportUsage": "information",
+        "reportPrivateImportUsage": "information"
     },
     "python.formatting.provider": "black",
-    "python.formatting.blackArgs": [
-        "--line-length=120"
-    ],
+    "python.formatting.blackArgs": ["--line-length=120"],
     "[javascript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     }
