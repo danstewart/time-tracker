@@ -30,6 +30,34 @@ def all() -> list[Time]:
     )
 
 
+def current() -> Optional[Time]:
+    """
+    Return the current clocked in time record (if there is one)
+    """
+    return (
+        Time.query.filter(
+            Time.user == get_user(),
+            Time.end == None,
+        )
+        .order_by(Time.start.desc())
+        .first()
+    )
+
+
+def current_break() -> Optional[Break]:
+    """
+    Return the current clocked in break record (if there is one)
+    """
+    return (
+        Break.query.filter(
+            Break.time.has(user=get_user()),
+            Break.end == None,
+        )
+        .order_by(Break.start.desc())
+        .first()
+    )
+
+
 def all_for_week(week: str = "") -> Iterator[Time]:
     """
     Return all time records sorted by start date for the given week

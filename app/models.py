@@ -13,10 +13,6 @@ class User(db.Model):  # type:ignore
     password: Optional[str] = db.Column(db.String(255), nullable=True)
     verified: Optional[bool] = db.Column(db.Boolean, default=False, nullable=False)
 
-    # settings = db.relationship("Settings", backref="user", uselist=False)
-    # time_entries = db.relationship("Time", backref="user", lazy=True)
-    # login_session = db.relationship("LoginSession", backref="user", lazy=True)
-
     def verify(self):
         """
         Sets `user.verified` to True and commits
@@ -55,7 +51,9 @@ class LoginSession(db.Model):  # type:ignore
     # Unix timestamp
     expires: int = db.Column(db.Integer, nullable=False)
 
-    user: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+
+    user: User = db.relationship("User", backref=db.backref("sessions", lazy=True))
 
 
 class Time(db.Model):  # type:ignore
@@ -63,9 +61,10 @@ class Time(db.Model):  # type:ignore
     start: int = db.Column(db.Integer, nullable=False)
     end: Optional[int] = db.Column(db.Integer, nullable=True)
     note: Optional[str] = db.Column(db.String(255), nullable=True)
-    user: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
-    breaks: list["Break"] = db.relationship("Break", lazy=True)
+    breaks: list["Break"] = db.relationship("Break", lazy=True, backref="time")
+    user: User = db.relationship("User", viewonly=True)
 
     def logged(self):
         """
@@ -89,7 +88,7 @@ class Time(db.Model):  # type:ignore
 
 class Break(db.Model):  # type:ignore
     id = db.Column(db.Integer, primary_key=True)
-    time: int = db.Column(db.Integer, db.ForeignKey("time.id"))
+    time_id: int = db.Column(db.Integer, db.ForeignKey("time.id"))
     start: int = db.Column(db.Integer, primary_key=True)
     end: Optional[int] = db.Column(db.Integer, nullable=True)
     note: Optional[str] = db.Column(db.Integer, nullable=True)
@@ -105,7 +104,9 @@ class Settings(db.Model):  # type:ignore
         db.String(7), nullable=False
     )  # This is stored as a 7 char string, the day char if the day is a work day and a hyphen if not, eg: MTWTF--
 
-    user: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+
+    user: User = db.relationship("User", backref=db.backref("settings", lazy=True))
 
     def work_days_list(self) -> list[str]:
         work_days = []

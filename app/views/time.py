@@ -3,7 +3,6 @@ from flask import Blueprint, redirect, render_template, request
 from app.controllers import time
 from app.controllers.user.util import login_required
 from app.lib.logger import get_logger
-from app.models import Break
 
 v = Blueprint("time", __name__)
 logger = get_logger(__name__)
@@ -22,6 +21,7 @@ def home():
 @login_required
 def add_time():
     if request.form:
+
         values = dict(request.form)
         clock = values.pop("clock")
 
@@ -66,10 +66,8 @@ def time_stats():
 @v.get("/frames/clock_in_form")
 @login_required
 def clock_in_form():
-    time_entries = time.all()
-
-    clocked_in = time_entries[0] and not time_entries[0].end
-    on_break = time_entries[0] and time_entries[0].breaks.query.filter(Break.end == None).first()
+    clocked_in = time.current() is not None
+    on_break = time.current_break() is not None
 
     return render_template("frames/clock_in_form.html.j2", clocked_in=clocked_in, on_break=on_break)
 
