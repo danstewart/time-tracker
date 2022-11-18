@@ -16,6 +16,8 @@ argon2-cffi = "*"
 redis = "*"
 sendgrid = "*"
 flask-sqlalchemy = "*"
+alembic = "*"
+flask-alembic = "*"
 
 [dev-packages]
 pytest = "*"

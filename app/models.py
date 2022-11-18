@@ -10,6 +10,8 @@ from app import db
 class BaseModel(db.Model):  # type: ignore
     __abstract__ = True
 
+    id = db.Column(db.Integer, primary_key=True)
+
     def update(self, **kwargs):
         """
         This function allows calling Model.update(field1=val1, field2=val2, ...)
@@ -37,7 +39,6 @@ class BaseModel(db.Model):  # type: ignore
 
 
 class User(BaseModel):
-    id: int = db.Column(db.Integer, primary_key=True)
     email: str = db.Column(db.String(255), unique=True, nullable=False)
     password: Optional[str] = db.Column(db.String(255), nullable=True)
     verified: Optional[bool] = db.Column(db.Boolean, default=False, nullable=False)
@@ -75,8 +76,6 @@ class User(BaseModel):
 
 
 class LoginSession(BaseModel):
-    id: int = db.Column(db.Integer, primary_key=True)
-
     # Unique session ID, stored in user cookies
     key: str = db.Column(db.String(255), unique=True, nullable=False)
 
@@ -87,7 +86,6 @@ class LoginSession(BaseModel):
 
 
 class Time(BaseModel):
-    id: int = db.Column(db.Integer, primary_key=True)
     start: int = db.Column(db.Integer, nullable=False)
     end: Optional[int] = db.Column(db.Integer, nullable=True)
     note: Optional[str] = db.Column(db.String(255), nullable=True)
@@ -117,15 +115,20 @@ class Time(BaseModel):
 
 
 class Break(BaseModel):
-    id = db.Column(db.Integer, primary_key=True)
     time_id: int = db.Column(db.Integer, db.ForeignKey("time.id"))
     start: int = db.Column(db.Integer, primary_key=True)
     end: Optional[int] = db.Column(db.Integer, nullable=True)
-    note: Optional[str] = db.Column(db.Integer, nullable=True)
+    note: Optional[str] = db.Column(db.String(255), nullable=True)
+
+
+class Leave(BaseModel):
+    leave_type: str = db.Column(db.String(255), nullable=False)  # sick / annual
+    start: int = db.Column(db.Integer, nullable=False)  # unix time for starting day
+    duration: float = db.Column(db.Float, nullable=False)  # Duration in days
+    note: Optional[str] = db.Column(db.String(255), nullable=True)
 
 
 class Settings(BaseModel):
-    id: int = db.Column(db.Integer, primary_key=True)
     timezone: str = db.Column(db.String(255), nullable=False)
     # 1 = Monday, 7 = Sunday
     week_start: int = db.Column(db.Integer, nullable=False)
