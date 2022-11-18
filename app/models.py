@@ -63,7 +63,7 @@ class Time(db.Model):  # type:ignore
     note: Optional[str] = db.Column(db.String(255), nullable=True)
     user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
-    breaks: list["Break"] = db.relationship("Break", lazy=True, backref="time")
+    breaks: list["Break"] = db.relationship("Break", lazy=True, backref="time", cascade="all, delete-orphan")
     user: User = db.relationship("User", viewonly=True)
 
     def logged(self):

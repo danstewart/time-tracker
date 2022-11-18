@@ -3,6 +3,7 @@ from typing import Iterator, Optional
 import arrow
 from flask import abort
 
+from app import db
 from app.controllers import settings
 from app.controllers.user.util import get_user
 from app.lib.logger import get_logger
@@ -106,12 +107,16 @@ def create(start: str, end: Optional[str] = None, date: Optional[str] = None, no
     if end:
         end_dt = arrow.get(end, tzinfo=_tz).int_timestamp
 
-    return Time(
+    new_record = Time(
         start=start_dt,
         end=end_dt,
         note=note,
-        user=get_user(),
+        user_id=get_user().id,
     )
+
+    db.session.add(new_record)
+    db.session.commit()
+    return new_record
 
 
 def update(row_id: str, start: str, end: Optional[str] = None, note: str = "") -> Time:
@@ -131,6 +136,8 @@ def update(row_id: str, start: str, end: Optional[str] = None, note: str = "") -
     t.start = start_dt
     t.end = end_dt
     t.note = note
+
+    db.session.commit()
     return t
 
 
@@ -140,7 +147,8 @@ def delete(row_id: int) -> bool:
     Returns True if deleted and False if not
     """
     if record := Time.query.filter(Time.id == row_id, Time.user == get_user()).first():
-        record.delete()
+        db.session.delete(record)
+        db.session.commit()
         return True
     return False
 
@@ -163,6 +171,7 @@ def clock_out(end: str):
 
     current_record.end = end_dt.int_timestamp
     current_record.logged = end_dt.int_timestamp - current_record.start
+    db.session.commit()
 
 
 def break_start(start: str):
@@ -181,7 +190,14 @@ def break_start(start: str):
         .first()
     )
 
-    current_record.breaks.add(Break(time=current_record, start=start_dt.int_timestamp))
+    db.session.add(
+        Break(
+            time_id=current_record.id,
+            start=start_dt.int_timestamp,
+        )
+    )
+
+    db.session.commit()
 
 
 def break_end(end: str):
@@ -200,9 +216,15 @@ def break_end(end: str):
         .first()
     )
 
-    current_break = current_record.breaks.filter(lambda b: not b.end)
+    current_break = Break.query.filter(
+        Break.time_id == current_record.id,
+        Break.end == None,
+    )
+
     if current_break.first():
         current_break.first().end = end_dt.int_timestamp
+
+    db.session.commit()
 
 
 def add_break(time_id: str, break_start: str, break_end: str | None):
@@ -216,13 +238,15 @@ def add_break(time_id: str, break_start: str, break_end: str | None):
     start_dt = arrow.get(break_start, tzinfo=_tz)
     end_dt = arrow.get(break_end, tzinfo=_tz) if break_end else None
 
-    time_record.breaks.add(
+    db.session.add(
         Break(
-            time=time_record,
+            time_id=time_record.id,
             start=start_dt.int_timestamp,
-            end=end_dt.int_timestamp,
+            end=end_dt.int_timestamp if end_dt else None,
         )
     )
+
+    db.session.commit()
 
 
 def bulk_update(table, data: dict[int, dict]):
@@ -237,12 +261,15 @@ def bulk_update(table, data: dict[int, dict]):
 
     model = Time if table == "time" else Break
 
-    for row_id, row in data.items():
-        for key, value in row.items():
+    for row_id, values in data.items():
+        row = model.query.filter_by(id=row_id).one()
+        for key, value in values.items():
             # Convert string dates to int timestamps
             if key in ("start", "end") and value:
                 value = arrow.get(value, tzinfo=_tz).int_timestamp
-            setattr(model[row_id], key, value if value else None)
+            setattr(row, key, value if value else None)
+
+    db.session.commit()
 
 
 def stats() -> TimeStats:
