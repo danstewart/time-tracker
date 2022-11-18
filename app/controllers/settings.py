@@ -1,5 +1,6 @@
 from flask import abort
 
+from app import db
 from app.lib.logger import get_logger
 from app.models import Settings
 
@@ -43,4 +44,5 @@ def update(**values):
             work_days.append("-")
 
     values["work_days"] = "".join(work_days)
-    settings.set(**values)
+    settings.update(**values)
+    db.session.commit()

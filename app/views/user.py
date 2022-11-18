@@ -98,7 +98,7 @@ def verify_user_email(token: str):
         flash("Invalid token", "danger")
         return redirect("/login")
 
-    user: User = User.get(id=payload["user_id"])
+    user: User = User.query.get(payload["user_id"])
     if not user:
         flash("Invalid token", "danger")
         return redirect("/login")
@@ -128,7 +128,7 @@ def password_reset_handler(token):
         flash("Invalid token", "danger")
         return redirect("/login")
 
-    user = User.get(id=payload["user_id"])
+    user = User.query.get(payload["user_id"])
     if not user:
         flash("Invalid token", "danger")
         return redirect("/login")

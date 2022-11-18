@@ -1,6 +1,7 @@
 from flask import current_app as app
 from flask import render_template
 
+from app import db
 from app.controllers.user.exceptions import (
     UserAlreadyExistsError,
     UserAuthFailed,
@@ -16,7 +17,7 @@ def register(email: str, password: str) -> User:
     Registers and returns a new user
     If the email is already in use, a UserAlreadyExistsError is raised
     """
-    user = User.get(email=email)
+    user = User.query.filter_by(email=email).one_or_none()
 
     # If a user already exists with this email then send them a password reset link instead
     if user:
@@ -38,6 +39,8 @@ def register(email: str, password: str) -> User:
 
     # Otherwise create the new user
     new_user = User(email=email).set_password(password)
+    db.session.add(new_user)
+    db.session.commit()
 
     verify_token = create_token(
         payload={
@@ -71,7 +74,7 @@ def login(email: str, password: str) -> LoginSession:
 
     from app.lib.util.security import generate_csrf_token
 
-    user = User.get(email=email)
+    user = User.query.filter_by(email=email).one_or_none()
 
     if not user:
         raise UserAuthFailed("User not found")
@@ -87,11 +90,14 @@ def login(email: str, password: str) -> LoginSession:
     generate_csrf_token(user.id)
 
     # Log in
-    return LoginSession(
+    session = LoginSession(
         key=secrets.token_hex(),
         expires=arrow.utcnow().shift(hours=7 * 24).int_timestamp,
         user=user,
     )
+    db.session.add(session)
+    db.session.commit()
+    return session
 
 
 def logout():
@@ -99,7 +105,8 @@ def logout():
 
     if login_session_key := flask_session.get("login_session_key"):
         if login_session := LoginSession.query.filter_by(key=login_session_key).first():
-            login_session.delete()
+            db.session.delete(login_session)
+            db.session.commit()
         flask_session.pop("login_session_key")
 
 
@@ -107,7 +114,7 @@ def send_password_reset(email: str):
     """
     If an email exists in the system then send a password reset email
     """
-    if user := User.get(email=email):
+    if user := User.query.filter_by(email=email).one_or_none():
         reset_token = create_token(
             {
                 "type": "password-reset",
@@ -175,7 +182,9 @@ def delete_account(user: User):
     from app.models import User
 
     # We have cascading deletes :)
-    User.get(id=user.id).delete()
+    user = User.query.get(user.id)
+    db.session.delete(user)
+    db.session.commit()
 
 
 def export_data(user: User) -> str:
@@ -185,17 +194,17 @@ def export_data(user: User) -> str:
 
     time_records = []
     for t in time.all():
-        rec = t.to_dict(exclude=["id", "user"])
+        rec = t.asdict(exclude=["id", "user"])
         rec["breaks"] = []
         for brk in t.breaks:
-            rec["breaks"].append(brk.to_dict(exclude=["id", "time"]))
+            rec["breaks"].append(brk.asdict(exclude=["id", "time"]))
 
         time_records.append(rec)
 
     export = {
         "time": time_records,
-        "settings": settings.fetch().to_dict(exclude=["id", "user"]),
-        "user": user.to_dict(exclude=["id", "password", "settings"]),
+        "settings": settings.fetch().asdict(exclude=["id", "user"]),
+        "user": user.asdict(exclude=["id", "password", "settings"]),
     }
 
     return json.dumps(export)

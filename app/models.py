@@ -7,11 +7,43 @@ from argon2.exceptions import VerifyMismatchError
 from app import db
 
 
-class User(db.Model):  # type:ignore
+class BaseModel(db.Model):  # type: ignore
+    __abstract__ = True
+
+    def update(self, **kwargs):
+        """
+        This function allows calling Model.update(field1=val1, field2=val2, ...)
+        The main purpose of this is compatability with VersionAlchemy as Session.execute(update())
+        skips the ORM and VersionAlchemy
+        """
+        for key, value in kwargs.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+
+    def asdict(self, exclude: list | None = None):
+        result = {}
+        for field in self.fields():
+            if exclude and field in exclude:
+                continue
+            result[field] = getattr(self, field)
+        return result
+
+    @classmethod
+    def fields(cls):
+        """
+        Return a list of the columns
+        """
+        return [col.name for col in cls.__table__.columns]
+
+
+class User(BaseModel):
     id: int = db.Column(db.Integer, primary_key=True)
     email: str = db.Column(db.String(255), unique=True, nullable=False)
     password: Optional[str] = db.Column(db.String(255), nullable=True)
     verified: Optional[bool] = db.Column(db.Boolean, default=False, nullable=False)
+
+    sessions = db.relationship("LoginSession", backref="user", cascade="all, delete-orphan")
+    settings = db.relationship("Settings", backref="user", cascade="all, delete-orphan")
 
     def verify(self):
         """
@@ -42,7 +74,7 @@ class User(db.Model):  # type:ignore
         return True
 
 
-class LoginSession(db.Model):  # type:ignore
+class LoginSession(BaseModel):
     id: int = db.Column(db.Integer, primary_key=True)
 
     # Unique session ID, stored in user cookies
@@ -53,10 +85,8 @@ class LoginSession(db.Model):  # type:ignore
 
     user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
-    user: User = db.relationship("User", backref=db.backref("sessions", lazy=True))
 
-
-class Time(db.Model):  # type:ignore
+class Time(BaseModel):
     id: int = db.Column(db.Integer, primary_key=True)
     start: int = db.Column(db.Integer, nullable=False)
     end: Optional[int] = db.Column(db.Integer, nullable=True)
@@ -86,7 +116,7 @@ class Time(db.Model):  # type:ignore
         return Time.query.filter(Time.start >= timestamp, Time.user == user).all()
 
 
-class Break(db.Model):  # type:ignore
+class Break(BaseModel):
     id = db.Column(db.Integer, primary_key=True)
     time_id: int = db.Column(db.Integer, db.ForeignKey("time.id"))
     start: int = db.Column(db.Integer, primary_key=True)
@@ -94,7 +124,7 @@ class Break(db.Model):  # type:ignore
     note: Optional[str] = db.Column(db.Integer, nullable=True)
 
 
-class Settings(db.Model):  # type:ignore
+class Settings(BaseModel):
     id: int = db.Column(db.Integer, primary_key=True)
     timezone: str = db.Column(db.String(255), nullable=False)
     # 1 = Monday, 7 = Sunday
@@ -105,8 +135,6 @@ class Settings(db.Model):  # type:ignore
     )  # This is stored as a 7 char string, the day char if the day is a work day and a hyphen if not, eg: MTWTF--
 
     user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-
-    user: User = db.relationship("User", backref=db.backref("settings", lazy=True))
 
     def work_days_list(self) -> list[str]:
         work_days = []
