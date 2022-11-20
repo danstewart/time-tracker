@@ -3,6 +3,7 @@ from functools import wraps
 from flask import flash, redirect
 from flask import session as flask_session
 
+from app import db
 from app.controllers.user.exceptions import UserNotLoggedIn
 from app.models import LoginSession, User
 
@@ -14,7 +15,7 @@ def get_user() -> User:
     import arrow
 
     if login_session_key := flask_session.get("login_session_key"):
-        if login_session := LoginSession.query.filter_by(key=login_session_key).first():
+        if login_session := db.session.scalars(db.select(LoginSession).filter_by(key=login_session_key)).first():
             if login_session.expires < arrow.utcnow().int_timestamp:
                 flask_session.pop("login_session_key")
             else:

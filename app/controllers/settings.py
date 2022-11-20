@@ -11,7 +11,7 @@ def fetch() -> Settings:
     from app.controllers.user.util import get_user
 
     user = get_user()
-    settings = Settings.query.filter(Settings.user == user).first()
+    settings = db.session.scalars(db.select(Settings).filter(Settings.user == user)).first()
 
     if not settings:
         # These are the default settings
@@ -30,7 +30,7 @@ def update(**values):
     from app.controllers.user.util import get_user
 
     user = get_user()
-    settings = Settings.query.filter(Settings.user == user).first()
+    settings = db.session.scalars(db.select(Settings).filter(Settings.user == user)).first()
 
     if not settings:
         abort(403)

@@ -10,7 +10,7 @@ from app import db
 class BaseModel(db.Model):  # type: ignore
     __abstract__ = True
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
     def update(self, **kwargs):
         """
@@ -111,12 +111,12 @@ class Time(BaseModel):
         from app.controllers.user.util import get_user
 
         user = get_user()
-        return Time.query.filter(Time.start >= timestamp, Time.user == user).all()
+        return db.session.scalars(db.select(Time).filter(Time.start >= timestamp, Time.user == user)).all()
 
 
 class Break(BaseModel):
     time_id: int = db.Column(db.Integer, db.ForeignKey("time.id"))
-    start: int = db.Column(db.Integer, primary_key=True)
+    start: int = db.Column(db.Integer)
     end: Optional[int] = db.Column(db.Integer, nullable=True)
     note: Optional[str] = db.Column(db.String(255), nullable=True)
 
