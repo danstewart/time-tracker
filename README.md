@@ -50,6 +50,13 @@ pipenv shell
 ./scripts/run_tests.sh
 ```
 
+#### Database migrations
+
+```bash
+docker exec -it log-my-time flask db migrate -m "Description of change"
+docker exec -it log-my-time flask db upgrade
+```
+
 ---
 
 ### Built with
@@ -58,6 +65,8 @@ pipenv shell
 -   [SQLite](https://sqlite.org/index.html)
 -   [Flask SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/en/3.0.x/quickstart/)
 -   [SQLAlchemy](https://www.sqlalchemy.org/)
+-   [Flask Migrate](https://flask-migrate.readthedocs.io/en/latest/index.html)
+-   [Alembic](https://alembic.sqlalchemy.org/en/latest/)
 -   [Arrow](https://arrow.readthedocs.io/en/latest/)
 -   [Bootstrap 5](https://getbootstrap.com/)
 -   [Spacetime](https://spacetime.how/)

@@ -1,11 +1,11 @@
 import os
 
 from flask import Flask
-from flask_alembic import Alembic
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
-alembic = Alembic()
+migrate = Migrate()
 
 
 def create_app():
@@ -21,7 +21,7 @@ def create_app():
     # Initialise database
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////home/app/log-my-time/db/time.db"
     db.init_app(app)
-    alembic.init_app(app)
+    migrate.init_app(app, db)
 
     app.jinja_env.add_extension("jinja2.ext.do")
     app.jinja_env.add_extension("jinja2.ext.loopcontrols")
