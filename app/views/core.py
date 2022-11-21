@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request
 
-from app.controllers import leave, time
+from app.controllers import core, leave, time
 from app.controllers.user.util import login_required
 from app.lib.logger import get_logger
 
@@ -13,7 +13,7 @@ logger = get_logger(__name__)
 def home():
     return render_template(
         "pages/home.html.j2",
-        week_list=time.week_list(),
+        week_list=core.week_list(),
     )
 
 
@@ -34,3 +34,10 @@ def time_log_table():
     records = sorted((time_entries + leave_entries), key=lambda x: x.start, reverse=True)
 
     return render_template("frames/entries_table.html.j2", records=records, type_of=lambda thing: type(thing).__name__)
+
+
+@v.get("/frames/stats")
+@login_required
+def stats():
+    time_stats = core.stats()
+    return render_template("frames/time_stats.html.j2", stats=time_stats)

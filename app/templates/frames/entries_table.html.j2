@@ -123,7 +123,7 @@
                                     <p>{{ rec.leave_type | title }} Leave</p>
                                 </div>
 
-                                <span class="badge bg-secondary time-badge">{{ humanize_seconds(rec.duration * settings.hours_per_day * 3600, short=True) }}</span>
+                                <span class="badge bg-secondary time-badge">{{ humanize_seconds(rec.logged(), short=True) }}</span>
                             </div>
                         </button>
                     </h2>

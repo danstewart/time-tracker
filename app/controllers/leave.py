@@ -72,9 +72,7 @@ def all_for_week(week: Optional[str] = None) -> list[Leave]:
             week_start = week_start.shift(weeks=-1)
 
     week_end = week_start.shift(days=7)
-    from devtools import debug
 
-    debug(week_start.int_timestamp, week_end.int_timestamp)
     return (
         Leave.query.filter(
             Leave.user == get_user(),

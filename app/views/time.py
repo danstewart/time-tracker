@@ -39,13 +39,6 @@ def delete_time(row_id):
 
 
 # FRAMES
-@v.get("/frames/time-stats")
-@login_required
-def time_stats():
-    time_stats = time.stats()
-    return render_template("frames/time_stats.html.j2", stats=time_stats)
-
-
 @v.get("/frames/clock_in_form")
 @login_required
 def clock_in_form():

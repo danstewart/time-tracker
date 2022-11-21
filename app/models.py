@@ -44,7 +44,7 @@ class User(BaseModel):
     verified: Optional[bool] = db.Column(db.Boolean, default=False, nullable=False)
 
     sessions = db.relationship("LoginSession", backref="user", cascade="all, delete-orphan")
-    settings = db.relationship("Settings", backref="user", cascade="all, delete-orphan")
+    settings = db.relationship("Settings", backref="user", cascade="all, delete-orphan", uselist=False)
 
     def verify(self):
         """
@@ -129,6 +129,20 @@ class Leave(BaseModel):
     user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
     user: User = db.relationship("User", viewonly=True)
+
+    @classmethod
+    def since(cls, timestamp):
+        from app.controllers.user.util import get_user
+
+        user = get_user()
+        return db.session.scalars(db.select(Leave).filter(Leave.start >= timestamp, Leave.user == user)).all()
+
+    def logged(self) -> int:
+        """
+        Returns the duration in seconds of this leave entry
+        """
+        hours_per_day = self.user.settings.hours_per_day
+        return int(self.duration * hours_per_day * 60 * 60)
 
 
 class Settings(BaseModel):
