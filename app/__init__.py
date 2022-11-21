@@ -30,11 +30,12 @@ def create_app():
     with app.app_context():
         from app.controllers.user.util import is_logged_in
         from app.lib.util.security import enable_csrf_protection, get_csrf_token
-        from app.views import core, settings, time, user
+        from app.views import core, leave, settings, time, user
 
         enable_csrf_protection(app)
 
         app.register_blueprint(time.v)
+        app.register_blueprint(leave.v)
         app.register_blueprint(settings.v)
         app.register_blueprint(user.v)
         app.register_blueprint(core.v)

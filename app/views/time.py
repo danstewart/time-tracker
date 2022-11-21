@@ -8,15 +8,6 @@ v = Blueprint("time", __name__)
 logger = get_logger(__name__)
 
 
-@v.get("/")
-@login_required
-def home():
-    return render_template(
-        "pages/home.html.j2",
-        week_list=time.week_list(),
-    )
-
-
 @v.post("/time/add")
 @login_required
 def add_time():
@@ -123,14 +114,4 @@ def time_form(row_id: str = ""):
         "frames/time_form.html.j2",
         row_id=row_id,
         time=time.get(row_id) if row_id else None,
-    )
-
-
-@v.route("/frames/annual_leave_form/", methods=["GET", "POST"])
-@v.route("/frames/annual_leave_form/<row_id>", methods=["GET", "POST"])
-def leave_form(row_id: str = ""):
-
-    return render_template(
-        "frames/annual_leave_form.html.j2",
-        row_id=row_id,
     )

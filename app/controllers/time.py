@@ -96,7 +96,7 @@ def all_for_week(week: str = "") -> Iterator[Time]:
     )
 
 
-def create(start: str, end: Optional[str] = None, date: Optional[str] = None, note: str = "") -> Time:
+def create(start: str, end: Optional[str] = None, note: str = "") -> Time:
     """Create a new time record"""
     _settings = settings.fetch()
     _tz = _settings.timezone
@@ -283,7 +283,6 @@ def stats() -> TimeStats:
 
     now = arrow.now(tz=_tz)
     today = now.replace(hour=0, minute=0)
-
 
     if now.weekday() != _settings.week_start_0:
         start = today.shift(weekday=_settings.week_start_0).shift(days=-7)
