@@ -126,6 +126,9 @@ class Leave(BaseModel):
     start: int = db.Column(db.Integer, nullable=False)  # unix time for starting day
     duration: float = db.Column(db.Float, nullable=False)  # Duration in days
     note: Optional[str] = db.Column(db.String(255), nullable=True)
+    user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+
+    user: User = db.relationship("User", viewonly=True)
 
 
 class Settings(BaseModel):

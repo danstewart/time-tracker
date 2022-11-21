@@ -39,14 +39,6 @@ def delete_time(row_id):
 
 
 # FRAMES
-@v.get("/frames/time-log-table")
-@login_required
-def time_log_table():
-    week_number = request.args.get("week")
-    time_entries = time.all_for_week(week_number)
-    return render_template("frames/time_log_table.html.j2", time_entries=time_entries)
-
-
 @v.get("/frames/time-stats")
 @login_required
 def time_stats():

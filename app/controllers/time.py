@@ -1,4 +1,4 @@
-from typing import Iterator, Optional
+from typing import Optional
 
 import arrow
 from flask import abort
@@ -59,7 +59,7 @@ def current_break() -> Optional[Break]:
     ).first()
 
 
-def all_for_week(week: str = "") -> Iterator[Time]:
+def all_for_week(week: Optional[str] = None) -> list[Time]:
     """
     Return all time records sorted by start date for the given week
 
@@ -77,11 +77,10 @@ def all_for_week(week: str = "") -> Iterator[Time]:
     week_start = arrow.get(week)
 
     # Adjust for `settings.week_start`
-    week_start_day_0 = _settings.week_start - 1  # Settings are 1-indexed but we need 0-indexed here
-    if week_start_day_0 > 0:
-        week_start = week_start.shift(weekday=week_start_day_0)
+    if _settings.week_start_0 > 0:
+        week_start = week_start.shift(weekday=_settings.week_start_0)
 
-        if week_start_day_0 > local_now.weekday():
+        if _settings.week_start_0 > local_now.weekday():
             week_start = week_start.shift(weeks=-1)
 
     week_end = week_start.shift(days=7)
