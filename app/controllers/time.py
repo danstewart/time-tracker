@@ -284,9 +284,9 @@ def stats() -> TimeStats:
     now = arrow.now(tz=_tz)
     today = now.replace(hour=0, minute=0)
 
-    if now.weekday() != _settings.week_start:
-        week_start_0 = _settings.week_start - 1  # Settings are 1-indexed but we need 0-indexed here
-        start = today.shift(weekday=week_start_0).shift(days=-7)
+
+    if now.weekday() != _settings.week_start_0:
+        start = today.shift(weekday=_settings.week_start_0).shift(days=-7)
     else:
         start = today
 

@@ -139,6 +139,10 @@ class Settings(BaseModel):
 
     user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
+    @property
+    def week_start_0(self):
+        return self.week_start - 1
+
     def work_days_list(self) -> list[str]:
         work_days = []
         day_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
