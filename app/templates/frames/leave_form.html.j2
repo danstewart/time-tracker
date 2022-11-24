@@ -1,3 +1,16 @@
+{% set date_fmt = 'Do [of] MMM YYYY [at] HH:mm' %}
+{% set row = namespace(id="", start="", leave_type="", note="", duration=0) %}
+
+{# djlint:off #}
+{% if leave %}
+    {% set row.id = leave.id %}
+    {% set row.start = arrow.get(leave.start).to(settings.timezone) %}
+    {% set row.leave_type = leave.leave_type %}
+    {% set row.duration = leave.duration %}
+    {% set row.note = leave.note %}
+{% endif %}
+{# djlint:on #}
+
 <section>
     <form id="leaveForm" method="post" action="/frames/leave_form/{{ row_id }}">
         <div class="row mb-3">
@@ -9,19 +22,21 @@
                            name="start"
                            data-date-type="date"
                            data-set-default
+                           data-date-value="{{ row.start }}"
                            required/>
                 </div>
             </div>
             <div class="col-md-6">
                 <label class="form-label">Is this a half day?</label>
                 <div class="input-group">
-                    <input class="form-check-input mt-2" type="checkbox" name="half-day"/>
+                    <input class="form-check-input mt-2" type="checkbox" name="half-day" {{ "checked" if row.duration == 0.5 else "" }} />
                 </div>
             </div>
             <div class="mt-3">
                 <label class="form-label">Note</label>
-                <textarea class="form-control" name="note" rows="5"></textarea>
+                <textarea class="form-control" name="note" rows="5">{{ row.note }}</textarea>
             </div>
+            <input type="hidden" name="leave_type" value="{{ leave_type }}" />
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
         </div>
     </form>

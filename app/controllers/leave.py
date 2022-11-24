@@ -9,6 +9,10 @@ from app.controllers.user.util import get_user
 from app.models import Leave
 
 
+def get(row_id: int) -> Leave:
+    return Leave.query.filter(Leave.id == row_id).one()
+
+
 def create(leave_type: str, start: int, duration: float, note: str = "") -> Leave:
     _settings = settings.fetch()
     _tz = _settings.timezone

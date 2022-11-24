@@ -18,14 +18,14 @@ def leave_form(row_id: Optional[int] = None):
         if row_id:
             leave.update(
                 row_id,
-                leave_type="annual",
+                leave_type=request.json["leave_type"],
                 start=request.json["start"],
                 duration=request.json["duration"],
                 note=request.json["note"],
             )
         else:
             leave.create(
-                leave_type="annual",
+                leave_type=request.json["leave_type"],
                 start=request.json["start"],
                 duration=request.json["duration"],
                 note=request.json["note"],
@@ -36,4 +36,6 @@ def leave_form(row_id: Optional[int] = None):
     return render_template(
         "frames/leave_form.html.j2",
         row_id=row_id,
+        leave=leave.get(row_id) if row_id else None,
+        leave_type=request.args["type"],
     )
