@@ -1,11 +1,11 @@
 {% set date_fmt = 'Do [of] MMM YYYY [at] HH:mm' %}
 {% set row = namespace(id="", start="", end="", note="") %}
 {% if time %}
-    {% set row.id = time.id %}
-    {% set row.start = arrow.get(time.start).to(settings.timezone) %}
-    {% set row.note = time.note %}
+{% set row.id = time.id %}
+{% set row.start = arrow.get(time.start).to(settings.timezone) %}
+{% set row.note = time.note %}
     {% if time.end %}
-        {% set row.end = arrow.get(time.end).to(settings.timezone) %}
+{% set row.end = arrow.get(time.end).to(settings.timezone) %}
     {% endif %}
 {% endif %}
 <section>
@@ -53,8 +53,8 @@
                     <h4 class="mt-4">Breaks</h4>
                     <button type="button" class="add-break btn btn-link p-0 mb-2">Add Break</button>
                     {% for break in time.breaks %}
-                        {% set break_start = arrow.get(break.start).to(settings.timezone) %}
-                        {% set break_end = arrow.get(break.end).to(settings.timezone) if break.end else "" %}
+{% set break_start = arrow.get(break.start).to(settings.timezone) %}
+{% set break_end = arrow.get(break.end).to(settings.timezone) if break.end else "" %}
                         <div class="row mb-2">
                             <div class="col-3">
                                 <div class="input-group">
@@ -150,17 +150,17 @@
             frame.querySelectorAll(".add-break").forEach(btn => btn.addEventListener("click", e => {
                 const breakList = btn.closest(".break-list");
                 breakList.insertAdjacentHTML("beforeend", `
-                    <div class="row mb-2">
-                        <div class="col-3">
-                            <input class="flatpickr" type="text" name="new-break-start" data-date-type="datetime"/>
-                        </div>
-                        <div class="col-3">
-                            <input class="flatpickr col-3" type="text" name="new-break-end" data-date-type="datetime"/>
-                        </div>
-                    </div>
-                `);
+                            <div class="row mb-2">
+                                <div class="col-3">
+                                    <input class="flatpickr" type="text" name="new-break-start" data-date-type="datetime"/>
+                                </div>
+                                <div class="col-3">
+                                    <input class="flatpickr col-3" type="text" name="new-break-end" data-date-type="datetime"/>
+                                </div>
+                            </div>
+                        `);
 
-                const newBreakRow = [ ...breakList.querySelectorAll(".row") ].pop()
+                const newBreakRow = [...breakList.querySelectorAll(".row")].pop()
                 newBreakRow.querySelectorAll(".flatpickr").forEach(picker => window.initDatePicker(picker));
             }))
         })();

@@ -3,15 +3,16 @@
 version: "2.4"
 
 services:
-  app:
-    build:
-      context: .
-    environment:
-      FLASK_APP: ${FLASK_APP:-app}
-      FLASK_DEBUG: ${FLASK_DEBUG:-1}
-      LOG_LEVEL: ${LOG_LEVEL:-warning}
-    volumes:
-      - './app:/home/app/log-my-time/app'
-      - './db:/home/app/log-my-time/db'
-      - './config:/home/app/log-my-time/config'
-      - './tests:/home/app/log-my-time/tests'
+    app:
+        build:
+            context: .
+        environment:
+            FLASK_APP: ${FLASK_APP:-app}
+            FLASK_DEBUG: ${FLASK_DEBUG:-1}
+            LOG_LEVEL: ${LOG_LEVEL:-warning}
+        volumes:
+            - "./app:/home/app/log-my-time/app"
+            - "./db:/home/app/log-my-time/db"
+            - "./config:/home/app/log-my-time/config"
+            - "./tests:/home/app/log-my-time/tests"
+            - "./migrations:/home/app/log-my-time/migrations"

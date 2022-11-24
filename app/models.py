@@ -4,33 +4,61 @@ import arrow
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 
-from app.lib.database import db, pony
+from app import db
 
 
-class User(db.Entity):  # type:ignore
-    id: int = pony.PrimaryKey(int, auto=True)  # type:ignore
-    email: str = pony.Required(str, unique=True)  # type:ignore
-    password: Optional[str] = pony.Optional(str)  # type:ignore
-    verified: Optional[bool] = pony.Optional(bool, default=False)  # type:ignore
+class BaseModel(db.Model):  # type: ignore
+    __abstract__ = True
 
-    settings: Optional["Settings"] = pony.Optional("Settings", cascade_delete=True)  # type:ignore
-    time_entries: list["Time"] = pony.Set("Time", cascade_delete=True)  # type:ignore
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
-    login_session: list["LoginSession"] = pony.Set("LoginSession", cascade_delete=True)  # type:ignore
+    def update(self, **kwargs):
+        """
+        This function allows calling Model.update(field1=val1, field2=val2, ...)
+        The main purpose of this is compatability with VersionAlchemy as Session.execute(update())
+        skips the ORM and VersionAlchemy
+        """
+        for key, value in kwargs.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+
+    def asdict(self, exclude: list | None = None):
+        result = {}
+        for field in self.fields():
+            if exclude and field in exclude:
+                continue
+            result[field] = getattr(self, field)
+        return result
+
+    @classmethod
+    def fields(cls):
+        """
+        Return a list of the columns
+        """
+        return [col.name for col in cls.__table__.columns]
+
+
+class User(BaseModel):
+    email: str = db.Column(db.String(255), unique=True, nullable=False)
+    password: Optional[str] = db.Column(db.String(255), nullable=True)
+    verified: Optional[bool] = db.Column(db.Boolean, default=False, nullable=False)
+
+    sessions = db.relationship("LoginSession", backref="user", cascade="all, delete-orphan")
+    settings = db.relationship("Settings", backref="user", cascade="all, delete-orphan", uselist=False)
 
     def verify(self):
         """
         Sets `user.verified` to True and commits
         """
         self.verified = True
-        pony.commit()
+        db.session.commit()
 
     def set_password(self, password: str) -> "User":
         """
         Update the given users password
         """
         self.password = PasswordHasher().hash(password)
-        pony.commit()
+        db.session.commit()
         return self
 
     def check_password(self, password: str) -> bool:
@@ -47,26 +75,24 @@ class User(db.Entity):  # type:ignore
         return True
 
 
-class LoginSession(db.Entity):  # type:ignore
-    id: int = pony.PrimaryKey(int, auto=True)  # type:ignore
-
+class LoginSession(BaseModel):
     # Unique session ID, stored in user cookies
-    key: str = pony.Required(str, unique=True)  # type:ignore
+    key: str = db.Column(db.String(255), unique=True, nullable=False)
 
     # Unix timestamp
-    expires: int = pony.Required(int)  # type:ignore
+    expires: int = db.Column(db.Integer, nullable=False)
 
-    user = pony.Required(User)
+    user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
 
-class Time(db.Entity):  # type:ignore
-    id: int = pony.PrimaryKey(int, auto=True)  # type:ignore
-    start: int = pony.Required(int)  # type:ignore
-    end: Optional[int] = pony.Optional(int)  # type:ignore
-    note: Optional[str] = pony.Optional(str)  # type:ignore
+class Time(BaseModel):
+    start: int = db.Column(db.Integer, nullable=False)
+    end: Optional[int] = db.Column(db.Integer, nullable=True)
+    note: Optional[str] = db.Column(db.String(255), nullable=True)
+    user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
-    breaks: list["Break"] = pony.Set("Break", cascade_delete=True)  # type:ignore
-    user: User = pony.Required(User)  # type:ignore
+    breaks: list["Break"] = db.relationship("Break", lazy=True, backref="time", cascade="all, delete-orphan")
+    user: User = db.relationship("User", viewonly=True)
 
     def logged(self):
         """
@@ -85,27 +111,54 @@ class Time(db.Entity):  # type:ignore
         from app.controllers.user.util import get_user
 
         user = get_user()
-        return pony.select(row for row in cls if row.start >= timestamp and row.user == user)
+        return db.session.scalars(db.select(Time).filter(Time.start >= timestamp, Time.user == user)).all()
 
 
-class Break(db.Entity):  # type:ignore
-    time: Time = pony.Required(Time)  # type:ignore
-    start: int = pony.Required(int)  # type:ignore
-    end: Optional[int] = pony.Optional(int)  # type:ignore
-    note: Optional[str] = pony.Optional(str)  # type:ignore
+class Break(BaseModel):
+    time_id: int = db.Column(db.Integer, db.ForeignKey("time.id"))
+    start: int = db.Column(db.Integer)
+    end: Optional[int] = db.Column(db.Integer, nullable=True)
+    note: Optional[str] = db.Column(db.String(255), nullable=True)
 
 
-class Settings(db.Entity):  # type:ignore
-    id: int = pony.PrimaryKey(int, auto=True)  # type:ignore
-    timezone: str = pony.Required(str)  # type:ignore
+class Leave(BaseModel):
+    leave_type: str = db.Column(db.String(255), nullable=False)  # sick / annual
+    start: int = db.Column(db.Integer, nullable=False)  # unix time for starting day
+    duration: float = db.Column(db.Float, nullable=False)  # Duration in days
+    note: Optional[str] = db.Column(db.String(255), nullable=True)
+    user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+
+    user: User = db.relationship("User", viewonly=True)
+
+    @classmethod
+    def since(cls, timestamp):
+        from app.controllers.user.util import get_user
+
+        user = get_user()
+        return db.session.scalars(db.select(Leave).filter(Leave.start >= timestamp, Leave.user == user)).all()
+
+    def logged(self) -> int:
+        """
+        Returns the duration in seconds of this leave entry
+        """
+        hours_per_day = self.user.settings.hours_per_day
+        return int(self.duration * hours_per_day * 60 * 60)
+
+
+class Settings(BaseModel):
+    timezone: str = db.Column(db.String(255), nullable=False)
     # 1 = Monday, 7 = Sunday
-    week_start: int = pony.Required(int)  # type:ignore
-    hours_per_day: float = pony.Required(float)  # type:ignore
-    work_days: str = pony.Required(  # type:ignore
-        str
+    week_start: int = db.Column(db.Integer, nullable=False)
+    hours_per_day: float = db.Column(db.Float, nullable=False)
+    work_days: str = db.Column(
+        db.String(7), nullable=False
     )  # This is stored as a 7 char string, the day char if the day is a work day and a hyphen if not, eg: MTWTF--
 
-    user: User = pony.Required(User)  # type:ignore
+    user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+
+    @property
+    def week_start_0(self):
+        return self.week_start - 1
 
     def work_days_list(self) -> list[str]:
         work_days = []

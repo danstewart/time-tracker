@@ -1,10 +1,11 @@
 import os
 
 from flask import Flask
-from pony.flask import Pony
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
 
-from app.lib.database import db, pony
-from app.models import *  # noqa: F401
+db = SQLAlchemy()
+migrate = Migrate()
 
 
 def create_app():
@@ -17,9 +18,17 @@ def create_app():
         SESSION_COOKIE_SAMESITE="Lax",
     )
 
-    Pony(app)
-    db.connect()
-    pony.set_sql_debug(False)
+    # Initialise database
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////home/app/log-my-time/db/time.db"
+    db.init_app(app)
+    db.metadata.naming_convention = {
+        "ix": "ix_%(table_name)s_%(column_0_N_label)s",
+        "uq": "uc_%(table_name)s_%(column_0_N_name)s",
+        "ck": "ck_%(table_name)s_%(constraint_name)s",
+        "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+        "pk": "pk_%(table_name)s",
+    }
+    migrate.init_app(app, db)
 
     app.jinja_env.add_extension("jinja2.ext.do")
     app.jinja_env.add_extension("jinja2.ext.loopcontrols")
@@ -28,11 +37,12 @@ def create_app():
     with app.app_context():
         from app.controllers.user.util import is_logged_in
         from app.lib.util.security import enable_csrf_protection, get_csrf_token
-        from app.views import core, settings, time, user
+        from app.views import core, leave, settings, time, user
 
         enable_csrf_protection(app)
 
         app.register_blueprint(time.v)
+        app.register_blueprint(leave.v)
         app.register_blueprint(settings.v)
         app.register_blueprint(user.v)
         app.register_blueprint(core.v)

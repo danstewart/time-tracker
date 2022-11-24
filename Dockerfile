@@ -1,7 +1,7 @@
 # syntax = docker/dockerfile:1.2
 
 # Use slim buster images
-FROM python:3.10-slim-buster
+FROM python:3.11-slim-buster
 
 LABEL version="0.0.1"
 
@@ -33,7 +33,7 @@ ENV PROJECT_ROOT='/home/app/log-my-time'
 # Install python deps
 RUN pip install pipenv
 COPY --chown=app ./Pipfile.lock ./Pipfile ./
-RUN pipenv install --categories="packages dev" --system
+RUN pipenv install --categories="packages dev-packages" --system
 
 # Get traceback for C crashes
 ENV PYTHONFAULTHANDLER=1

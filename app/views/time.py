@@ -1,29 +1,18 @@
-from flask import Blueprint
-from flask import current_app as app
-from flask import redirect, render_template, request
+from flask import Blueprint, redirect, render_template, request
 
-from app.controllers import settings, time
+from app.controllers import time
 from app.controllers.user.util import login_required
 from app.lib.logger import get_logger
-from app.lib.util.date import humanize_seconds
 
 v = Blueprint("time", __name__)
 logger = get_logger(__name__)
-
-
-@v.get("/")
-@login_required
-def home():
-    return render_template(
-        "pages/home.html.j2",
-        week_list=time.week_list(),
-    )
 
 
 @v.post("/time/add")
 @login_required
 def add_time():
     if request.form:
+
         values = dict(request.form)
         clock = values.pop("clock")
 
@@ -50,28 +39,11 @@ def delete_time(row_id):
 
 
 # FRAMES
-@v.get("/frames/time-log-table")
-@login_required
-def time_log_table():
-    week_number = request.args.get("week")
-    time_entries = time.all_for_week(week_number)
-    return render_template("frames/time_log_table.html.j2", time_entries=time_entries)
-
-
-@v.get("/frames/time-stats")
-@login_required
-def time_stats():
-    time_stats = time.stats()
-    return render_template("frames/time_stats.html.j2", stats=time_stats)
-
-
 @v.get("/frames/clock_in_form")
 @login_required
 def clock_in_form():
-    time_entries = time.all()
-
-    clocked_in = time_entries.first() and not time_entries.first().end
-    on_break = time_entries.first() and time_entries.first().breaks.filter(lambda b: not b.end)
+    clocked_in = time.current() is not None
+    on_break = time.current_break() is not None
 
     return render_template("frames/clock_in_form.html.j2", clocked_in=clocked_in, on_break=on_break)
 

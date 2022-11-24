@@ -1,0 +1,199 @@
+{% set date_fmt = 'Do [of] MMM YYYY [at] HH:mm' %}
+<section id="records">
+    <div class="accordion" id="accordion-forms">
+        {# Add new record button #}
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="accordion-add-header">
+                <div class="d-flex">
+
+                    {# Accordion button for logging time #}
+                    <button id="showLogForm"
+                            class="accordion-button collapsed border-end"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#accordion-add-body"
+                            aria-controls="accordion-add-body">
+                        <div class="d-flex justify-content-center flex-grow-1">
+                            Log Time
+                            <i class="bi bi-clock ms-2"></i>
+                        </div>
+                    </button>
+
+                    {# Accordion button for logging annual leave #}
+                    <button id="showAnnualLeaveForm"
+                            class="accordion-button collapsed border-end"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#accordion-annual-leave-body"
+                            aria-controls="accordion-annual-leave-body">
+                        <div class="d-flex justify-content-center flex-grow-1 align-items-center">
+                            Add Annual Leave
+                            <i class="bi bi-brightness-alt-high ms-2 fs-4"></i>
+                        </div>
+                    </button>
+
+                    {# Accordion button for logging sick leave #}
+                    <button id="showSickLeaveForm"
+                            class="accordion-button collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#accordion-sick-leave-body"
+                            aria-controls="accordion-sick-leave-body">
+                        <div class="d-flex justify-content-center flex-grow-1 align-items-center">
+                            Add Sick Leave
+                            <i class="bi bi-bandaid ms-2 fs-6"></i>
+                        </div>
+                    </button>
+                </div>
+            </h2>
+
+            {# Accordion body for logging time #}
+            <div id="accordion-add-body"
+                 class="accordion-collapse collapse border-bottom"
+                 aria-labelledby="accordion-add-header"
+                 data-bs-parent="#accordion-forms">
+                <div class="container mt-2 mb-2">
+                    <dynamic-frame :url="/frames/time_form/" :execute-scripts="true">
+                    </dynamic-frame>
+                </div>
+            </div>
+
+            {# Accordion body for logging annual leave #}
+            <div id="accordion-annual-leave-body"
+                 class="accordion-collapse collapse border-bottom"
+                 aria-labelledby="accordion-annual-leave-header"
+                 data-bs-parent="#accordion-forms">
+                <div class="container mt-2 mb-2">
+                    <dynamic-frame :url="/frames/leave_form/"
+                                   :param-type="annual"
+                                   :execute-scripts="true">
+                    </dynamic-frame>
+                </div>
+            </div>
+
+            {# Accordion body for logging sick leave #}
+            <div id="accordion-sick-leave-body"
+                 class="accordion-collapse collapse border-bottom"
+                 aria-labelledby="accordion-sick-leave-header"
+                 data-bs-parent="#accordion-forms">
+                <div class="container mt-2 mb-2">
+                    <dynamic-frame :url="/frames/leave_form/" :param-type="sick" :execute-scripts="true">
+                    </dynamic-frame>
+                </div>
+            </div>
+        </div>
+
+        {# List of existing time records #}
+        {% for rec in records %}
+            {% if type_of(rec) == "Time" %}
+                {# djlint:off #}
+                {% set now = arrow.now() %}
+                {% set start = arrow.get(rec.start).to(settings.timezone) %}
+                {% set end = arrow.get(rec.end).to(settings.timezone) if rec.end else '' %}
+                {# djlint:on #}
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="accordion-{{ rec.id }}-header">
+                        <button class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#accordion-{{ rec.id }}-body"
+                                aria-controls="{{ rec.id }}-accordion-body">
+                            <div class="d-flex justify-content-between flex-grow-1">
+                                <div class="d-flex flex-column">
+                                    <p class="fw-bold mb-1">{{ start.format("dddd Do [of] MMM") }}</p>
+                                    <p>{{ start.format("HH:mm") }} - {{ end.format("HH:mm") if end else 'Still clocked in' }}</p>
+                                </div>
+                                <span class="badge bg-secondary time-badge">{{ humanize_seconds(rec.logged(), short=True) }}</span>
+                            </div>
+                        </button>
+                    </h2>
+                    <div id="accordion-{{ rec.id }}-body"
+                         class="accordion-collapse collapse"
+                         aria-labelledby="accordion-{{ rec.id }}-header"
+                         data-parent="#accordion-{{ rec.id }}">
+                        <div class="container mt-2 mb-2">
+                            {# TODO: Make this frame lazily loaded #}
+                            <dynamic-frame :url="/frames/time_form/{{ rec.id }}" :execute-scripts="true">
+                            </dynamic-frame>
+                        </div>
+                    </div>
+                </div>
+            {% elif type_of(rec) == "Leave" %}
+                {# djlint:off #}
+                {% set now = arrow.now() %}
+                {% set start = arrow.get(rec.start).to(settings.timezone) %}
+                {# djlint:on #}
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="accordion-{{ rec.id }}-header">
+                        <button class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#accordion-{{ rec.id }}-body"
+                                aria-controls="{{ rec.id }}-accordion-body">
+                            <div class="d-flex justify-content-between flex-grow-1">
+                                <div class="d-flex flex-column">
+                                    <p class="fw-bold mb-1">{{ start.format("dddd Do [of] MMM") }}</p>
+                                    <p>{{ rec.leave_type | title }} Leave</p>
+                                </div>
+
+                                <span class="badge bg-secondary time-badge">{{ humanize_seconds(rec.logged(), short=True) }}</span>
+                            </div>
+                        </button>
+                    </h2>
+                    <div id="accordion-{{ rec.id }}-body"
+                         class="accordion-collapse collapse"
+                         aria-labelledby="accordion-{{ rec.id }}-header"
+                         data-parent="#accordion-{{ rec.id }}">
+                        <div class="container mt-2 mb-2">
+                            {# TODO: Make this frame lazily loaded #}
+                            <dynamic-frame :url="/frames/leave_form/{{ rec.id }}"
+                                           :param-type="{{ rec.leave_type }}"
+                                           :execute-scripts="true">
+                            </dynamic-frame>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</section>
+
+<script>
+    (function() {
+        const frame = document.currentScript.parentNode;
+
+        // If any time data changes then update ourselves
+        window.addEventListener("time:changed", e => frame.refresh());
+    })();
+</script>
+
+<style>
+    #showLogForm {
+        border-top-right-radius: 0px !important;
+        border-bottom-right-radius: 0px !important;
+    }
+
+    #showAnnualLeaveForm {
+        border-top-left-radius: 0px !important;
+        border-bottom-left-radius: 0px !important;
+    }
+
+    /* Some hacks to make the accordions look the way I want... */
+    .accordion-button {
+        border-bottom: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color);
+    }
+
+    .accordion-item {
+        border-bottom: 0px;
+    }
+
+    .accordion-button:not(.collapsed) {
+        box-shadow: none;
+    }
+
+    .accordion-button:focus {
+        border-color: var(--bs-border-color);
+    }
+</style>

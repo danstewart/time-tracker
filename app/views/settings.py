@@ -2,7 +2,6 @@ from flask import Blueprint, render_template, request
 
 from app.controllers import settings
 from app.controllers.user.util import login_required
-from app.lib.database import pony
 from app.lib.logger import get_logger
 
 v = Blueprint("settings", __name__)
