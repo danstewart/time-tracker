@@ -7,6 +7,19 @@ from app.models import Leave, Time
 from app.viewmodels import TimeStats
 
 
+def _get_first_record_time() -> int | None:
+    """
+    Returns the timestamp of the first time or leave record
+    """
+    first_time = db.session.scalars(db.select(Time).filter(Time.user == get_user()).order_by(Time.start)).first()
+    first_leave = db.session.scalars(db.select(Leave).filter(Leave.user == get_user()).order_by(Leave.start)).first()
+
+    if not first_time and not first_leave:
+        return None
+
+    return min(map(lambda row: row.start, filter(lambda row: row is not None, [first_time, first_leave])))
+
+
 def stats() -> TimeStats:
     """Return the weekly stats"""
     from app.lib.util.date import humanize_seconds
@@ -29,7 +42,7 @@ def stats() -> TimeStats:
     logged_this_week = sum([rec.logged() for rec in Time.since(start.int_timestamp)])
     leave_this_week = sum([rec.logged() for rec in Leave.since(start.int_timestamp)])
 
-    # Time todo
+    # Time to do
     current_day = now.format("dddd")
     work_days = _settings.work_days_list()
     total_work_days = _settings.total_work_days()
@@ -53,11 +66,10 @@ def stats() -> TimeStats:
     # This is a little inefficient as it must go through all records
     overtime = 0
 
-    # TODO: What if the first record is a leave record?
-    if first_record := db.session.scalars(db.select(Time).order_by(Time.start)).first():
+    if first_time := _get_first_record_time():
         from app.lib.util.date import calculate_expected_hours
 
-        first_day = arrow.get(first_record.start).to(_tz)
+        first_day = arrow.get(first_time).to(_tz)
         expected_hours = calculate_expected_hours(
             start=first_day,
             end=today,
@@ -92,17 +104,16 @@ def week_list() -> list[str]:
     """
     Returns a list of weeks since the first record in the format ${year}-W${week}, eg. 2022-W25
     """
-    # TODO: What if the first record is a leave record?
-    first_record = db.session.scalars(db.select(Time).filter(Time.user == get_user()).order_by(Time.start)).first()
-    if not first_record:
+    first_time = _get_first_record_time()
+    if not first_time:
         return []
 
-    record = arrow.get(first_record.start)
+    first = arrow.get(first_time)
     now = arrow.utcnow()
 
     weeks = []
-    while record.year < now.year or record.week < now.week:
-        weeks.append("{}-W{}".format(record.year, record.week))
-        record = record.shift(weeks=1)
+    while first.year < now.year or first.week < now.week:
+        weeks.append("{}-W{}".format(first.year, first.week))
+        first = first.shift(weeks=1)
 
     return list(reversed(weeks))
