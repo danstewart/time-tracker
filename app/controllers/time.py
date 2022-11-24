@@ -262,7 +262,7 @@ def bulk_update(table, data: dict[int, dict]):
     model = Time if table == "time" else Break
 
     for row_id, values in data.items():
-        row = db.session.execute(db.select(model).filter_by(id=row_id)).one()
+        row = db.session.scalars(db.select(model).filter_by(id=row_id)).one()
         for key, value in values.items():
             # Convert string dates to int timestamps
             if key in ("start", "end") and value:
