@@ -13,6 +13,18 @@ def get(row_id: int) -> Leave:
     return Leave.query.filter(Leave.id == row_id).one()
 
 
+def delete(row_id: int) -> bool:
+    """
+    Deletes a time record by ID
+    Returns True if deleted and False if not
+    """
+    if record := db.session.scalars(db.select(Leave).filter(Leave.id == row_id, Leave.user == get_user())).first():
+        db.session.delete(record)
+        db.session.commit()
+        return True
+    return False
+
+
 def create(leave_type: str, start: int, duration: float, note: str = "") -> Leave:
     _settings = settings.fetch()
     _tz = _settings.timezone

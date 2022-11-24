@@ -10,6 +10,14 @@ v = Blueprint("leave", __name__)
 logger = get_logger(__name__)
 
 
+@v.delete("/leave/delete/<row_id>")
+@login_required
+def delete_time(row_id):
+    leave.delete(row_id)
+    return "OK", 200
+
+
+# == Frames == #
 @v.route("/frames/leave_form/", methods=["GET", "POST"])
 @v.route("/frames/leave_form/<int:row_id>", methods=["GET", "POST"])
 @login_required

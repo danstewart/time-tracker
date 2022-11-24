@@ -42,6 +42,7 @@
     </form>
     <div class="d-flex flex-row justify-content-end">
         <button id="submit" type="button" class="btn btn-primary">Save changes</button>
+        {% if leave %}<button id="delete" class="btn btn-danger ms-3" data-leave-id="{{ row_id }}">Delete</button>{% endif %}
     </div>
 </section>
 
@@ -90,5 +91,18 @@
             }
         });
 
+        frame.querySelector("#delete")?.addEventListener("click", async e => {
+            const id = e.target.getAttribute('data-leave-id');
+            let response = await fetch(`/leave/delete/${id}`, {
+                method: 'delete'
+            });
+
+            if (response.status == 200) {
+                frame.emit("time:changed");
+            } else {
+                flash("Failed to delete leave record", "danger");
+                console.error(`Failed to delete leave record ${id}: ${await response.text()}`)
+            }
+        });
     })();
 </script>
