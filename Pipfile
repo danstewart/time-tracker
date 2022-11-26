@@ -18,6 +18,7 @@ sendgrid = "*"
 flask-sqlalchemy = "*"
 alembic = "*"
 flask-migrate = "*"
+sqlalchemy = "==2.0.0b3"
 
 [dev-packages]
 pytest = "*"
