@@ -3,6 +3,7 @@ from typing import Optional
 import arrow
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app import db
 
@@ -10,7 +11,7 @@ from app import db
 class BaseModel(db.Model):  # type: ignore
     __abstract__ = True
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(db.Integer, primary_key=True, autoincrement=True)
 
     def update(self, **kwargs):
         """
@@ -39,12 +40,16 @@ class BaseModel(db.Model):  # type: ignore
 
 
 class User(BaseModel):
-    email: str = db.Column(db.String(255), unique=True, nullable=False)
-    password: Optional[str] = db.Column(db.String(255), nullable=True)
-    verified: Optional[bool] = db.Column(db.Boolean, default=False, nullable=False)
+    email: Mapped[str] = mapped_column(db.String(255), unique=True, nullable=False)
+    password: Mapped[Optional[str]] = mapped_column(db.String(255), nullable=True)
+    verified: Mapped[Optional[bool]] = mapped_column(db.Boolean, default=False, nullable=False)
 
-    sessions = db.relationship("LoginSession", backref="user", cascade="all, delete-orphan")
-    settings = db.relationship("Settings", backref="user", cascade="all, delete-orphan", uselist=False)
+    sessions: Mapped[list["LoginSession"]] = db.relationship(
+        "LoginSession", backref="user", cascade="all, delete-orphan"
+    )
+    settings: Mapped["Settings"] = db.relationship(
+        "Settings", backref="user", cascade="all, delete-orphan", uselist=False
+    )
 
     def verify(self):
         """
@@ -77,22 +82,22 @@ class User(BaseModel):
 
 class LoginSession(BaseModel):
     # Unique session ID, stored in user cookies
-    key: str = db.Column(db.String(255), unique=True, nullable=False)
+    key: Mapped[str] = mapped_column(db.String(255), unique=True, nullable=False)
 
     # Unix timestamp
-    expires: int = db.Column(db.Integer, nullable=False)
+    expires: Mapped[int] = mapped_column(db.Integer, nullable=False)
 
-    user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
 
 class Time(BaseModel):
-    start: int = db.Column(db.Integer, nullable=False)
-    end: Optional[int] = db.Column(db.Integer, nullable=True)
-    note: Optional[str] = db.Column(db.String(255), nullable=True)
-    user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    start: Mapped[int] = mapped_column(db.Integer, nullable=False)
+    end: Mapped[Optional[int]] = mapped_column(db.Integer, nullable=True)
+    note: Mapped[Optional[str]] = mapped_column(db.String(255), nullable=True)
+    user_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
-    breaks: list["Break"] = db.relationship("Break", lazy=True, backref="time", cascade="all, delete-orphan")
-    user: User = db.relationship("User", viewonly=True)
+    breaks: Mapped[list["Break"]] = db.relationship("Break", lazy=True, backref="time", cascade="all, delete-orphan")
+    user: Mapped[User] = db.relationship("User", viewonly=True)
 
     def logged(self):
         """
@@ -115,20 +120,20 @@ class Time(BaseModel):
 
 
 class Break(BaseModel):
-    time_id: int = db.Column(db.Integer, db.ForeignKey("time.id"))
-    start: int = db.Column(db.Integer)
-    end: Optional[int] = db.Column(db.Integer, nullable=True)
-    note: Optional[str] = db.Column(db.String(255), nullable=True)
+    time_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("time.id"))
+    start: Mapped[int] = mapped_column(db.Integer)
+    end: Mapped[Optional[int]] = mapped_column(db.Integer, nullable=True)
+    note: Mapped[Optional[str]] = mapped_column(db.String(255), nullable=True)
 
 
 class Leave(BaseModel):
-    leave_type: str = db.Column(db.String(255), nullable=False)  # sick / annual
-    start: int = db.Column(db.Integer, nullable=False)  # unix time for starting day
-    duration: float = db.Column(db.Float, nullable=False)  # Duration in days
-    note: Optional[str] = db.Column(db.String(255), nullable=True)
-    user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    leave_type: Mapped[str] = mapped_column(db.String(255), nullable=False)  # sick / annual
+    start: Mapped[int] = mapped_column(db.Integer, nullable=False)  # unix time for starting day
+    duration: Mapped[float] = mapped_column(db.Float, nullable=False)  # Duration in days
+    note: Mapped[Optional[str]] = mapped_column(db.String(255), nullable=True)
+    user_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
-    user: User = db.relationship("User", viewonly=True)
+    user: Mapped[User] = db.relationship("User", viewonly=True)
 
     @classmethod
     def since(cls, timestamp):
@@ -146,15 +151,15 @@ class Leave(BaseModel):
 
 
 class Settings(BaseModel):
-    timezone: str = db.Column(db.String(255), nullable=False)
+    timezone: Mapped[str] = mapped_column(db.String(255), nullable=False)
     # 1 = Monday, 7 = Sunday
-    week_start: int = db.Column(db.Integer, nullable=False)
-    hours_per_day: float = db.Column(db.Float, nullable=False)
-    work_days: str = db.Column(
+    week_start: Mapped[int] = mapped_column(db.Integer, nullable=False)
+    hours_per_day: Mapped[float] = mapped_column(db.Float, nullable=False)
+    work_days: Mapped[str] = mapped_column(
         db.String(7), nullable=False
     )  # This is stored as a 7 char string, the day char if the day is a work day and a hyphen if not, eg: MTWTF--
 
-    user_id: int = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
     @property
     def week_start_0(self):
