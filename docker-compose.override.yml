@@ -16,3 +16,4 @@ services:
             - "./config:/home/app/log-my-time/config"
             - "./tests:/home/app/log-my-time/tests"
             - "./migrations:/home/app/log-my-time/migrations"
+            - "./flask-sqlalchemy:/home/app/log-my-time/flask-sqlalchemy"
