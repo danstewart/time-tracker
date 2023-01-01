@@ -1,0 +1,160 @@
+#!/usr/bin/env bash
+
+COMPOSE_SERVICE="app"
+CONTAINER="log-my-time"
+
+subcommand=$1
+shift
+
+# Enable BuildKit
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
+export BUILDKIT_PROGRESS=plain
+
+[[ -z $LOG_LEVEL ]] && export LOG_LEVEL="debug"
+
+if [[ $subcommand == "--help" || $subcommand == "help" || -z $subcommand ]]; then
+    echo "./tools/ctl.sh [subcommand] [options]"
+    echo ""
+    echo "subcommands:"
+    echo "  up: start the docker containers"
+    echo "  restart: restart the docker containers"
+    echo "  rebuild: rebuilds the docker containers"
+    echo "  logs: tail the container logs"
+    echo "  sql: connect to the database"
+    echo "  flask: run a flask command"
+    echo "  test: run the tests"
+    echo ""
+    echo "Run with a subcommand and --help to get descriptions for each command"
+    exit 0
+fi
+
+
+function logs() {
+    if [[ $1 == "--help" ]]; then
+        echo "ctl.sh logs [args...]"
+        echo ""
+        echo "Tails the docker logs"
+        echo "Any additional arguments are passed to 'docker-compose logs'"
+        echo ""
+        echo "TIP: Pass the container name to only get logs from that container"
+        exit 0
+    fi
+
+    echo "Tailing logs..."
+    docker compose logs --tail 20 --follow $@
+}
+
+function up() {
+    if [[ $1 == "--help" ]]; then
+        echo "ctl.sh up [-d] [--build]"
+        echo ""
+        echo "Starts the docker container"
+        echo "All extra arguments are passed through to 'docker-compose up'"
+        echo ""
+        echo "-d: Will run the container in the background"
+        echo "--build: Will rebuild the entire container"
+        exit 0
+    fi
+
+    echo "Starting containers..."
+    docker compose up $@ $COMPOSE_SERVICE
+}
+
+function restart() {
+    if [[ $1 == "--help" ]]; then
+        echo "ctl.sh restart"
+        echo ""
+        echo "Restarts the docker container"
+        exit 0
+    fi
+
+    echo "Restarting containers..."
+    docker compose restart $COMPOSE_SERVICE
+}
+
+function rebuild() {
+    if [[ $1 == "--help" ]]; then
+        echo "ctl.sh rebuild"
+        echo ""
+        echo "Rebuilds the container"
+        exit 0
+    fi
+
+    echo "Rebuilding containers..."
+    docker compose up -d --build $COMPOSE_SERVICE
+}
+
+function sql() {
+    echo "Connecting to database..."
+
+    if command -v litecli >/dev/null 2>&1; then
+        litecli db/time.db
+    else
+        docker exec -it $CONTAINER sqlite3 db/time.db
+    fi
+}
+
+function flask() {
+    if [[ $1 == "--help" ]]; then
+        echo "ctl.sh flask [commands...]"
+        echo ""
+        echo "Run flask commands in the container"
+        echo "All arguments are passed through to the flask CLI"
+        echo ""
+        echo "Examples"
+        echo "  Start a flask shell"
+        echo "    ./tools/ctl.sh flask shell"
+        echo ""
+        echo "  Apply migrations"
+        echo "    ./tools/ctl.sh flask db upgrade"
+        echo ""
+        echo "  Create new migration"
+        echo "     ./tools/ctl.sh flask migrate -m <msg>"
+        exit 0
+    fi
+
+    echo "Running flask..."
+
+    args=""
+    for arg in "$@"; do
+        if [[ $arg =~ [[:space:]] ]]; then
+            arg=\"$arg\"
+        fi
+
+        args="$args $arg"
+    done
+
+    # We eval here so we pass the quoted args directly to flask
+    # it's a hack, leave me alone
+    eval "docker exec -it -e LOG_LEVEL $CONTAINER flask $args"
+}
+
+function test() {
+    if [[ $1 == "--help" ]]; then
+        echo "./tools/ctl.sh test [commands...]"
+        echo ""
+        echo "Run pytest against the container"
+        echo "Any additional arguments are passed through to pytest"
+        echo ""
+        echo "NOTE: By default we pass '-vv' to pytest to enable pytest-clarity"
+        exit 0
+    fi
+
+    docker exec -it $CONTAINER pipenv install --dev
+    docker exec -it $CONTAINER pipenv run pytest
+}
+
+# == MAIN == #
+
+# Run the subcommand
+[[ $subcommand == "cache-clear" ]] && subcommand="clear-cache"
+
+if command -v $subcommand >/dev/null 2>&1; then
+    args=""
+
+    $subcommand "$@"
+else
+    echo "Unknown subcommand: $subcommand"
+    exit 1
+fi
