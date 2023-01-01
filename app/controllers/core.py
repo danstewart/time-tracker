@@ -78,14 +78,25 @@ def stats() -> TimeStats:
 
         overtime = -(expected_hours * 60 * 60)  # Convert to seconds
 
+        # Now get the total logged up to today
         total_logged = 0
 
         total_logged += sum(
-            [rec.logged() for rec in db.session.scalars(db.select(Time).filter(Time.user == get_user())).all()]
+            [
+                rec.logged()
+                for rec in db.session.scalars(
+                    db.select(Time).filter(Time.user == get_user(), Time.start < now.timestamp())
+                ).all()
+            ]
         )
 
         total_logged += sum(
-            [rec.logged() for rec in db.session.scalars(db.select(Leave).filter(Leave.user == get_user())).all()]
+            [
+                rec.logged()
+                for rec in db.session.scalars(
+                    db.select(Leave).filter(Leave.user == get_user(), Leave.start < now.timestamp())
+                ).all()
+            ]
         )
 
         if total_logged:
