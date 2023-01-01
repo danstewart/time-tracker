@@ -24,6 +24,7 @@ flask-sqlalchemy = "*"
 pytest = "*"
 devtools = {extras = ["pygments"], version = "*"}
 watchdog = "*"
+flask-shell-ipython = "*"
 
 [local-packages]
 black = "*"

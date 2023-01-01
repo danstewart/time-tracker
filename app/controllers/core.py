@@ -74,6 +74,7 @@ def stats() -> TimeStats:
             start=first_day,
             end=today,
             hours_per_day=_settings.hours_per_day,
+            days_worked="MTWTF--",
         )
 
         overtime = -(expected_hours * 60 * 60)  # Convert to seconds
