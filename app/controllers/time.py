@@ -71,7 +71,14 @@ def all_for_week(week: Optional[str] = None) -> list[Time]:
 
     if not week:
         now = arrow.utcnow()
-        week = "{}-W{}".format(now.year, now.week)
+
+        y, w = now.year, now.week
+
+        # Handle the case where the new year starts but the week started the previous year
+        if w >= 52 and now.month == 1:
+            y -= 1
+
+        week = "{}-W{}".format(y, w)
 
     week_start = arrow.get(week)
 

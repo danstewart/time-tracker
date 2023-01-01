@@ -104,6 +104,8 @@ def week_list() -> list[str]:
     """
     Returns a list of weeks since the first record in the format ${year}-W${week}, eg. 2022-W25
     """
+
+    # TODO: How do we view future logs?
     first_time = _get_first_record_time()
     if not first_time:
         return []
@@ -112,7 +114,7 @@ def week_list() -> list[str]:
     now = arrow.utcnow()
 
     weeks = []
-    while first < now:
+    while first.shift(weeks=1) < now:
         weeks.append("{}-W{}".format(first.year, first.week))
         first = first.shift(weeks=1)
 

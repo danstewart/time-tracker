@@ -1,7 +1,7 @@
 import arrow
 
 
-def humanize_seconds(seconds: int, short: bool = False):
+def humanize_seconds(seconds: int | float, short: bool = False):
     """
     Humanizes a duration in seconds
 
@@ -38,7 +38,7 @@ def humanize_seconds(seconds: int, short: bool = False):
     return base.humanize(end, only_distance=True, granularity=["hour", "minute"])
 
 
-def calculate_expected_hours(start: arrow.Arrow, end: arrow.Arrow, hours_per_day: float) -> int:
+def calculate_expected_hours(start: arrow.Arrow, end: arrow.Arrow, hours_per_day: float) -> float:
     """
     Calculates the expected work hours between two dates
     Assumes the work week is 5 days Mon-Fri
