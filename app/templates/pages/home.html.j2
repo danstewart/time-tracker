@@ -35,7 +35,7 @@
                             {% if loop.index == 1 %}
                                 Last Week
                             {% else %}
-{{ loop.index }} weeks ago
+                                {{ loop.index }} weeks ago
                             {% endif %}
                         </option>
                     {% endfor %}
@@ -50,7 +50,7 @@
         <div class="text-center">
             <div class="spinner-border d-none"
                  style="width: 3rem;
-                        height: 3rem;"
+                        height: 3rem"
                  role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
@@ -63,14 +63,14 @@
         // Handle week change
         const frame = document.querySelector("#log-table");
         const select = frame.querySelector("select");
-        
+
         const content = frame.querySelector(".content");
         const spinner = frame.querySelector(".spinner-border");
-        
+
         select.addEventListener("change", async (e) => {
             content.classList.add("d-none");
             spinner.classList.remove("d-none");
-        
+
             frame.setAttribute(":param-week", e.target.value);
             await frame.refresh();
             await setTimeout(() => {
@@ -78,12 +78,12 @@
                 spinner.classList.add("d-none");
             }, 200);
         });
-        
+
         frame.querySelectorAll("button").forEach(btn => {
             btn.addEventListener("click", (e) => {
                 const selectedIndex = select.selectedIndex;
                 const type = e.target.closest("button").getAttribute("data-type");
-        
+
                 if (type === "prev" && selectedIndex < select.options.length - 1) {
                     select.selectedIndex = selectedIndex + 1;
                     select.dispatchEvent(new Event("change"))

@@ -112,7 +112,7 @@ def week_list() -> list[str]:
     now = arrow.utcnow()
 
     weeks = []
-    while first.year < now.year or first.week < now.week:
+    while first < now:
         weeks.append("{}-W{}".format(first.year, first.week))
         first = first.shift(weeks=1)
 
