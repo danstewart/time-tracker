@@ -83,7 +83,7 @@ def all_for_week(week: Optional[str] = None) -> list[Leave]:
         if w >= 52 and now.month == 1:
             y -= 1
 
-        week = "{}-W{}".format(y, w)
+        week = "{}-W{:02}".format(y, w)
 
     week_start = arrow.get(week)
 
