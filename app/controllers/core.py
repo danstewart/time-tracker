@@ -127,7 +127,7 @@ def week_list() -> list[str]:
 
     weeks = []
     while first.shift(weeks=1) < now:
-        weeks.append("{}-W{}".format(first.year, first.week))
+        weeks.append("{}-W{:02d}".format(first.year, first.week))
         first = first.shift(weeks=1)
 
     return list(reversed(weeks))
