@@ -75,6 +75,10 @@
                 jsonRequest.duration = 0.5;
             }
 
+            // Bit of a hack but set the time for leave to 12pm
+            // Firefox sets the tz to UTC so without this the leave will be shifted to 11pm the previous day
+            jsonRequest.start += " 12:00:00";
+
             let response = await fetch("/frames/leave_form/{{ row_id or '' }}", {
                 method: 'POST',
                 body: JSON.stringify(jsonRequest),
