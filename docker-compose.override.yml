@@ -3,17 +3,23 @@
 version: "2.4"
 
 services:
-    app:
-        build:
-            context: .
-        environment:
-            FLASK_APP: ${FLASK_APP:-app}
-            FLASK_DEBUG: ${FLASK_DEBUG:-1}
-            LOG_LEVEL: ${LOG_LEVEL:-warning}
-        volumes:
-            - "./app:/home/app/log-my-time/app"
-            - "./db:/home/app/log-my-time/db"
-            - "./config:/home/app/log-my-time/config"
-            - "./tests:/home/app/log-my-time/tests"
-            - "./migrations:/home/app/log-my-time/migrations"
-            - "./flask-sqlalchemy:/home/app/log-my-time/flask-sqlalchemy"
+  app:
+    build:
+      context: .
+    mem_limit: ${MEM_LIMIT:-2147484000}  # 2GiB
+    cpus: ${CPU_LIMIT:-0}
+    environment:
+      FLASK_APP: ${FLASK_APP:-app}
+      FLASK_DEBUG: ${FLASK_DEBUG:-1}
+      LOG_LEVEL: ${LOG_LEVEL:-warning}
+    volumes:
+      - "./app:/home/app/log-my-time/app"
+      - "./db:/home/app/log-my-time/db"
+      - "./config:/home/app/log-my-time/config"
+      - "./tests:/home/app/log-my-time/tests"
+      - "./migrations:/home/app/log-my-time/migrations"
+      - "./flask-sqlalchemy:/home/app/log-my-time/flask-sqlalchemy"
+
+  cache:
+    mem_limit: 2147484000  # 2 GiB
+    cpus: 2
