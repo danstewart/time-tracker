@@ -1,10 +1,6 @@
 # Using V2 as advised here: https://github.com/docker/compose/issues/4513#issuecomment-368167466
 version: "2.4"
 
-volumes:
-  db:
-  cache:
-
 services:
   app:
     build:
@@ -27,6 +23,6 @@ services:
     container_name: 'log-my-time-cache'
     command: redis-server
     volumes:
-      - 'cache:/var/lib/redis'
+      - './cache:/var/lib/redis'
     environment:
       - REDIS_REPLICATION_MODE=master
