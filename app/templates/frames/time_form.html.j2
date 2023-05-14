@@ -8,6 +8,8 @@
 {% set row.end = arrow.get(time.end).to(settings.timezone) %}
     {% endif %}
 {% endif %}
+
+
 <section>
     <form id="addEditForm"
           method="post"
@@ -51,37 +53,34 @@
             {% if time %}
                 <div class="break-list">
                     <h4 class="mt-4">Breaks</h4>
-                    <button type="button" class="add-break btn btn-link p-0 mb-2">Add Break</button>
                     {% for break in time.breaks %}
                         {# djlint:off #}
                         {% set break_start = arrow.get(break.start).to(settings.timezone) %}
                         {% set break_end = arrow.get(break.end).to(settings.timezone) if break.end else "" %}
                         {# djlint:on #}
-                        <div class="row mb-2">
-                            <div class="col-3">
-                                <div class="input-group">
-                                    <input class="flatpickr"
-                                           type="text"
-                                           name="break-start-{{ break.id }}"
-                                           data-date-type="datetime"
-                                           data-date-value="{{ break_start }}"/>
-                                    <clear-flatpickr>
-                                    </clear-flatpickr>
-                                </div>
+                        <div class="row mb-2 d-flex flex-row">
+                            <div class="d-flex" style="width: 11.25rem";>
+                                <input class="flatpickr d-flex border-0 p-0"
+                                    type="text"
+                                    name="break-start-{{ break.id }}"
+                                    data-date-type="datetime"
+                                    data-date-value="{{ break_start }}"/>
                             </div>
-                            <div class="col-3">
-                                <div class="input-group">
-                                    <input class="flatpickr col-3"
-                                           type="text"
-                                           name="break-end-{{ break.id }}"
-                                           data-date-type="datetime"
-                                           data-date-value="{{ break_end }}"/>
-                                    <clear-flatpickr>
-                                    </clear-flatpickr>
-                                </div>
+
+                            <div class="d-flex align-items-center justify-content-center" style="width: 20px;">
+                                <i class="bi bi-arrow-right"></i>
+                            </div>
+
+                            <div class="d-flex" style="width: 11.25rem";>
+                                <input class="flatpickr d-flex border-0 p-0"
+                                    type="text"
+                                    name="break-end-{{ break.id }}"
+                                    data-date-type="datetime"
+                                    data-date-value="{{ break_end }}"/>
                             </div>
                         </div>
                     {% endfor %}
+                    <button type="button" class="add-break btn btn-link p-0 mb-2">Add Break</button>
                 </div>
             {% endif %}
         </div>
@@ -154,11 +153,11 @@
                 /* beautify preserve:start */
                 breakList.insertAdjacentHTML("beforeend", `
                     <div class="row mb-2">
-                        <div class="col-3">
+                        <div class="col-2">
                             <input class="flatpickr" type="text" name="new-break-start" data-date-type="datetime"/>
                         </div>
-                        <div class="col-3">
-                            <input class="flatpickr col-3" type="text" name="new-break-end" data-date-type="datetime"/>
+                        <div class="col-2">
+                            <input class="flatpickr" type="text" name="new-break-end" data-date-type="datetime"/>
                         </div>
                     </div>
                 `);

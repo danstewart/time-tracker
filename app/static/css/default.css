@@ -34,7 +34,7 @@ a.icon {
 /* Debug bar */
 .debug-bar {
     width: 100vw;
-    height: 2.5vh;
+    height: 25px;
     background-color: rebeccapurple;
     text-align: center;
     color: white;
