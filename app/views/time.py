@@ -53,6 +53,7 @@ def clock_in_form():
 @login_required
 def time_form(row_id: str = ""):
     from app.lib.util.ensure import ensure_list
+    from datetime import datetime
 
     if request.method == "POST" and request.json:
         from collections import defaultdict
@@ -99,4 +100,5 @@ def time_form(row_id: str = ""):
         "frames/time_form.html.j2",
         row_id=row_id,
         time=time.get(row_id) if row_id else None,
+        now=datetime.now(),
     )

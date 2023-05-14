@@ -157,6 +157,8 @@
              * When clicking `Add Break` add a new break row
              */
             frame.querySelectorAll(".add-break").forEach(btn => btn.addEventListener("click", e => {
+                btn.classList.add("d-none");
+
                 const breakList = btn.closest(".break-list");
                 /* beautify preserve:start */
                 breakList.insertAdjacentHTML("beforeend", `
@@ -164,9 +166,9 @@
                         <div class="break-wrapper">
                             <input class="flatpickr d-flex p-0 border-0"
                                 type="text"
-                                name="new-break-end"
+                                name="new-break-start"
                                 data-date-type="datetime"
-                                data-date-value=""/>
+                                data-date-value="{{ now }}"/>
                         </div>
 
                         <div class="d-flex align-items-center justify-content-center" style="width: 20px;">
@@ -178,7 +180,7 @@
                                 type="text"
                                 name="new-break-end"
                                 data-date-type="datetime"
-                                data-date-value=""/>
+                                data-date-value="{{ now }}"/>
                         </div>
                     </div>
                 `);
