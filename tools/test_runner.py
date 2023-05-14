@@ -26,7 +26,7 @@ def main():
 
 @contextlib.contextmanager
 def start_server():
-    server_command = ["coverage", "run", "-m", "flask", "run", "--host=0.0.0.0", "--port=5000"]
+    server_command = ["coverage", "run", "-p", "-m", "flask", "run", "--host=0.0.0.0", "--port=5000"]
 
     print("Starting test server...")
     sys.stdout.flush()
@@ -64,12 +64,20 @@ def run_tests():
     print("Running tests...")
     sys.stdout.flush()
 
-    test_command = ["pytest"]
-    test_process = subprocess.Popen(test_command, env=env)
-    test_process.wait(timeout=120)
+    # Run e2e tests
+    e2e_test_command = ["pytest", "tests/e2e", "--video", "retain-on-failure", "--output", "debug/tests"]
+    e2e_test_process = subprocess.Popen(e2e_test_command, env=env)
+
+    # Run unit tests
+    unit_test_command = ["coverage", "run", "-p", "-m", "pytest", "tests/unit"]
+    unit_test_process = subprocess.Popen(unit_test_command, env=env)
+
+    e2e_test_process.wait(timeout=120)
+    unit_test_process.wait(timeout=120)
 
 
 def generate_coverage():
+    os.system("coverage combine")
     os.system("coverage report -m")
 
 
