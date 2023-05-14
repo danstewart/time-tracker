@@ -59,7 +59,7 @@
                         {% set break_end = arrow.get(break.end).to(settings.timezone) if break.end else "" %}
                         {# djlint:on #}
                         <div class="row mb-2 d-flex flex-row">
-                            <div class="d-flex" style="width: 11.25rem";>
+                            <div class="break-wrapper">
                                 <input class="flatpickr d-flex border-0 p-0"
                                     type="text"
                                     name="break-start-{{ break.id }}"
@@ -71,7 +71,7 @@
                                 <i class="bi bi-arrow-right"></i>
                             </div>
 
-                            <div class="d-flex" style="width: 11.25rem";>
+                            <div class="break-wrapper">
                                 <input class="flatpickr d-flex border-0 p-0"
                                     type="text"
                                     name="break-end-{{ break.id }}"
@@ -89,6 +89,14 @@
         <button id="submit" type="button" class="btn btn-primary">Save changes</button>
         {% if time %}<button id="delete" class="btn btn-danger ms-3" data-time-id="{{ row.id }}">Delete</button>{% endif %}
     </div>
+
+    <style>
+        .break-wrapper {
+            width: 11.25rem;
+            display: flex;
+        }
+    </style>
+
     <script>
         // NOTE: Using an IIFE here means our top level variables are function scoped instead of document scoped
         // If we don't do this then the we get variable re-decleration warnings
@@ -152,12 +160,25 @@
                 const breakList = btn.closest(".break-list");
                 /* beautify preserve:start */
                 breakList.insertAdjacentHTML("beforeend", `
-                    <div class="row mb-2">
-                        <div class="col-2">
-                            <input class="flatpickr" type="text" name="new-break-start" data-date-type="datetime"/>
+                    <div class="row mb-2 d-flex flex-row">
+                        <div class="break-wrapper">
+                            <input class="flatpickr d-flex p-0 border-0"
+                                type="text"
+                                name="new-break-end"
+                                data-date-type="datetime"
+                                data-date-value=""/>
                         </div>
-                        <div class="col-2">
-                            <input class="flatpickr" type="text" name="new-break-end" data-date-type="datetime"/>
+
+                        <div class="d-flex align-items-center justify-content-center" style="width: 20px;">
+                            <i class="bi bi-arrow-right"></i>
+                        </div>
+
+                        <div class="break-wrapper">
+                            <input class="flatpickr d-flex p-0 border-0"
+                                type="text"
+                                name="new-break-end"
+                                data-date-type="datetime"
+                                data-date-value=""/>
                         </div>
                     </div>
                 `);
