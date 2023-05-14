@@ -134,22 +134,26 @@ function test() {
     if [[ $1 == "--help" ]]; then
         echo "./tools/ctl.sh test [commands...]"
         echo ""
-        echo "Run pytest against the container"
+        echo "Build the test container and run all tests against it"
         echo "Any additional arguments are passed through to pytest"
-        echo ""
-        echo "NOTE: By default we pass '-vv' to pytest to enable pytest-clarity"
         exit 0
     fi
 
-    docker exec -it $CONTAINER pipenv install --dev
-    docker exec -it $CONTAINER pipenv run pytest
+    # Build our test container
+    docker compose up -d --build test
+
+    # Run tests
+    docker exec -it log-my-time-test flask db upgrade
+    docker exec -it log-my-time-test flask data seed-test-db
+    docker exec -it -e DBUS_SESSION_BUS_ADDRESS=/dev/null log-my-time-test pipenv run pytest $@
+
+    # Remove test container
+    docker rm -f log-my-time-test
 }
 
 # == MAIN == #
 
 # Run the subcommand
-[[ $subcommand == "cache-clear" ]] && subcommand="clear-cache"
-
 if command -v $subcommand >/dev/null 2>&1; then
     args=""
 

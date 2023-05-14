@@ -47,7 +47,7 @@ pipenv shell
 #### Running the tests
 
 ```bash
-./scripts/run_tests.sh
+./scripts/ctl.sh test
 ```
 
 #### Database migrations

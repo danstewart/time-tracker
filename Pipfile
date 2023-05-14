@@ -17,18 +17,16 @@ redis = "*"
 sendgrid = "*"
 alembic = "*"
 flask-migrate = "*"
-sqlalchemy = "==2.0.0b3"
+sqlalchemy = "*"
 flask-sqlalchemy = "*"
 
 [dev-packages]
 pytest = "*"
 devtools = {extras = ["pygments"], version = "*"}
 watchdog = "*"
-flask-shell-ipython = "*"
+pytest-playwright = "*"
 
 [local-packages]
 black = "*"
-flake8 = "*"
-pyproject-flake8 = "*"
-flake8-eradicate = "*"
 djlint = "*"
+ruff = "*"

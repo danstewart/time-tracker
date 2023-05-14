@@ -5,6 +5,8 @@ FROM python:3.11-slim-buster
 
 LABEL version="0.0.1"
 
+ARG TEST_MODE=${TEST_MODE:-0}
+
 # Set env vars
 ENV FLASK_APP="${FLASK_APP}"
 ENV FLASK_DEBUG="${FLASK_DEBUG}"
@@ -14,17 +16,23 @@ RUN rm /etc/apt/apt.conf.d/docker-clean
 
 # Install updates and cache across builds
 ENV DEBIAN_FRONTEND=noninteractive
-RUN --mount=type=cache,target=/var/cache/apt,id=apt apt-get update && apt-get -y upgrade && apt-get -y install curl sqlite3 libsqlite3-dev
+RUN --mount=type=cache,target=/var/cache/apt,id=apt \
+    apt-get update \
+    && apt-get -y upgrade \
+    && apt-get install -y --no-install-recommends \
+    curl sqlite3 libsqlite3-dev \
+    && [ $TEST_MODE -eq 1 ] && apt-get install -y --no-install-recommends chromium-driver libnss3 libasound2; \
+    rm -rf /var/lib/apt/lists/*
 
 # Create user and work dir
 RUN useradd --create-home app
-
 USER app
 WORKDIR /home/app/log-my-time
 RUN mkdir --parents /home/app/log-my-time
 RUN mkdir --parents /home/app/log-my-time/db/
-RUN touch /home/app/.sqliterc
-RUN echo ".headers on\n.mode columns" > /home/app/.sqliterc
+
+# Configure sqlite
+COPY config/sqliterc /home/app/.sqliterc
 
 # Set PATH
 ENV PATH="/home/app/.local/bin/:${PATH}"
@@ -34,6 +42,9 @@ ENV PROJECT_ROOT='/home/app/log-my-time'
 RUN pip install pipenv
 COPY --chown=app ./Pipfile.lock ./Pipfile ./
 RUN pipenv install --categories="packages dev-packages" --system --ignore-pipfile
+
+# Install playwright
+RUN bash -c '[[ $TEST_MODE == 1 && ! -d ~/.cache/ms-playwright/chromium* ]] && python -m playwright install chromium || true'
 
 # Get traceback for C crashes
 ENV PYTHONFAULTHANDLER=1

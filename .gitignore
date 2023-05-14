@@ -1,7 +1,12 @@
 # Config
 config/app_config.py
 
+# Database
 db/
+
+# Debug data
+debug/
+!debug/.keep
 
 # Temp files
 tmp/*

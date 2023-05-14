@@ -5,12 +5,12 @@ if [[ $FLASK_DEBUG == 1 ]]; then
 else
   exec gunicorn \
     --workers 4 \
-    --threads 4 \
     --worker-class gevent \
     --bind 0.0.0.0:5000 \
     --worker-tmp-dir /dev/shm \
     --log-level debug \
     --capture-output \
     --enable-stdio-inheritance \
+    --preload \
     'app:create_app()'
 fi
