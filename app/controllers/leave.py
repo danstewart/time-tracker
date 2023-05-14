@@ -59,7 +59,7 @@ def update(
     leave.start = start_dt
     leave.duration = duration
     leave.note = note
-    leave.public_holiday - public_holiday
+    leave.public_holiday = public_holiday
     db.session.commit()
 
     return leave
