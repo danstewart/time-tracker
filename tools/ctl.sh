@@ -139,13 +139,9 @@ function test() {
         exit 0
     fi
 
-    # Build our test container
+    # Build container, run tests
     docker compose up -d --build test
-
-    # Run tests
-    docker exec -it log-my-time-test flask db upgrade
-    docker exec -it log-my-time-test flask data seed-test-db
-    docker exec -it -e DBUS_SESSION_BUS_ADDRESS=/dev/null log-my-time-test pipenv run pytest $@
+    docker exec -it log-my-time-test pipenv run tools/test_runner.py
 
     # Remove test container
     docker rm -f log-my-time-test

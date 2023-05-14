@@ -25,6 +25,7 @@ pytest = "*"
 devtools = {extras = ["pygments"], version = "*"}
 watchdog = "*"
 pytest-playwright = "*"
+coverage = "*"
 
 [local-packages]
 black = "*"

@@ -20,7 +20,7 @@ RUN --mount=type=cache,target=/var/cache/apt,id=apt \
     apt-get update \
     && apt-get -y upgrade \
     && apt-get install -y --no-install-recommends \
-    curl sqlite3 libsqlite3-dev \
+    curl sqlite3 libsqlite3-dev procps \
     && [ $TEST_MODE -eq 1 ] && apt-get install -y --no-install-recommends chromium-driver libnss3 libasound2; \
     rm -rf /var/lib/apt/lists/*
 

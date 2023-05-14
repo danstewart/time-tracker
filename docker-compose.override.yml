@@ -27,11 +27,12 @@ services:
             context: .
             args:
                 - TEST_MODE=1
+        command: tail -f /dev/null # This container does nothing, we leave it spinning then run the test running inside it
         mem_limit: ${MEM_LIMIT:-2147484000} # 2GiB
         cpus: ${CPU_LIMIT:-0}
         environment:
             FLASK_APP: ${FLASK_APP:-app}
-            FLASK_DEBUG: ${FLASK_DEBUG:-1}
+            FLASK_DEBUG: 0
             LOG_LEVEL: ${LOG_LEVEL:-warning}
             TEST_MODE: "yes"
         volumes:
