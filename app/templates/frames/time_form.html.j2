@@ -7,9 +7,10 @@
           action="/frames/time_form/{{ time.id if time else '' }}">
         <div class="row mb-3">
             <div class="col-md-6">
-                <label class="form-label">Start Time</label>
+                <label class="form-label" for="start-time">Start Time</label>
                 <div class="input-group">
                     <input class="form-control flatpickr"
+                           id="start-time"
                            type="text"
                            name="start"
                            data-date-type="datetime"
@@ -21,9 +22,10 @@
                 </div>
             </div>
             <div class="col-md-6">
-                <label class="form-label">End Time</label>
+                <label class="form-label" for="end-time">End Time</label>
                 <div class="input-group">
                     <input class="form-control flatpickr"
+                           id="end-time"
                            type="text"
                            name="end"
                            data-date-type="datetime"
