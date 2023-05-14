@@ -30,6 +30,7 @@ def leave_form(row_id: Optional[int] = None):
                 start=request.json["start"],
                 duration=request.json["duration"],
                 note=request.json["note"],
+                public_holiday=request.json["public-holiday"] == "on",
             )
         else:
             leave.create(
@@ -37,6 +38,7 @@ def leave_form(row_id: Optional[int] = None):
                 start=request.json["start"],
                 duration=request.json["duration"],
                 note=request.json["note"],
+                public_holiday=request.json["public-holiday"] == "on",
             )
 
         return "", 200

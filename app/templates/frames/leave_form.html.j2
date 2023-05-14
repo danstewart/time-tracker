@@ -8,6 +8,7 @@
     {% set row.leave_type = leave.leave_type %}
     {% set row.duration = leave.duration %}
     {% set row.note = leave.note %}
+    {% set row.public_holiday = leave.public_holiday %}
 {% endif %}
 {# djlint:on #}
 
@@ -26,12 +27,20 @@
                            required/>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-3">
                 <label class="form-label">Is this a half day?</label>
                 <div class="input-group">
                     <input class="form-check-input mt-2" type="checkbox" name="half-day" {{ "checked" if row.duration == 0.5 else "" }} />
                 </div>
             </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Is this a public holiday?</label>
+                <div class="input-group">
+                    <input class="form-check-input mt-2" type="checkbox" name="public-holiday" {{ "checked" if row.public_holiday else "" }} />
+                </div>
+            </div>
+
             <div class="mt-3">
                 <label class="form-label">Note</label>
                 <textarea class="form-control" name="note" rows="5">{{ row.note }}</textarea>

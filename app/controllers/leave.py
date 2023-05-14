@@ -25,7 +25,7 @@ def delete(row_id: int) -> bool:
     return False
 
 
-def create(leave_type: str, start: int, duration: float, note: str = "") -> Leave:
+def create(leave_type: str, start: int, duration: float, note: str = "", public_holiday: bool = False) -> Leave:
     _settings = settings.fetch()
     _tz = _settings.timezone
     start_dt = arrow.get(start, tzinfo=_tz).int_timestamp
@@ -36,6 +36,7 @@ def create(leave_type: str, start: int, duration: float, note: str = "") -> Leav
         duration=duration,
         note=note,
         user_id=get_user().id,
+        public_holiday=public_holiday,
     )
     db.session.add(leave)
     db.session.commit()
@@ -43,7 +44,9 @@ def create(leave_type: str, start: int, duration: float, note: str = "") -> Leav
     return leave
 
 
-def update(row_id: int, leave_type: str, start: int, duration: float, note: Optional[str] = None) -> Leave:
+def update(
+    row_id: int, leave_type: str, start: int, duration: float, note: Optional[str] = None, public_holiday: bool = False
+) -> Leave:
     leave = db.session.scalars(db.select(Leave).where(Leave.id == row_id)).first()
     if not leave:
         abort(403)
@@ -56,6 +59,7 @@ def update(row_id: int, leave_type: str, start: int, duration: float, note: Opti
     leave.start = start_dt
     leave.duration = duration
     leave.note = note
+    leave.public_holiday - public_holiday
     db.session.commit()
 
     return leave

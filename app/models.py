@@ -130,6 +130,7 @@ class Leave(BaseModel):
     leave_type: Mapped[str] = mapped_column(db.String(255), nullable=False)  # sick / annual
     start: Mapped[int] = mapped_column(db.Integer, nullable=False)  # unix time for starting day
     duration: Mapped[float] = mapped_column(db.Float, nullable=False)  # Duration in days
+    public_holiday: Mapped[bool] = mapped_column(db.Boolean, default=False)
     note: Mapped[Optional[str]] = mapped_column(db.String(255), nullable=True)
     user_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
