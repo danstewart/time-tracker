@@ -1,14 +1,5 @@
 {% set date_fmt = 'Do [of] MMM YYYY [at] HH:mm' %}
-{% set row = namespace(id="", start="", end="", note="") %}
-{% if time %}
-{% set row.id = time.id %}
-{% set row.start = arrow.get(time.start).to(settings.timezone) %}
-{% set row.note = time.note %}
-    {% if time.end %}
-{% set row.end = arrow.get(time.end).to(settings.timezone) %}
-    {% endif %}
-{% endif %}
-
+{% set row = lenient_wrap(time, default_value="") %}
 
 <section>
     <form id="addEditForm"

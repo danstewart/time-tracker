@@ -1,16 +1,5 @@
 {% set date_fmt = 'Do [of] MMM YYYY [at] HH:mm' %}
-{% set row = namespace(id="", start="", leave_type="", note="", duration=0) %}
-
-{# djlint:off #}
-{% if leave %}
-    {% set row.id = leave.id %}
-    {% set row.start = arrow.get(leave.start).to(settings.timezone) %}
-    {% set row.leave_type = leave.leave_type %}
-    {% set row.duration = leave.duration %}
-    {% set row.note = leave.note %}
-    {% set row.public_holiday = leave.public_holiday %}
-{% endif %}
-{# djlint:on #}
+{% set row = lenient_wrap(leave, default_value="") %}
 
 <section>
     <form id="leaveForm" method="post" action="/frames/leave_form/{{ row_id }}">
@@ -78,7 +67,6 @@
                 jsonRequest[key].push(value);
             });
 
-            // TODO: Make a proper duration input
             jsonRequest.duration = 1.0;
             if (jsonRequest['half-day']) {
                 jsonRequest.duration = 0.5;

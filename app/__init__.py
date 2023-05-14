@@ -4,6 +4,8 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
+from app.lib.util.lenient import lenient_wrap
+
 db = SQLAlchemy()
 migrate = Migrate()
 
@@ -37,6 +39,7 @@ def create_app():
     app.jinja_env.add_extension("jinja2.ext.do")
     app.jinja_env.add_extension("jinja2.ext.loopcontrols")
     app.jinja_env.add_extension("jinja2.ext.debug")
+    app.jinja_env.globals["lenient_wrap"] = lenient_wrap
 
     with app.app_context():
         from app.controllers.user.util import is_logged_in
