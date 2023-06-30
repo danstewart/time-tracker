@@ -17,7 +17,7 @@ def general_settings():
 
         settings.update(**request.form)
         flash("Settings saved", "success")
-        return redirect("/")
+        return redirect("/dash")
 
     return render_template("pages/settings.html.j2", settings=settings.fetch(), page="general")
 
@@ -69,6 +69,6 @@ def account_settings():
         if not has_changed:
             flash("No changes made", "info")
 
-        return redirect("/")
+        return redirect("/dash")
 
     return render_template("pages/settings.html.j2", page="account", email=user.email)

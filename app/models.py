@@ -162,6 +162,16 @@ class Settings(BaseModel):
 
     user_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
+    @classmethod
+    def default(cls, user_id: int):
+        return cls(
+            timezone="Europe/London",
+            week_start=1,
+            hours_per_day=7.5,
+            work_days="MTWTF--",
+            user_id=user_id,
+        )
+
     @property
     def week_start_0(self):
         return self.week_start - 1
