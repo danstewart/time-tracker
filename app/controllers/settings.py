@@ -1,5 +1,4 @@
 from flask import abort
-
 from app import db
 from app.lib.logger import get_logger
 from app.models import Settings
@@ -22,6 +21,8 @@ def fetch() -> Settings:
             work_days="MTWTF--",
             user=user,
         )
+        db.session.add(settings)
+        db.session.commit()
     return settings
 
 

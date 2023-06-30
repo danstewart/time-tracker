@@ -7,6 +7,7 @@ v = Blueprint("user", __name__)
 
 
 @v.get("/login")
+@v.get("/register")
 def show_login_form():
     """
     Renders the login form
@@ -14,11 +15,13 @@ def show_login_form():
     If the user is already logged in then we redirect to the dashboard
     """
     if is_logged_in():
-        return redirect("/")
-    return render_template("pages/login.html.j2")
+        return redirect("/dash")
+
+    return render_template("pages/login.html.j2", mode=request.path)
 
 
 @v.post("/login")
+@v.post("/register")
 def handle_login():
     """
     Handle the various login actions
@@ -43,7 +46,7 @@ def handle_login():
                 login_session = login(email, password)
                 flask_session["login_session_key"] = login_session.key
                 flask_session.permanent = True
-                return redirect("/")
+                return redirect("/dash")
             except UserAuthFailed:
                 flash("Invalid username or password.", "danger")
                 return redirect("/login")

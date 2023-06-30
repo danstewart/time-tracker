@@ -28,7 +28,7 @@ def add_time():
             case "break:end":
                 time.break_end(end=values["time"])
 
-    return redirect("/")
+    return redirect("/dash")
 
 
 @v.delete("/time/delete/<row_id>")

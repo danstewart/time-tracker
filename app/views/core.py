@@ -9,10 +9,17 @@ logger = get_logger(__name__)
 
 
 @v.get("/")
-@login_required
 def home():
+    from flask import current_app as app
+
+    return app.send_static_file("html/home.html")
+
+
+@v.get("/dash")
+@login_required
+def dash():
     return render_template(
-        "pages/home.html.j2",
+        "pages/dash.html.j2",
         week_list=core.week_list(),
     )
 
