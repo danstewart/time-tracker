@@ -16,6 +16,8 @@ services:
       - './db:/home/app/log-my-time/db/'
     ports:
       - ${FLASK_PORT:-4000}:5000
+    depends_on:
+        - cache
 
   cache:
     image: redis:6-alpine
