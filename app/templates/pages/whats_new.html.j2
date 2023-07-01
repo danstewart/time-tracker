@@ -7,7 +7,7 @@
             <div class="{{ 'mb-1' if loop.last else 'mb-4' }}">
                 {% set created_at = arrow.get(new.created_at).to(settings.timezone) %}
 
-                <div class="d-flex align-items-end mb-1">
+                <div class="d-flex align-items-end mb-2">
                     <h4 class="me-2 mb-0">{{ new.title }}</h4>
                     <small class="text-secondary">{{ created_at.format("MMMM Do YYYY") }}</small>
                 </div>
