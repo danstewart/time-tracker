@@ -24,6 +24,15 @@ def dash():
     )
 
 
+@v.get("/whats_new")
+@login_required
+def whats_new():
+    return render_template(
+        "pages/whats_new.html.j2",
+        whats_new=core.whats_new(),
+    )
+
+
 @v.get("/about")
 def about_page():
     return render_template("pages/about.html.j2")

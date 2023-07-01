@@ -8,6 +8,11 @@
                    href="/settings/general">General</a>
                 <a class="nav-link{% if page == 'account' %} active{% endif %}"
                    href="/settings/account">Account</a>
+
+                {% if is_admin %}
+                    <a class="nav-link{% if page == 'admin' %} active{% endif %}"
+                    href="/settings/admin">Admin</a>
+                {% endif %}
             </nav>
         </div>
         <div class="col">{% include "partials/settings/" + page + ".html.j2" %}</div>

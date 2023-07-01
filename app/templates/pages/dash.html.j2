@@ -1,7 +1,5 @@
 {% extends "layouts/wrapper.html.j2" %}
 {% block content %}
-{% set date_fmt = 'Do [of] MMM YYYY [at] HH:mm' %}
-
     <!-- Header Stats -->
     <dynamic-frame id="stats" :execute-scripts="true" :url="/frames/stats">
     </dynamic-frame>
@@ -59,6 +57,7 @@
         {# Content #}
         <div class="content"></div>
     </dynamic-frame>
+
     <script>
         // Handle week change
         const frame = document.querySelector("#log-table");

@@ -42,10 +42,10 @@ def create_app():
     app.jinja_env.globals["lenient_wrap"] = lenient_wrap
 
     with app.app_context():
-        from app.controllers.user.util import is_logged_in
+        from app.cli import data
+        from app.controllers.user.util import is_admin, is_logged_in, unseen_whats_new
         from app.lib.util.security import enable_csrf_protection, get_csrf_token
         from app.views import core, leave, settings, time, user
-        from app.cli import data
 
         enable_csrf_protection(app)
 
@@ -68,6 +68,8 @@ def create_app():
                 "arrow": arrow,
                 "humanize_seconds": humanize_seconds,
                 "is_logged_in": is_logged_in(),
+                "is_admin": is_logged_in() and is_admin(),
+                "unseen_whats_new": is_logged_in() and unseen_whats_new(),
                 "settings": None,
                 "host": app.config["HOST"],
                 "csrf_token": get_csrf_token,

@@ -1,11 +1,14 @@
-from typing import Optional
+from typing import NewType, Optional
 
 import arrow
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app import db
+
+UnixTimestamp = NewType("UnixTimestamp", int)
+DurationDays = NewType("DurationDays", float)
 
 
 class BaseModel(db.Model):  # type: ignore
@@ -43,13 +46,11 @@ class User(BaseModel):
     email: Mapped[str] = mapped_column(db.String(255), unique=True, nullable=False)
     password: Mapped[Optional[str]] = mapped_column(db.String(255), nullable=True)
     verified: Mapped[Optional[bool]] = mapped_column(db.Boolean, default=False, nullable=False)
+    last_seen_whats_new: Mapped[Optional[int]] = mapped_column(db.Integer, db.ForeignKey("whats_new.id"), nullable=True)
+    is_admin: Mapped[Optional[bool]] = mapped_column(db.Boolean)
 
-    sessions: Mapped[list["LoginSession"]] = db.relationship(
-        "LoginSession", backref="user", cascade="all, delete-orphan"
-    )
-    settings: Mapped["Settings"] = db.relationship(
-        "Settings", backref="user", cascade="all, delete-orphan", uselist=False
-    )
+    sessions: Mapped[list["LoginSession"]] = relationship("LoginSession", backref="user", cascade="all, delete-orphan")
+    settings: Mapped["Settings"] = relationship(backref="user", cascade="all, delete-orphan", uselist=False)
 
     def verify(self):
         """
@@ -83,21 +84,18 @@ class User(BaseModel):
 class LoginSession(BaseModel):
     # Unique session ID, stored in user cookies
     key: Mapped[str] = mapped_column(db.String(255), unique=True, nullable=False)
-
-    # Unix timestamp
-    expires: Mapped[int] = mapped_column(db.Integer, nullable=False)
-
+    expires: Mapped[UnixTimestamp] = mapped_column(db.Integer, nullable=False)
     user_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
 
 class Time(BaseModel):
-    start: Mapped[int] = mapped_column(db.Integer, nullable=False)
-    end: Mapped[Optional[int]] = mapped_column(db.Integer, nullable=True)
+    start: Mapped[UnixTimestamp] = mapped_column(db.Integer, nullable=False)
+    end: Mapped[Optional[UnixTimestamp]] = mapped_column(db.Integer, nullable=True)
     note: Mapped[Optional[str]] = mapped_column(db.String(255), nullable=True)
     user_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
-    breaks: Mapped[list["Break"]] = db.relationship("Break", lazy=True, backref="time", cascade="all, delete-orphan")
-    user: Mapped[User] = db.relationship("User", viewonly=True)
+    breaks: Mapped[list["Break"]] = relationship("Break", lazy=True, backref="time", cascade="all, delete-orphan")
+    user: Mapped[User] = relationship("User", viewonly=True)
 
     def logged(self):
         """
@@ -105,7 +103,7 @@ class Time(BaseModel):
         With any breaks removed
         """
         now = arrow.utcnow().int_timestamp
-        to_remove = sum([(_break.end or now) - _break.start for _break in self.breaks])
+        to_remove = sum([(_break.end or now) - _break.start for _break in self.breaks], start=0)
         end = self.end or now
         duration = end - self.start
 
@@ -121,20 +119,20 @@ class Time(BaseModel):
 
 class Break(BaseModel):
     time_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("time.id"))
-    start: Mapped[int] = mapped_column(db.Integer)
-    end: Mapped[Optional[int]] = mapped_column(db.Integer, nullable=True)
+    start: Mapped[UnixTimestamp] = mapped_column(db.Integer)
+    end: Mapped[Optional[UnixTimestamp]] = mapped_column(db.Integer, nullable=True)
     note: Mapped[Optional[str]] = mapped_column(db.String(255), nullable=True)
 
 
 class Leave(BaseModel):
     leave_type: Mapped[str] = mapped_column(db.String(255), nullable=False)  # sick / annual
-    start: Mapped[int] = mapped_column(db.Integer, nullable=False)  # unix time for starting day
-    duration: Mapped[float] = mapped_column(db.Float, nullable=False)  # Duration in days
-    public_holiday: Mapped[bool] = mapped_column(db.Boolean, default=False)
+    start: Mapped[UnixTimestamp] = mapped_column(db.Integer, nullable=False)
+    duration: Mapped[DurationDays] = mapped_column(db.Float, nullable=False)
+    public_holiday: Mapped[Optional[bool]] = mapped_column(db.Boolean, default=False)
     note: Mapped[Optional[str]] = mapped_column(db.String(255), nullable=True)
     user_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
-    user: Mapped[User] = db.relationship("User", viewonly=True)
+    user: Mapped[User] = relationship("User", viewonly=True)
 
     @classmethod
     def since(cls, timestamp):
@@ -186,3 +184,9 @@ class Settings(BaseModel):
 
     def total_work_days(self):
         return sum([1 if day != "-" else 0 for day in self.work_days])
+
+
+class WhatsNew(BaseModel):
+    title: Mapped[str] = mapped_column(db.String(255), nullable=False)
+    content: Mapped[str] = mapped_column(db.Text, nullable=False)
+    created_at: Mapped[int] = mapped_column(db.Integer, nullable=False)

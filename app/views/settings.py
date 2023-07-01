@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request
 
 from app.controllers import settings
-from app.controllers.user.util import login_required
+from app.controllers.user.util import admin_only, login_required
 from app.lib.logger import get_logger
 
 v = Blueprint("settings", __name__)
@@ -72,3 +72,23 @@ def account_settings():
         return redirect("/dash")
 
     return render_template("pages/settings.html.j2", page="account", email=user.email)
+
+
+@v.route("/settings/admin", methods=["GET", "POST"])
+@login_required
+@admin_only
+def admin_settings():
+    if request.form:
+        from flask import flash, redirect
+
+        title = request.form.get("whats_new_title")
+        content = request.form.get("whats_new_content")
+
+        if not title or not content:
+            flash("Please enter a title and content", "danger")
+            return redirect("/settings/admin")
+
+        settings.add_whats_new(title, content)
+        flash(f"Added '{title}'", "success")
+
+    return render_template("pages/settings.html.j2", page="admin")

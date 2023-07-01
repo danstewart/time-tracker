@@ -19,6 +19,7 @@ alembic = "*"
 flask-migrate = "*"
 sqlalchemy = "*"
 flask-sqlalchemy = "*"
+holidays = "*"
 
 [dev-packages]
 pytest = "*"

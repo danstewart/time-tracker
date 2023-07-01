@@ -1,5 +1,18 @@
 {
+    "python.envFile ": "${workspaceFolder}/python.env",
+    "python.analysis.extraPaths": ["./mod-phineas"],
+    "python.autoComplete.extraPaths": ["./mod-phineas"],
+
+    // ESLint
+    "eslint.enable": true,
+    "eslint.probe": [ "javascript", "html", "jinja-html"],
+    "eslint.validate": [ "javascript", "html", "jinja-html"],
+
     "files.trimTrailingWhitespace": false,
+    
+    "files.associations": {
+        "*.mjml.j2": "mjml"
+    },
 
     "files.exclude": {
         "**/__pycache__": true,
@@ -12,12 +25,13 @@
     },
 
     "[markdown]": {
-        "files.trimTrailingWhitespace": false
+        "files.trimTrailingWhitespace": false,
+        "editor.formatOnSave": false
     },
 
     "[python]": {
         "editor.formatOnSave": true,
-        "editor.defaultFormatter": "ms-python.python",
+        "editor.defaultFormatter": "ms-python.black-formatter",
         "editor.codeActionsOnSave": {
             "source.organizeImports": true
         }
@@ -28,21 +42,18 @@
         "editor.defaultFormatter": "monosans.djlint"
     },
 
-    "[jinja-css][css][postcss][javascript]": {
+    "[css][postcss][javascript]": {
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
 
-    "prettier.documentSelectors": ["**/*.css.j2"],
-
     "python.linting.pylintEnabled": false,
-    "python.linting.flake8Enabled": true,
-    "python.linting.flake8Path": "./.venv/bin/pflake8",
+    "python.linting.flake8Enabled": false,
     "python.languageServer": "Pylance",
     "python.testing.pytestEnabled": true,
     "python.analysis.typeCheckingMode": "basic",
     "python.analysis.diagnosticSeverityOverrides": {
-        "reportGeneralTypeIssues": "information",
+        "reportGeneralTypeIssues": "warning",
         "reportOptionalMemberAccess": "information",
         "reportOptionalCall": "information",
         "reportPrivateImportUsage": "information"
@@ -51,5 +62,6 @@
     "python.formatting.blackArgs": ["--line-length=120"],
     "[javascript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
-    }
+    },
+    "ruff.importStrategy": "fromEnvironment"
 }

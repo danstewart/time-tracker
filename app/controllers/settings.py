@@ -1,4 +1,5 @@
 from flask import abort
+
 from app import db
 from app.lib.logger import get_logger
 from app.models import Settings
@@ -46,4 +47,14 @@ def update(**values):
 
     values["work_days"] = "".join(work_days)
     settings.update(**values)
+    db.session.commit()
+
+
+def add_whats_new(title: str, content: str):
+    import arrow
+
+    from app.models import WhatsNew
+
+    whats_new = WhatsNew(title=title, content=content, created_at=arrow.utcnow().int_timestamp)
+    db.session.add(whats_new)
     db.session.commit()

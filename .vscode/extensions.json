@@ -6,6 +6,8 @@
         "WyattFerguson.jinja2-snippet-kit",
         "samuelcolvin.jinjahtml",
         "monosans.djlint",
-        "esbenp.prettier-vscode"
+        "charliermarsh.ruff",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint"
     ]
 }

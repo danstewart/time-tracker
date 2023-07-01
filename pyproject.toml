@@ -1,7 +1,14 @@
 [tool.djlint]
 profile = "jinja"
-ignore = "J018,H021,J004,H030,H031"
-custom_html = "\\w+-\\w+,\\w+-\\w+-\\w+,\\w+-\\w+-\\w+-\\w+" 
+ignore = "J004,J018,H006,T002,H021,H031"
+max_line_length = 999
+max_attribute_length = 999
+blank_line_after_tag = "load,extends,include,csrf_token,endblock,endwith,endif,endmacro"
+
+# This regex should match all custom-elements with up to 4 words
+# This regex should match any number of words but it doesn't work: '\w+-\w+(\-\w+)+'
+custom_html = '\w+-\w+,\w+-\w+-\w+,\w+-\w+-\w+-\w+'
+
 preserve_blank_lines = true
 preserve_leading_space = true
 format_js = true
@@ -15,12 +22,13 @@ brace_style = "preserve-inline"
 [tool.black]
 line-length = 120
 
-[tool.isort]
-profile = "black"
-
-[tool.flake8]
-max-line-length = 120
-extend-ignore = "E501,E303,E128,E201,E202,E122,W191,E402,W291,E711,E712,W503,"
+[tool.ruff]
+line-length = 120
+ignore = [
+    "E711",  # Interferes with SQLAlchemy conditions
+    "E712",  # Interferes with SQLAlchemy conditions
+    "E501",  # Black handles line length, this rule just gets angry at long strings
+]
 
 [tool.pyright]
 typeCheckingMode = "basic"

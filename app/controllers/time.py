@@ -174,9 +174,10 @@ def clock_out(end: str):
         .order_by(Time.start.desc())
     ).first()
 
-    current_record.end = end_dt.int_timestamp
-    current_record.logged = end_dt.int_timestamp - current_record.start
-    db.session.commit()
+    if current_record:
+        current_record.end = end_dt.int_timestamp
+        current_record.logged = end_dt.int_timestamp - current_record.start
+        db.session.commit()
 
 
 def break_start(start: str):
@@ -194,6 +195,9 @@ def break_start(start: str):
         )
         .order_by(Time.start.desc())
     ).first()
+
+    if not current_record:
+        return
 
     db.session.add(
         Break(
@@ -220,6 +224,9 @@ def break_end(end: str):
         )
         .order_by(Time.start.desc())
     ).first()
+
+    if not current_record:
+        return
 
     current_break = db.session.scalars(
         db.select(Break).filter(

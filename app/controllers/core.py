@@ -1,9 +1,11 @@
+from typing import Optional
+
 import arrow
 
 from app import db
 from app.controllers import settings
 from app.controllers.user.util import get_user
-from app.models import Leave, Time
+from app.models import Leave, Time, WhatsNew
 from app.viewmodels import TimeStats
 
 
@@ -131,3 +133,21 @@ def week_list() -> list[str]:
         first = first.shift(weeks=1)
 
     return list(reversed(weeks))
+
+
+def whats_new(limit: Optional[int] = None) -> list[WhatsNew]:
+    user = get_user()
+
+    whats_new = db.session.query(WhatsNew).order_by(WhatsNew.id.desc())
+
+    new = whats_new.all()
+    if not new:
+        return []
+
+    # Update the users last seen "What's New"
+    latest_new = new[0]
+    if not user.last_seen_whats_new or latest_new.id > user.last_seen_whats_new:
+        user.last_seen_whats_new = latest_new.id
+        db.session.commit()
+
+    return new

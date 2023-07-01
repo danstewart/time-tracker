@@ -38,11 +38,24 @@
                     <a href="{{ '/dash' if is_logged_in else '/'}}">LogMyTime</a>
                 </h2>
                 <div>
+                    <a title="What's New"
+                       href="/whats_new"
+                       class="icon me-4 position-relative">
+                        <i class="bi bi-rocket-takeoff-fill"></i>
+
+                        {% if unseen_whats_new %}
+                            <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger rounded-circle">
+                                <span class="visually-hidden">New Features</span>
+                            </span>
+                        {% endif %}
+                    </a>
+
                     <a title="GitHub"
                        href="https://github.com/danstewart/log-my-time"
                        class="icon me-4">
                         <i class="bi bi-github"></i>
                     </a>
+
                     {% if is_logged_in %}
                         <a title="Settings" href="/settings" class="icon">
                             <i class="bi me-4 bi-gear-wide-connected"></i>

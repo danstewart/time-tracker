@@ -27,11 +27,10 @@ docker compose -f docker-compose.yml up -d --build
 Requires python 3.10
 
 ```bash
-# Install pipenv
-pip install --user pipx
-pipx install pipenv
+# Install JS linter
+npm install
 
-# Install deps locally with pipenv
+# Install python deps with pipenv
 pipenv install --categories="packages dev-packages local-packages"
 
 # Start a pipenv shell
