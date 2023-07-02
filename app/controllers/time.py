@@ -284,3 +284,20 @@ def bulk_update(table, data: dict[int, dict]):
             setattr(row, key, value if value else None)
 
     db.session.commit()
+
+
+# WIP
+def get_next_public_holiday() -> Optional[dict]:
+    import datetime
+
+    import holidays
+
+    today = datetime.date.today()
+    current_year = today.year
+    next_year = current_year + 1
+
+    for year in (current_year, next_year):
+        h = holidays.country_holidays("GB", subdiv="SCT", years=[year])
+        for dt, name in h.items():
+            if dt > today:
+                return {"name": name, "date": dt}
