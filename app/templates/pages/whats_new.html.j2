@@ -4,14 +4,24 @@
 
     {% if whats_new %}
         {% for new in whats_new %}
-            <div class="{{ 'mb-1' if loop.last else 'mb-4' }}">
+            <div class="{{ 'mb-1' if loop.last else 'mb-3' }}">
                 {% set created_at = arrow.get(new.created_at).to(settings.timezone) %}
 
                 <div class="d-flex align-items-end mb-2">
                     <h4 class="me-2 mb-0">{{ new.title }}</h4>
                     <small class="text-secondary">{{ created_at.format("MMMM Do YYYY") }}</small>
                 </div>
-                <p class="mb-0">{{ new.content.replace("\n", "<br />") }}</p>
+                {% for line in new.content.split("\n") %}
+                    {% if line.strip() | length %}
+                        <p class="mb-0">{{ line.strip() }}</p>
+                    {% else %}
+                        <div style="height: 0.5em"></div>
+                    {% endif %}
+                {% endfor %}
+
+                {% if not loop.last %}
+                    <hr />
+                {% endif %}
             </div>
         {% endfor %}
     {% else %}

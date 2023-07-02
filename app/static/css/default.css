@@ -10,8 +10,20 @@
     cursor: pointer;
 }
 
-a.icon {
+#menu {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1;
+}
+
+a.icon > i {
     font-size: 24px;
+}
+
+a.icon {
+    align-items: center;
+    display: flex;
 }
 
 /* Custom classes */
@@ -25,10 +37,23 @@ a.icon {
     width: 60px;
 }
 
+.notification-badge {
+    position: absolute;
+    top: 3px;
+    left: 1.8rem;
+    border-radius: 50%;
+    padding: 0.25rem;
+    transform: translate(-50%, -50%);
+}
+
 /* Bootstrap overrides */
 .accordion-button::after,
 .accordion-button:not(.collapsed)::after {
     content: none;
+}
+
+.dropdown-item:active {
+    background-color: #e9ecef;
 }
 
 /* Debug bar */
