@@ -118,6 +118,8 @@ def week_list() -> list[str]:
     """
     Returns a list of weeks since the first record in the format ${year}-W${week}, eg. 2022-W25
     """
+    _settings = settings.fetch()
+    _tz = _settings.timezone
 
     # TODO: How do we view future logs?
     first_time = _get_first_record_time()
@@ -125,8 +127,13 @@ def week_list() -> list[str]:
         return []
 
     first = arrow.get(first_time)
-    now = arrow.utcnow()
+    now = arrow.now(tz=_tz)
 
+    # Adjust the starting day to the first working day of the week
+    while first.weekday() > _settings.week_start_0:
+        first = first.shift(days=-1)
+
+    # Go through each week since the first time record until now
     weeks = []
     while first.shift(weeks=1) < now:
         weeks.append("{}-W{:02d}".format(first.year, first.week))
