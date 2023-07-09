@@ -21,7 +21,6 @@ def dash():
     return render_template(
         "pages/dash.html.j2",
         week_list=core.week_list(),
-        next_public_holiday=time.get_next_public_holiday(),
     )
 
 

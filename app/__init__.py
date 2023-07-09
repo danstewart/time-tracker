@@ -45,7 +45,7 @@ def create_app():
         from app.cli import data
         from app.controllers.user.util import is_admin, is_logged_in, unseen_whats_new
         from app.lib.util.security import enable_csrf_protection, get_csrf_token
-        from app.views import core, leave, settings, time, user
+        from app.views import core, holidays, leave, settings, time, user
 
         enable_csrf_protection(app)
 
@@ -55,6 +55,7 @@ def create_app():
         app.register_blueprint(user.v)
         app.register_blueprint(core.v)
         app.register_blueprint(data.v)
+        app.register_blueprint(holidays.v)
 
         # Inject some values into ALL templates
         @app.context_processor
