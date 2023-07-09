@@ -123,9 +123,24 @@
                     {% endwith %}
                 </div>
             </div>
-            {# Page content #}
-            {% block content %}
-            {% endblock content %}
+
+            <div class="row">
+                {% set has_sidebar = self.sidebar() | trim | length >0 %}
+
+                {# Sidebar #}
+                {% if has_sidebar %}
+                    <div class="col-lg-2 mt-1 pe-5 pb-3">
+                        {% block sidebar %}
+                        {% endblock sidebar %}
+                    </div>
+                {% endif %}
+
+                {# Page content #}
+                <div class="col">
+                    {% block content %}
+                    {% endblock content %}
+                </div>
+            </div>
         </div>
     </body>
     <!-- Setting values for the JS to read -->

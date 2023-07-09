@@ -12,7 +12,7 @@ logger = get_logger(__name__)
 @login_required
 def holiday_summary():
     return render_template(
-        "pages/holidays.html.j2",
+        "pages/holidays/upcoming.html.j2",
         page="upcoming",
         next_public_holiday=time.get_next_public_holiday(),
     )
