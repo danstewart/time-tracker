@@ -94,7 +94,7 @@
         // If we don't do this then the we get variable re-decleration warnings
         // It might be worth while adding this automatically in dynamic-frame
         (function() {
-            const frame = document.currentScript.parentNode;
+            const frame = document.currentScript.closest("dynamic-frame");
 
             frame.querySelector("#submit").addEventListener('click', async e => {
                 const form = frame.querySelector("form");

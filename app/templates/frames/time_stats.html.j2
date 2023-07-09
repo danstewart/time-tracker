@@ -45,7 +45,7 @@
 </section>
 <script>
     (function() {
-        const frame = document.currentScript.parentNode;
+        const frame = document.currentScript.closest("dynamic-frame");
 
         // NOTE: We need this initialised to check to avoid adding the event listener
         // and interval each time the page refreshes

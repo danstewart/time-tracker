@@ -38,7 +38,7 @@
 </form>
 <script>
     (function() {
-        const frame = document.currentScript.parentNode;
+        const frame = document.currentScript.closest("dynamic-frame");
         window.addEventListener("time:changed", e => frame.refresh());
     })();
 </script>
