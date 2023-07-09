@@ -1,8 +1,8 @@
 {% extends "layouts/holidays.html.j2" %}
 {% block content %}
-        {% if next_public_holiday %}
-            <h4>Next Public Holiday: {{ next_public_holiday["name"] }}: {{ next_public_holiday["date"] }}</h4>
-        {% else %}
-            <h4>No Public Holidays</h4>
-        {% endif %}
+    {% if next_public_holiday %}
+        <h4>Next Public Holiday: {{ next_public_holiday["name"] }}: {{ next_public_holiday["date"] }}</h4>
+    {% else %}
+        <h4>No Public Holidays</h4>
+    {% endif %}
 {% endblock content %}
