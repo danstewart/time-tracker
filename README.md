@@ -40,13 +40,13 @@ pipenv shell
 #### Connecting to the database
 
 ```bash
-./scripts/sql.sh
+./tools/ctl.sh sql
 ```
 
 #### Running the tests
 
 ```bash
-./scripts/ctl.sh test
+./tools/ctl.sh test
 ```
 
 #### Database migrations
