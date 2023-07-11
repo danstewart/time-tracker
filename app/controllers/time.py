@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Optional
 
 import arrow
@@ -286,8 +287,10 @@ def bulk_update(table, data: dict[int, dict]):
     db.session.commit()
 
 
-# WIP
 def get_next_public_holiday() -> Optional[dict]:
+    """
+    Get the next public holiday
+    """
     import datetime
 
     import holidays
@@ -301,3 +304,49 @@ def get_next_public_holiday() -> Optional[dict]:
         for dt, name in h.items():
             if dt > today:
                 return {"name": name, "date": dt}
+
+
+def get_upcoming_holidays() -> dict[str, date]:
+    """
+    Get all holidays for the current year and the next year
+    Returned as a dict of {date: name}
+    """
+    import holidays
+
+    today = date.today()
+    current_year = today.year
+    next_year = current_year + 1
+
+    next_holidays = {}
+
+    # TODO: Pull holiday location from settings
+    for year in (current_year, next_year):
+        h = holidays.country_holidays("GB", subdiv="SCT", years=[year])
+        for dt, name in h.items():
+            if dt >= today:
+                next_holidays.update({dt: name})
+
+    return dict(sorted(next_holidays.items()))
+
+
+def get_previous_holidays() -> dict[str, date]:
+    """
+    Get all passed holidays for the current year and the previous year
+    Returned as a dict of {date: name}
+    """
+    import holidays
+
+    today = date.today()
+    current_year = today.year
+    last_year = current_year - 1
+
+    previous_holidays = {}
+
+    # TODO: Pull holiday location from settings
+    for year in (current_year, last_year):
+        h = holidays.country_holidays("GB", subdiv="SCT", years=[year])
+        for dt, name in h.items():
+            if dt < today:
+                previous_holidays.update({dt: name})
+
+    return dict(sorted(previous_holidays.items()))
