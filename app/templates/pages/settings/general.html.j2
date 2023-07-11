@@ -12,6 +12,31 @@
                     value="{{ settings.timezone }}"
                     required/>
             </div>
+
+            <div class="mb-2">
+                <label class="form-label">Holiday Location</label>
+                <select class="form-select"
+                        name="holiday_location"
+                        id="holiday_location"
+                        value="{{ settings.holiday_location }}"
+                        required>
+
+                    {# TODO: Add more locations #}
+                    {% set locations = {
+                        "": "None",
+                        "GB/ENG": "England",
+                        "GB/NIR": "Northern Ireland",
+                        "GB/SCT": "Scotland",
+                        "GB/WLS": "Wales",
+                    } %}
+                    {% for code, label in locations.items() %}
+                        <option value="{{ code }}" {{ "selected" if code == settings.holiday_location }}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
             <div class="mb-2">
                 <label class="form-label">Week Start</label>
                 <select class="form-select"
@@ -28,6 +53,7 @@
                     {% endfor %}
                 </select>
             </div>
+
             <div class="mb-2">
                 <label class="form-label">Hours Per Day</label>
                 <input class="form-control"
@@ -37,6 +63,7 @@
                     value="{{ settings.hours_per_day }}"
                     required/>
             </div>
+
             <div class="mb-2">
                 <label class="form-label">Work Days</label>
                 {% set work_days = settings.work_days_list() | list %}
@@ -51,6 +78,7 @@
                     </div>
                 {% endfor %}
             </div>
+
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
         </div>
         <button class="btn btn-primary" type="submit">Save</button>

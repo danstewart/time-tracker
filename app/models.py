@@ -151,6 +151,8 @@ class Leave(BaseModel):
 
 class Settings(BaseModel):
     timezone: Mapped[str] = mapped_column(db.String(255), nullable=False)
+    holiday_location: Mapped[str] = mapped_column(db.String(255), nullable=True)
+
     # 1 = Monday, 7 = Sunday
     week_start: Mapped[int] = mapped_column(db.Integer, nullable=False)
     hours_per_day: Mapped[float] = mapped_column(db.Float, nullable=False)
