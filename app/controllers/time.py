@@ -287,6 +287,13 @@ def bulk_update(table, data: dict[int, dict]):
     db.session.commit()
 
 
+def get_holiday_location() -> tuple[str, str]:
+    _settings = settings.fetch()
+    if location := _settings.holiday_location:
+        return tuple(location.split("/", 2))
+    raise ValueError("No `holiday_location` configured")
+
+
 def get_next_public_holiday() -> Optional[dict]:
     """
     Get the next public holiday
@@ -299,8 +306,9 @@ def get_next_public_holiday() -> Optional[dict]:
     current_year = today.year
     next_year = current_year + 1
 
+    country, region = get_holiday_location()
     for year in (current_year, next_year):
-        h = holidays.country_holidays("GB", subdiv="SCT", years=[year])
+        h = holidays.country_holidays(country, subdiv=region, years=[year])
         for dt, name in h.items():
             if dt > today:
                 return {"name": name, "date": dt}
@@ -319,9 +327,9 @@ def get_upcoming_holidays() -> dict[str, date]:
 
     next_holidays = {}
 
-    # TODO: Pull holiday location from settings
+    country, region = get_holiday_location()
     for year in (current_year, next_year):
-        h = holidays.country_holidays("GB", subdiv="SCT", years=[year])
+        h = holidays.country_holidays(country, subdiv=region, years=[year])
         for dt, name in h.items():
             if dt >= today:
                 next_holidays.update({dt: name})
@@ -342,9 +350,9 @@ def get_previous_holidays() -> dict[str, date]:
 
     previous_holidays = {}
 
-    # TODO: Pull holiday location from settings
+    country, region = get_holiday_location()
     for year in (current_year, last_year):
-        h = holidays.country_holidays("GB", subdiv="SCT", years=[year])
+        h = holidays.country_holidays(country, subdiv=region, years=[year])
         for dt, name in h.items():
             if dt < today:
                 previous_holidays.update({dt: name})

@@ -1,6 +1,6 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, flash, redirect, render_template, url_for
 
-from app.controllers import time
+from app.controllers import settings, time
 from app.controllers.user.util import login_required
 from app.lib.logger import get_logger
 
@@ -18,6 +18,12 @@ def upcoming_holidays():
     from flask import request
 
     from app.lib.blocks import render_block
+
+    _settings = settings.fetch()
+
+    if not _settings.holiday_location:
+        flash("Please set a holiday location to view the holidays list", "warning")
+        return redirect(url_for("settings.index"))
 
     if request.headers.get("X-DynamicFrame"):
         return render_block(
@@ -40,6 +46,12 @@ def previous_holidays():
     from flask import request
 
     from app.lib.blocks import render_block
+
+    _settings = settings.fetch()
+
+    if not _settings.holiday_location:
+        flash("Please set a holiday location to view the holidays list", "warning")
+        return redirect(url_for("settings.index"))
 
     if request.headers.get("X-DynamicFrame"):
         return render_block(
