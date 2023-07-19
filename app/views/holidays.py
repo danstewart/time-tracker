@@ -1,6 +1,6 @@
 from flask import Blueprint, flash, redirect, render_template, url_for
 
-from app.controllers import settings, time
+from app.controllers import holidays, settings
 from app.controllers.user.util import login_required
 from app.lib.logger import get_logger
 
@@ -29,14 +29,14 @@ def upcoming_holidays():
         return render_block(
             "pages/holidays/upcoming.html.j2",
             "content",
-            upcoming_holidays=time.get_upcoming_holidays(),
+            upcoming_holidays=holidays.get_upcoming_holidays(),
             page="upcoming",
         )
 
     return render_template(
         "pages/holidays/upcoming.html.j2",
         page="upcoming",
-        upcoming_holidays=time.get_upcoming_holidays(),
+        upcoming_holidays=holidays.get_upcoming_holidays(),
     )
 
 
@@ -57,12 +57,12 @@ def previous_holidays():
         return render_block(
             "pages/holidays/history.html.j2",
             "content",
-            previous_holidays=time.get_previous_holidays(),
+            previous_holidays=holidays.get_previous_holidays(),
             page="history",
         )
 
     return render_template(
         "pages/holidays/history.html.j2",
         page="history",
-        previous_holidays=time.get_previous_holidays(),
+        previous_holidays=holidays.get_previous_holidays(),
     )
