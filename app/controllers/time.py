@@ -284,3 +284,4 @@ def bulk_update(table, data: dict[int, dict]):
             setattr(row, key, value if value else None)
 
     db.session.commit()
+

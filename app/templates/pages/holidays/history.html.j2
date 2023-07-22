@@ -1,0 +1,10 @@
+{% extends "layouts/holidays.html.j2" %}
+
+{% block content %}
+    <h4>Previous Holidays</h4>
+    <ul>
+        {% for dt, name in previous_holidays.items() %}
+            <li>{{ name }} <small>({{ dt }})</small></li>
+        {% endfor %}
+    </ul>
+{% endblock content %}

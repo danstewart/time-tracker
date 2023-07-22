@@ -1,7 +1,6 @@
 # syntax = docker/dockerfile:1.2
 
-# Use slim buster images
-FROM python:3.11-slim-buster
+FROM python:3.11-slim-bookworm
 
 LABEL version="0.0.1"
 

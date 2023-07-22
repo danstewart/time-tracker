@@ -19,7 +19,7 @@ def general_settings():
         flash("Settings saved", "success")
         return redirect("/dash")
 
-    return render_template("pages/settings.html.j2", settings=settings.fetch(), page="general")
+    return render_template("pages/settings/general.html.j2", settings=settings.fetch(), page="general")
 
 
 @v.route("/settings/account", methods=["GET", "POST"])
@@ -71,7 +71,7 @@ def account_settings():
 
         return redirect("/dash")
 
-    return render_template("pages/settings.html.j2", page="account", email=user.email)
+    return render_template("pages/settings/account.html.j2", page="account", email=user.email)
 
 
 @v.route("/settings/admin", methods=["GET", "POST"])
@@ -91,4 +91,4 @@ def admin_settings():
         settings.add_whats_new(title, content)
         flash(f"Added '{title}'", "success")
 
-    return render_template("pages/settings.html.j2", page="admin")
+    return render_template("pages/settings/admin.html.j2", page="admin")

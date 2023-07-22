@@ -48,7 +48,7 @@
 
 <script>
     (function() {
-        const frame = document.currentScript.parentNode;
+        const frame = document.currentScript.closest("dynamic-frame");
 
         frame.querySelector("#submit").addEventListener('click', async e => {
             const form = frame.querySelector("form");

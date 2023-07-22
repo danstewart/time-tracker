@@ -65,7 +65,16 @@ def run_tests():
     sys.stdout.flush()
 
     # Run e2e tests
-    e2e_test_command = ["pytest", "tests/e2e", "--video", "retain-on-failure", "--output", "debug/tests"]
+    e2e_test_command = [
+        "pytest",
+        "tests/e2e",
+        "--video",
+        "retain-on-failure",
+        "--tracing",
+        "retain-on-failure",
+        "--output",
+        "debug/tests",
+    ]
     e2e_test_process = subprocess.Popen(e2e_test_command, env=env)
 
     # Run unit tests

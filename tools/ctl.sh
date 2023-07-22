@@ -35,7 +35,7 @@ function logs() {
         echo "ctl.sh logs [args...]"
         echo ""
         echo "Tails the docker logs"
-        echo "Any additional arguments are passed to 'docker-compose logs'"
+        echo "Any additional arguments are passed to 'docker compose logs'"
         echo ""
         echo "TIP: Pass the container name to only get logs from that container"
         exit 0
@@ -50,7 +50,7 @@ function up() {
         echo "ctl.sh up [-d] [--build]"
         echo ""
         echo "Starts the docker container"
-        echo "All extra arguments are passed through to 'docker-compose up'"
+        echo "All extra arguments are passed through to 'docker compose up'"
         echo ""
         echo "-d: Will run the container in the background"
         echo "--build: Will rebuild the entire container"

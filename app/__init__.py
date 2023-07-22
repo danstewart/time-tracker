@@ -10,7 +10,7 @@ db = SQLAlchemy()
 migrate = Migrate()
 
 
-def create_app():
+def create_app(test_mode: bool = False):
     app = Flask(__name__)
     app.config.from_pyfile("../config/app_config.py")
 
@@ -23,7 +23,7 @@ def create_app():
     # Initialise database
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////home/app/log-my-time/db/time.db"
 
-    if os.getenv("TEST_MODE") == "yes":
+    if test_mode or os.getenv("TEST_MODE") == "yes":
         app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////home/app/log-my-time/db/time.test.db"
 
     db.init_app(app)
@@ -45,7 +45,7 @@ def create_app():
         from app.cli import data
         from app.controllers.user.util import is_admin, is_logged_in, unseen_whats_new
         from app.lib.util.security import enable_csrf_protection, get_csrf_token
-        from app.views import core, leave, settings, time, user
+        from app.views import core, holidays, leave, settings, time, user
 
         enable_csrf_protection(app)
 
@@ -55,6 +55,7 @@ def create_app():
         app.register_blueprint(user.v)
         app.register_blueprint(core.v)
         app.register_blueprint(data.v)
+        app.register_blueprint(holidays.v)
 
         # Inject some values into ALL templates
         @app.context_processor
