@@ -10,7 +10,7 @@ db = SQLAlchemy()
 migrate = Migrate()
 
 
-def create_app():
+def create_app(test_mode: bool = False):
     app = Flask(__name__)
     app.config.from_pyfile("../config/app_config.py")
 
@@ -23,7 +23,7 @@ def create_app():
     # Initialise database
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////home/app/log-my-time/db/time.db"
 
-    if os.getenv("TEST_MODE") == "yes":
+    if test_mode or os.getenv("TEST_MODE") == "yes":
         app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////home/app/log-my-time/db/time.test.db"
 
     db.init_app(app)

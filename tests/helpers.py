@@ -32,7 +32,7 @@ def execute_sql(statements: list[str]):
 
     from app import create_app, db
 
-    app = create_app()
+    app = create_app(test_mode=True)
 
     with app.app_context(), app.test_request_context():
         conn = db.engine.connect()
