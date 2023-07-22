@@ -1,6 +1,6 @@
 from playwright.sync_api import Page, expect
 
-from tests.helpers import login
+from tests.helpers import login, open_menu_and_click
 
 
 def test_login_for_success(page: Page):
@@ -25,5 +25,6 @@ def test_login_for_failure(page: Page):
 
 def test_logout(page: Page):
     login(page)
-    page.locator(".bi.bi-box-arrow-in-left").click()
+
+    open_menu_and_click("Logout", page)
     expect(page).to_have_url("http://localhost:5000/login")
