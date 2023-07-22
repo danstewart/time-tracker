@@ -23,7 +23,7 @@ def upcoming_holidays():
 
     if not _settings.holiday_location:
         flash("Please set a holiday location to view the holidays list", "warning")
-        return redirect(url_for("settings.index"))
+        return redirect(url_for("settings.general_settings"))
 
     if request.headers.get("X-DynamicFrame"):
         return render_block(
@@ -51,7 +51,7 @@ def previous_holidays():
 
     if not _settings.holiday_location:
         flash("Please set a holiday location to view the holidays list", "warning")
-        return redirect(url_for("settings.index"))
+        return redirect(url_for("settings.general_settings"))
 
     if request.headers.get("X-DynamicFrame"):
         return render_block(
