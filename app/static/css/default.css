@@ -17,6 +17,10 @@
     z-index: 1;
 }
 
+/*
+Show menu to the left of the toggle
+This stops the menu going off screen on smaller screens
+*/
 #menu .dropdown-menu {
     left: calc(0vw - 120px);
 }
