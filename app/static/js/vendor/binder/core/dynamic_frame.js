@@ -486,10 +486,14 @@ class DynamicFrame extends Controller {
 }
 
 /**
- * Wrapper around
+ * Container for RouteLink elements
+ * Specifies the target DynamicFrame to handle routing for
  */
 class DynamicFrameRouter extends HTMLElement {}
-class NavList extends HTMLElement {}
-class NavLink extends HTMLElement {}
 
-export { DynamicFrame, DynamicFrameRouter, NavLink, NavList };
+/**
+ * Like an <a> but when clicking it updates the frame route as specified by the DynamicFrameRouter
+ */
+class RouteLink extends HTMLElement {}
+
+export { DynamicFrame, DynamicFrameRouter, RouteLink };

@@ -21,21 +21,20 @@ The settings pages extend this and specify their content in a `content` block
     </nav>
 {% endblock sidebar %}
 
-<dynamic-frame-router>
-    {# Sidebar specifies target node #}
-    <nav-list :target="#main-content">
-        {# Clicking these will only update the target node via DynamicFrame #}
-        {# Active element is worked out from the current URL #}
-        <nav-link href="/settings/general">General</nav-link>
-        <nav-link href="/settings/account">Account</nav-link>
-        <nav-link href="/settings/admin">Admin</nav-link>
-    </nav-list>
-    
-    <div id="main-content">
+<dynamic-frame-router :target="#main-content">
+    {# Clicking these will only update the target node via DynamicFrame #}
+    {# Active element is worked out from the current URL #}
+    <route-link href="/settings/general">General</route-link>
+    <route-link href="/settings/account">Account</route-link>
+    <route-link href="/settings/admin">Admin</route-link>
+</dynamic-frame-router>
+
+<dynamic-frame id="main-content">
+    <div>
         {# Default server side rendering #}
         {# Is replaced dynamically client side in response to events #}
         {% block content %}
             {% include 'pages/settings/' + page + '.html.j2' %}
         {% endblock content %}
     </div>
-</dynamic-frame-router>
+</dynamic-frame>
