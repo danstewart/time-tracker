@@ -19,7 +19,12 @@ def general_settings():
         flash("Settings saved", "success")
         return redirect("/dash")
 
-    return render_template("pages/settings/general.html.j2", settings=settings.fetch(), page="general")
+    if block := request.args.get("block"):
+        from app.lib.blocks import render_block
+
+        return render_block("pages/settings.html.j2", block, settings=settings.fetch(), page="general")
+
+    return render_template("pages/settings.html.j2", settings=settings.fetch(), page="general")
 
 
 @v.route("/settings/account", methods=["GET", "POST"])
@@ -71,7 +76,13 @@ def account_settings():
 
         return redirect("/dash")
 
-    return render_template("pages/settings/account.html.j2", page="account", email=user.email)
+    # TODO: Turn this into a decorator
+    if block := request.args.get("block"):
+        from app.lib.blocks import render_block
+
+        return render_block("pages/settings.html.j2", block, page="account", email=user.email)
+
+    return render_template("pages/settings.html.j2", page="account", email=user.email)
 
 
 @v.route("/settings/admin", methods=["GET", "POST"])
@@ -91,4 +102,9 @@ def admin_settings():
         settings.add_whats_new(title, content)
         flash(f"Added '{title}'", "success")
 
-    return render_template("pages/settings/admin.html.j2", page="admin")
+    if block := request.args.get("block"):
+        from app.lib.blocks import render_block
+
+        return render_block("pages/settings.html.j2", block, page="admin")
+
+    return render_template("pages/settings.html.j2", page="admin")

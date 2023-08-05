@@ -486,14 +486,42 @@ class DynamicFrame extends Controller {
 }
 
 /**
- * Container for RouteLink elements
- * Specifies the target DynamicFrame to handle routing for
+ * Container for route anchor elements
+ * Any `<a>` elements within the `<dynamic-frame-router>` will be intercepted and only update the specified dynamic frame
+ * Specifies the target `DynamicFrame` to handle routing for
  */
-class DynamicFrameRouter extends HTMLElement {}
+class DynamicFrameRouter extends Controller {
+    async init() {
+        this.target = document.querySelector(this.args.target);
 
-/**
- * Like an <a> but when clicking it updates the frame route as specified by the DynamicFrameRouter
- */
-class RouteLink extends HTMLElement {}
+        if (!this.target) {
+            console.error(`Could not find target dynamic frame element: ${this.args.target}`);
+            return;
+        }
 
-export { DynamicFrame, DynamicFrameRouter, RouteLink };
+        // Handle clicks
+        this.addEventListener("click", e => {
+            let target = e.target || e.srcElement;
+
+            if (target.tagName === "A" && this.belongsToController(target)) {
+                e.preventDefault();
+                this.navigate(target.getAttribute("href"), true);
+            }
+        });
+
+        // Handle history change
+        window.onpopstate = history.onpushstate = e => {
+            console.log(`State change=${document.location.pathname}`);
+            console.log(e.state);
+            this.navigate(document.location.pathname);
+        };
+    }
+
+    navigate(href, recordInHistory = false) {
+        this.target.loadUrl(href);
+
+        if (recordInHistory) window.history.pushState({}, "", href);
+    }
+}
+
+export { DynamicFrame, DynamicFrameRouter };
