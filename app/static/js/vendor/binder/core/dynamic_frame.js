@@ -493,6 +493,7 @@ class DynamicFrame extends Controller {
 class DynamicFrameRouter extends Controller {
     async init() {
         this.target = document.querySelector(this.args.target);
+        this.anchors = this.querySelectorAll("a");
 
         if (!this.target) {
             console.error(`Could not find target dynamic frame element: ${this.args.target}`);
@@ -511,14 +512,25 @@ class DynamicFrameRouter extends Controller {
 
         // Handle history change
         window.onpopstate = history.onpushstate = e => {
-            console.log(`State change=${document.location.pathname}`);
-            console.log(e.state);
             this.navigate(document.location.pathname);
         };
     }
 
     navigate(href, recordInHistory = false) {
+        const targetUrl = new URL(href, window.location.origin);
+
         this.target.loadUrl(href);
+
+        // Update the active anchor
+        this.anchors.forEach(a => {
+            const anchorHref = new URL(a.href);
+
+            if (anchorHref.pathname === targetUrl.pathname) {
+                a.classList.add("active");
+            } else {
+                a.classList.remove("active");
+            }
+        });
 
         if (recordInHistory) window.history.pushState({}, "", href);
     }
