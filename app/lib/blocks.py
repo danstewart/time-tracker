@@ -89,9 +89,7 @@ def frame(f) -> typing.Any:
         intent = f(*args, **kwargs)
 
         if not isinstance(intent, RenderIntent):
-            raise ValueError(
-                "Function wrapped with @frame must return a RenderIntent object. Return `render()` instead of `render_template()`."
-            )
+            return intent
 
         if block := request.args.get("block"):
             intent.block = block
