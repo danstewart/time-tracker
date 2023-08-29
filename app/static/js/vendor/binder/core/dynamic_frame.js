@@ -516,10 +516,10 @@ class DynamicFrameRouter extends Controller {
         };
     }
 
-    navigate(href, recordInHistory = false) {
+    async navigate(href, recordInHistory = false) {
         const targetUrl = new URL(href, window.location.origin);
 
-        this.target.loadUrl(href);
+        await this.target.loadUrl(href);
 
         // Update the active anchor
         this.anchors.forEach(a => {
