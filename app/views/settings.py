@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, request
 
 from app.controllers import settings
 from app.controllers.user.util import admin_only, login_required
+from app.lib.blocks import frame, render
 from app.lib.logger import get_logger
 
 v = Blueprint("settings", __name__)
@@ -11,6 +12,7 @@ logger = get_logger(__name__)
 @v.route("/settings", methods=["GET", "POST"])
 @v.route("/settings/general", methods=["GET", "POST"])
 @login_required
+@frame
 def general_settings():
     if request.form:
         from flask import flash, redirect
@@ -19,16 +21,12 @@ def general_settings():
         flash("Settings saved", "success")
         return redirect("/dash")
 
-    if block := request.args.get("block"):
-        from app.lib.blocks import render_block
-
-        return render_block("pages/settings.html.j2", block, settings=settings.fetch(), page="general")
-
-    return render_template("pages/settings.html.j2", settings=settings.fetch(), page="general")
+    return render("pages/settings.html.j2", settings=settings.fetch(), page="general")
 
 
 @v.route("/settings/account", methods=["GET", "POST"])
 @login_required
+@frame
 def account_settings():
     from app.controllers.user import update_email
     from app.controllers.user.util import get_user
@@ -76,18 +74,13 @@ def account_settings():
 
         return redirect("/dash")
 
-    # TODO: Turn this into a decorator
-    if block := request.args.get("block"):
-        from app.lib.blocks import render_block
-
-        return render_block("pages/settings.html.j2", block, page="account", email=user.email)
-
-    return render_template("pages/settings.html.j2", page="account", email=user.email)
+    return render("pages/settings.html.j2", page="account", email=user.email)
 
 
 @v.route("/settings/admin", methods=["GET", "POST"])
 @login_required
 @admin_only
+@frame
 def admin_settings():
     if request.form:
         from flask import flash, redirect
@@ -102,9 +95,4 @@ def admin_settings():
         settings.add_whats_new(title, content)
         flash(f"Added '{title}'", "success")
 
-    if block := request.args.get("block"):
-        from app.lib.blocks import render_block
-
-        return render_block("pages/settings.html.j2", block, page="admin")
-
-    return render_template("pages/settings.html.j2", page="admin")
+    return render("pages/settings.html.j2", page="admin")
