@@ -496,6 +496,7 @@ class DynamicFrameRouter extends Controller {
     async init() {
         this.target = document.querySelector(this.args.target);
         this.anchors = this.querySelectorAll("a");
+        this.cache = {};
 
         if (!this.target) {
             console.error(`Could not find target dynamic frame element: ${this.args.target}`);
@@ -520,8 +521,23 @@ class DynamicFrameRouter extends Controller {
 
     async navigate(href, recordInHistory = false) {
         const targetUrl = new URL(href, window.location.origin);
+        const oldUrl = this.target.args.url;
+        console.log(`From ${oldUrl} to ${href}`);
 
-        await this.target.loadUrl(href);
+        // TODO: This cache isn't working
+        // The frames all bleed together somehow
+        console.log(`Caching ${href}`);
+        this.cache[oldUrl] = this.target.cloneNode(true);
+
+        // Update the targeted frame
+        if (href in this.cache) {
+            console.log(`Using ${href} from cache...`);
+            this.target.replaceWith(this.cache[href]);
+            this.target = this.cache[href];
+        } else {
+            console.log(`Fetching ${href}...`);
+            await this.target.loadUrl(href);
+        }
 
         // Update the active anchor
         this.anchors.forEach(a => {
