@@ -532,8 +532,7 @@ class DynamicFrameRouter extends Controller {
         // Update the targeted frame
         if (href in this.cache) {
             console.log(`Using ${href} from cache...`);
-            this.target.replaceWith(this.cache[href]);
-            this.target = this.cache[href];
+            this.target.replaceChildren(...this.cache[href].children);
         } else {
             console.log(`Fetching ${href}...`);
             await this.target.loadUrl(href);
