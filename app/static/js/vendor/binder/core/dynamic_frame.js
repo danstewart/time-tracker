@@ -73,6 +73,7 @@ class DynamicFrame extends Controller {
 
         this.containFrame(parseBoolean(this.args.contained));
 
+        this.emit("dynamic-frame:init", {});
         if (this.renderOnInit) await this.loadContent();
     }
 
@@ -173,6 +174,7 @@ class DynamicFrame extends Controller {
             this.bind(); // The new DOM content might need to be bound to the controller
         }
 
+        this.emit("dynamic-frame:updated", {});
         return ok;
     }
 
@@ -511,7 +513,7 @@ class DynamicFrameRouter extends Controller {
         });
 
         // Handle history change
-        window.onpopstate = history.onpushstate = e => {
+        window.onpopstate = history.onpushstate = () => {
             this.navigate(document.location.pathname);
         };
     }

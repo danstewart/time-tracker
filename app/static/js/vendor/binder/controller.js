@@ -1,4 +1,4 @@
-import { kebabToCamel, permutations, parseDuration, parseBoolean } from "./util.js";
+import { kebabToCamel, parseBoolean, parseDuration } from "./util.js";
 
 /**
  * @class
@@ -16,6 +16,13 @@ class Controller extends HTMLElement {
      * The default implementation will call `set{AttributeName}(oldValue, newValue)`
      */
     static observedAttributes = [];
+    static tag = undefined;
+
+    static withTag(tag) {
+        return class extends this {
+            static tag = tag;
+        };
+    }
 
     /**
      * Create a new custom controller element
@@ -30,6 +37,7 @@ class Controller extends HTMLElement {
 
         this.root = this;
         this.args = args || {};
+        this.data = {};
 
         // Keep track of all attached events
         this._events = [];
@@ -182,13 +190,10 @@ class Controller extends HTMLElement {
      */
     bind() {
         // We only want to configure the arguments on the first bind()
-        if (!this._internal.bound) {
-            this.#bindArgs();
-        }
+        if (!this._internal.bound) this.#bindArgs();
 
         this.#bindElements();
         this.#bindEvents();
-        this.#bindDataValues();
 
         this._internal.bound = true;
     }
@@ -229,7 +234,7 @@ class Controller extends HTMLElement {
      * @name render
      * @memberof! Controller
      * @param {Element} rootNode The root node to search from
-     * @description Re-renders everything with the @render attribute
+     * @description Re-renders everything with the :render attribute
      */
     async render(rootNode = null) {
         if (!rootNode) rootNode = this;
@@ -244,7 +249,7 @@ class Controller extends HTMLElement {
 
             // If the element has the attribute with .eval then eval the template
             // This should be used sparingly and only when the content is trusted
-            const evalMode = el.hasAttribute("@render.eval");
+            const evalMode = el.hasAttribute(":render.eval");
 
             // TODO: Make the replacer syntax configurable
             let replacerRegex = /\{(.*?)\}/g; // Find template vars, eg {var}
@@ -296,12 +301,12 @@ class Controller extends HTMLElement {
      * @name findRenderableElements
      * @memberof! Controller
      * @param {Element} rootNode The root node to search from
-     * @description Find all elements on the controller which have @render attributes
-     * @render is a special action that let's the controller know to render this elements content when the render() method is called
+     * @description Find all elements on the controller which have :render attributes
+     * :render is a special action that let's the controller know to render this elements content when the render() method is called
      */
     #findRenderableElements(rootNode = null) {
         if (!rootNode) rootNode = this;
-        return [...rootNode.querySelectorAll("[\\@render]"), ...rootNode.querySelectorAll("[\\@render\\.eval]")].filter(el => this.belongsToController(el));
+        return [...rootNode.querySelectorAll("[\\:render]"), ...rootNode.querySelectorAll("[\\:render\\.eval]")].filter(el => this.belongsToController(el));
     }
 
     /**
@@ -311,7 +316,7 @@ class Controller extends HTMLElement {
      * @memberof! Controller
      * @description Bind all attributes on the controller tag into the instance under `this`
      * Converts kebab-case to camelCase
-     * EG. <controller :some-arg="150" /> will set `this.someArg = 150`
+     * EG. <controller :some-arg="150" /> will set `this.args.someArg = 150`
      */
     #bindArgs() {
         this.args = {};
@@ -333,11 +338,20 @@ class Controller extends HTMLElement {
     #bindElements() {
         this.binds = {};
 
-        const boundElements = this.querySelectorAll("[\\@bind]");
+        const boundElements = this.querySelectorAll("[\\:bind]");
         boundElements.forEach(el => {
             if (this.belongsToController(el)) {
-                const key = el.getAttribute("@bind");
-                this.binds[key] = el;
+                const key = el.getAttribute(":bind");
+
+                if (Object.hasOwn(this.binds, key)) {
+                    if (Array.isArray(this.binds[key])) {
+                        this.binds[key].push(el);
+                    } else {
+                        this.binds[key] = [this.binds[key], el];
+                    }
+                } else {
+                    this.binds[key] = el;
+                }
             }
         });
     }
@@ -362,29 +376,34 @@ class Controller extends HTMLElement {
         this._events.forEach(e => e.el.removeEventListener(e.eventType, e.event));
         this._events = [];
 
-        const bindEvent = (el, eventType, modifier) => {
-            const value = el.getAttribute(`@${eventType}${modifier}`);
+        const bindEvent = async (el, eventType, modifiers) => {
+            let attributeName = `@${eventType}`;
+            if (modifiers.length) attributeName += `.${modifiers.join(".")}`;
+
+            const value = el.getAttribute(attributeName);
             const action = value.replace("this.", "").replace("()", "");
 
-            const callable = event => {
-                if (modifier.includes(".prevent")) event.preventDefault();
-                if (modifier.includes(".stop")) event.stopPropagation();
+            const callable = async event => {
+                if (modifiers.includes("prevent")) event.preventDefault();
+                if (modifiers.includes("stop")) event.stopPropagation();
 
-                if (modifier.includes(".eval")) {
-                    const fn = new Function(`${value}`);
-                    fn.call(this);
+                if (modifiers.includes("eval")) {
+                    const fn = new Function("e", `${value}`);
+                    fn.call(this, event);
                 } else {
                     try {
                         if (action === "render") {
                             // Render doesn't take an event
-                            this[action].call(this);
+                            await this[action].call(this);
                         } else {
-                            this[action].call(this, event);
+                            await this[action].call(this, event);
                         }
                     } catch (e) {
                         console.error(`Failed to call '${action}' to handle '${event.type}' event on tag '${this.localName}'`, e);
                     }
                 }
+
+                if (modifiers.includes("render")) this.render();
             };
 
             el.addEventListener(eventType, callable);
@@ -405,11 +424,7 @@ class Controller extends HTMLElement {
             for (let attr of node.getAttributeNames()) {
                 if (!attr.startsWith("@")) continue;
 
-                let [event, modifiers] = attr.replace("@", "").split(".", 2);
-                modifiers = modifiers ? `.${modifiers}` : "";
-
-                // @render and @bind are handled separately
-                if (event === "render" || event === "bind") continue;
+                let [event, ...modifiers] = attr.replace("@", "").split(".");
 
                 bindEvent(node, event, modifiers);
             }
@@ -448,78 +463,6 @@ class Controller extends HTMLElement {
     /**
      * @method
      * @private
-     * @name bindDataValues
-     * @memberof! Controller
-     * @description Find all elements within the controller that has a `@bind` attribute
-     * Each element will have it's value bound to the controller under `this`
-     * The value of the attribute will be converted from kebab-case to camelCase
-     *
-     * EG. <input @bind="the-input" /> will have it's value bound to `this.theInput`
-     */
-    #bindDataValues() {
-        this.data = {};
-        const instance = this;
-
-        const tagToEvent = {
-            "input|text": "keyup",
-            default: "change",
-        };
-
-        // Event handlers for various element types
-        const handlers = {
-            "input|checkbox": (instance, varName, e) => {
-                if (!instance.data[varName]) instance.data[varName] = [];
-                if (e.target.checked) {
-                    instance.data[varName].push(e.target.value);
-                } else {
-                    instance.data[varName] = instance.data[varName].filter(item => item !== e.target.value);
-                }
-            },
-            select: (instance, varName, e) => {
-                if (e.target.getAttribute("multiple") !== null) {
-                    instance.data[varName] = Array.from(e.target.selectedOptions).map(item => item.value);
-                } else {
-                    instance.data[varName] = e.target.value;
-                }
-            },
-            default: (instance, varName, e) => (instance.data[varName] = e.target.value),
-        };
-
-        // Logic to actually bind an element to the controller
-        const bindData = (el, modifier) => {
-            const elType = this.#getElementType(el);
-            const eventType = tagToEvent[elType] || tagToEvent.default;
-
-            el.addEventListener(eventType, e => {
-                const varName = el.getAttribute(`@bind${modifier}`).replace("this.data.", "").replace("this.", "");
-
-                const handler = handlers[elType] || handlers.default;
-                handler(instance, varName, e);
-
-                // If this element is @bind.render this call render()
-                if (modifier.includes(".render")) instance.render();
-            });
-        };
-
-        const modifiers = ["", ...permutations([".render"], true)];
-        modifiers.forEach(modifier => {
-            // Handle any binds on the root node
-            if (this.hasAttribute(`@bind${modifier}`)) {
-                bindData(this.root, modifier);
-            }
-
-            // Handle any binds on the children
-            const escapedModifier = modifier.replace(/\./g, "\\.");
-            this.root.querySelectorAll(`[\\@bind${escapedModifier}]`).forEach(el => {
-                if (!this.belongsToController(el)) return;
-                bindData(el, modifier);
-            });
-        });
-    }
-
-    /**
-     * @method
-     * @private
      * @name getElementType
      * @memberof! Controller
      * @description Return the type of an element
@@ -543,9 +486,6 @@ class Controller extends HTMLElement {
      * @returns {Boolean} True if the element belongs to the controller
      */
     belongsToController(el) {
-        // If we're using the shadow DOM then we only see this controllers children so it must belong to the controller
-        if (this.hasShadow) return true;
-
         // Controllers don't belong to themselves, go up a level to find their parent
         if (el.hasAttribute("data-controller")) el = el.parentElement;
 

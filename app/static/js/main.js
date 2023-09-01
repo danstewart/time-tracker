@@ -1,10 +1,9 @@
 import flatpickr from "https://cdn.jsdelivr.net/npm/flatpickr/+esm";
 import spacetime from "https://cdn.jsdelivr.net/npm/spacetime/+esm";
 import { ClearFlatpickr } from "/static/js/components/clear_flatpickr.js";
-import { DynamicFrame } from "/static/js/components/dynamic_frame.js";
 import { ModalFrame } from "/static/js/components/modal_frame.js";
 import { registerControllers } from "/static/js/vendor/binder/binder.js";
-import { DynamicFrameRouter } from "/static/js/vendor/binder/core/dynamic_frame.js";
+import { DynamicFrame, DynamicFrameRouter } from "/static/js/vendor/binder/core/dynamic_frame.js";
 
 window.initDatePicker = picker => {
     const tz = document.getElementById("timezone")?.innerText;

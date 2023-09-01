@@ -5,16 +5,9 @@ import { pascalToKebab } from "./util.js";
  *
  * Example
  * ```js
- * registerControllers(MyController, MyOtherController);
+ * registerControllers(MyController, MyOtherController, MyOtherController.withTag("some-custom-tag"));
  * ```
  *
- * ```js
- * registerControllers(
- *  MyController,
- *  [ MyOtherController, { name: "my-custom-controller" } ],
- *  [ MyOtherOtherController ],
- * )
- * ```
  * @param  {...any} controllers
  */
 const registerControllers = async (...controllers) => {
@@ -25,14 +18,9 @@ const registerControllers = async (...controllers) => {
     const allUndefinedElements = [...document.querySelectorAll(":not(:defined)")];
     allUndefinedElements.forEach(el => el.setAttribute("data-controller", el.localName));
 
-    const registerController = async (controller, _options = {}) => {
-        let config = {};
-        if (Array.isArray(controller)) {
-            [controller, config = {}] = controller;
-        }
-
+    const registerController = async controller => {
         const controllerName = controller.name;
-        const controllerTag = config && config.name ? config.name : pascalToKebab(controllerName);
+        const controllerTag = controller.tag || pascalToKebab(controllerName);
 
         if (window.customElements.get(controllerTag)) {
             console.warn(`Controller "${controllerTag}" is already registered, skipping...`);
@@ -45,7 +33,7 @@ const registerControllers = async (...controllers) => {
         }
 
         // Create an anonymous class here to avoid name clashes when using the bare controller with a custom name
-        window.customElements.define(controllerTag, controller, {});
+        window.customElements.define(controllerTag, class extends controller {}, {});
     };
 
     // Register our controllers in parallel
