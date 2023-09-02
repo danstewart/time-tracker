@@ -521,18 +521,15 @@ class DynamicFrameRouter extends Controller {
 
     async navigate(href, recordInHistory = false) {
         const targetUrl = new URL(href, window.location.origin);
-        const oldUrl = this.target.args.url;
-        console.log(`From ${oldUrl} to ${href}`);
+        const oldHref = this.target.args.url;
 
-        // TODO: This cache isn't working
-        // The frames all bleed together somehow
-        console.log(`Caching ${href}`);
-        this.cache[oldUrl] = this.target.cloneNode(true);
+        // Cache the contents of the frame
+        this.cache[oldHref] = [...this.target.children].map(child => child.cloneNode(true));
 
         // Update the targeted frame
         if (href in this.cache) {
-            console.log(`Using ${href} from cache...`);
-            this.target.replaceChildren(...this.cache[href].children);
+            this.target.replaceChildren(...this.cache[href]);
+            this.target.args.url = href;
         } else {
             console.log(`Fetching ${href}...`);
             await this.target.loadUrl(href);
