@@ -1,0 +1,6 @@
+<h4>Upcoming Holidays</h4>
+<ul>
+    {% for dt, name in upcoming_holidays.items() %}
+        <li>{{ name }} <small>({{ dt }})</small></li>
+    {% endfor %}
+</ul>
