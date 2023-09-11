@@ -10,6 +10,7 @@ logger = get_logger(__name__)
 
 
 @v.get("/holidays")
+@v.get("/holidays/upcoming")
 @login_required
 @frame
 def upcoming_holidays():
