@@ -1,2 +1,43 @@
-function asyncGeneratorStep(gen,resolve,reject,_next,_throw,key,arg){try{var info=gen[key](arg);var value=info.value}catch(error){reject(error);return}if(info.done){resolve(value)}else{Promise.resolve(value).then(_next,_throw)}}function _asyncToGenerator(fn){return function(){var self=this,args=arguments;return new Promise(function(resolve,reject){var gen=fn.apply(self,args);function _next(value){asyncGeneratorStep(gen,resolve,reject,_next,_throw,"next",value)}function _throw(err){asyncGeneratorStep(gen,resolve,reject,_next,_throw,"throw",err)}_next(undefined)})}}import{pascalToKebab}from"./util.js";const registerControllers=function(){var _ref1=_asyncToGenerator(function*(...controllers){const allUndefinedElements=[...document.querySelectorAll(":not(:defined)")];allUndefinedElements.forEach(el=>el.setAttribute("data-controller",el.localName));const registerController=function(){var _ref=_asyncToGenerator(function*(controller,_options={}){let config={};if(Array.isArray(controller)){[controller,config={}]=controller}const controllerName=controller.name;const controllerTag=config&&config.name?config.name:pascalToKebab(controllerName);if(window.customElements.get(controllerTag)){console.warn(`Controller "${controllerTag}" is already registered, skipping...`);return}if(!controllerTag.includes("-")){console.error(`[${controllerName}] Controller tag name must contain a hyphen but got <${controllerTag}>`)}window.customElements.define(controllerTag,controller,{})});return function registerController(controller){return _ref.apply(this,arguments)}}();yield Promise.allSettled(controllers.map(controller=>registerController(controller)))});return function registerControllers(){return _ref1.apply(this,arguments)}}();export{registerControllers}
-//# sourceMappingURL=register.js.map
+import { pascalToKebab } from "./util.js";
+
+/**
+ * Register a controller (or multiple controllers)
+ *
+ * Example
+ * ```js
+ * registerControllers(MyController, MyOtherController, MyOtherController.withTag("some-custom-tag"));
+ * ```
+ *
+ * @param  {...any} controllers
+ */
+const registerControllers = async (...controllers) => {
+    // First find all undefined elements and assume they are custom elements
+    // We can then add the `data-controller` attribute to them
+    // This makes it easy for us to find which controller a given DOM element belongs to
+    // We also set the `data-controller` attr during the `connectedCallback` so any elements defined later will still work
+    const allUndefinedElements = [...document.querySelectorAll(":not(:defined)")];
+    allUndefinedElements.forEach(el => el.setAttribute("data-controller", el.localName));
+
+    const registerController = async controller => {
+        const controllerName = controller.name;
+        const controllerTag = controller.tag || pascalToKebab(controllerName);
+
+        if (window.customElements.get(controllerTag)) {
+            console.warn(`Controller "${controllerTag}" is already registered, skipping...`);
+            return;
+        }
+
+        // All custom elements required a hyphenated tag name
+        if (!controllerTag.includes("-")) {
+            console.error(`[${controllerName}] Controller tag name must contain a hyphen but got <${controllerTag}>`);
+        }
+
+        // Create an anonymous class here to avoid name clashes when using the bare controller with a custom name
+        window.customElements.define(controllerTag, class extends controller {}, {});
+    };
+
+    // Register our controllers in parallel
+    await Promise.allSettled(controllers.map(controller => registerController(controller)));
+};
+
+export { registerControllers };

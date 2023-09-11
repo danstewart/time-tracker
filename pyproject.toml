@@ -25,9 +25,9 @@ line-length = 120
 [tool.ruff]
 line-length = 120
 ignore = [
-    "E711",  # Interferes with SQLAlchemy conditions
-    "E712",  # Interferes with SQLAlchemy conditions
-    "E501",  # Black handles line length, this rule just gets angry at long strings
+    "E711", # Interferes with SQLAlchemy conditions
+    "E712", # Interferes with SQLAlchemy conditions
+    "E501", # Black handles line length, this rule just gets angry at long strings
 ]
 
 [tool.pyright]

@@ -1,0 +1,38 @@
+{#
+This is the wrapper for the settings pages
+It adds a sidebar to the page to navigate between the various settings pages
+
+The settings pages extend this and specify their content in a `content` block
+#}
+{% extends "layouts/wrapper.html.j2" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-lg-2 mt-1 pe-5 pb-3">
+            <dynamic-frame-router :target="#main-content" :caching>
+                {# Clicking these will only update the target node via DynamicFrame #}
+                {# Active element is worked out from the current URL #}
+                <nav class="nav nav-pills flex-lg-column">
+                    <a class="nav-link{% if page == 'general' %} active{% endif %}"
+                        aria-current="page"
+                        href="/settings/general">General</a>
+                    <a class="nav-link{% if page == 'account' %} active{% endif %}"
+                        href="/settings/account">Account</a>
+
+                    <a class="nav-link{% if page == 'admin' %} active{% endif %}"
+                        href="/settings/admin">Admin</a>
+                </nav>
+            </dynamic-frame-router>
+        </div>
+
+        <div class="col">
+            <!-- We don't load on init here so we can do the initial load server side using jinjas include -->
+            <dynamic-frame id="main-content" :url="/settings/{{ page }}" :param-block="frame" :render-on-init="0">
+                <!-- We wrap this in a block as that allows us to load just this section via /settings/general?block=frame -->
+                {% block frame %}
+                    {% include "frames/settings/" + page + ".html.j2" %}
+                {% endblock frame %}
+            </dynamic-frame>
+        </div>
+    </div>
+{% endblock content %}
