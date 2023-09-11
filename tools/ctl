@@ -141,7 +141,7 @@ function test() {
 
     # Build container, run tests
     docker compose up -d --build test
-    docker exec -it log-my-time-test pipenv run tools/test_runner.py
+    docker exec -it log-my-time-test pipenv run tests/test_runner.py
 
     # Remove test container
     docker rm -f log-my-time-test
