@@ -531,7 +531,6 @@ class DynamicFrameRouter extends Controller {
             this.target.replaceChildren(...this.cache[href]);
             this.target.args.url = href;
         } else {
-            console.log(`Fetching ${href}...`);
             await this.target.loadUrl(href);
         }
 
