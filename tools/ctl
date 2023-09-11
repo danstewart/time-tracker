@@ -14,7 +14,7 @@ export BUILDKIT_PROGRESS=plain
 [[ -z $LOG_LEVEL ]] && export LOG_LEVEL="debug"
 
 if [[ $subcommand == "--help" || $subcommand == "help" || -z $subcommand ]]; then
-    echo "./tools/ctl.sh [subcommand] [options]"
+    echo "$0 [subcommand] [options]"
     echo ""
     echo "subcommands:"
     echo "  up: start the docker containers"
@@ -32,7 +32,7 @@ fi
 
 function logs() {
     if [[ $1 == "--help" ]]; then
-        echo "ctl.sh logs [args...]"
+        echo "$0 logs [args...]"
         echo ""
         echo "Tails the docker logs"
         echo "Any additional arguments are passed to 'docker compose logs'"
@@ -47,7 +47,7 @@ function logs() {
 
 function up() {
     if [[ $1 == "--help" ]]; then
-        echo "ctl.sh up [-d] [--build]"
+        echo "$0 up [-d] [--build]"
         echo ""
         echo "Starts the docker container"
         echo "All extra arguments are passed through to 'docker compose up'"
@@ -63,7 +63,7 @@ function up() {
 
 function restart() {
     if [[ $1 == "--help" ]]; then
-        echo "ctl.sh restart"
+        echo "$0 restart"
         echo ""
         echo "Restarts the docker container"
         exit 0
@@ -75,7 +75,7 @@ function restart() {
 
 function rebuild() {
     if [[ $1 == "--help" ]]; then
-        echo "ctl.sh rebuild"
+        echo "$0 rebuild"
         echo ""
         echo "Rebuilds the container"
         exit 0
@@ -97,20 +97,20 @@ function sql() {
 
 function flask() {
     if [[ $1 == "--help" ]]; then
-        echo "ctl.sh flask [commands...]"
+        echo "$0 flask [commands...]"
         echo ""
         echo "Run flask commands in the container"
         echo "All arguments are passed through to the flask CLI"
         echo ""
         echo "Examples"
         echo "  Start a flask shell"
-        echo "    ./tools/ctl.sh flask shell"
+        echo "    $0 flask shell"
         echo ""
         echo "  Apply migrations"
-        echo "    ./tools/ctl.sh flask db upgrade"
+        echo "    $0 flask db upgrade"
         echo ""
         echo "  Create new migration"
-        echo "     ./tools/ctl.sh flask migrate -m <msg>"
+        echo "     $0 flask migrate -m <msg>"
         exit 0
     fi
 
@@ -132,7 +132,7 @@ function flask() {
 
 function test() {
     if [[ $1 == "--help" ]]; then
-        echo "./tools/ctl.sh test [commands...]"
+        echo "$0 test [commands...]"
         echo ""
         echo "Build the test container and run all tests against it"
         echo "Any additional arguments are passed through to pytest"
