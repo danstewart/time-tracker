@@ -1,0 +1,36 @@
+<div class="d-flex justify-content-between">
+    {% set bc_teams = "<a href='/settings/teams'>Teams</a>" %}
+
+    <h3>{{ bc_teams }} / {{ team }}</h3>
+
+    <div>
+        <a role="button" class="btn btn-secondary" href="/settings/teams/invite">Invite User</a>
+    </div>
+</div>
+
+<section name="users" class="mt-3">
+    <h5>Users</h5>
+    {% set users = ["user-a", "user-b", "user-c"] %}
+    {% for user in users %}
+        <div>
+            <a href="/settings/teams/{{ team }}/user/{{ user }}">{{ user }}</a>
+        </div>
+    {% endfor %}
+</section>
+
+<section name="settings" class="mt-5">
+    <h5>Settings</h5>
+    <form>
+        <div class="mb-2">
+            <label class="form-label">Approvers</label>
+            <input class="form-control"
+                type="text"
+                name="leaveEntitelement"
+                id="leaveEntitlement"
+                value="25"
+                required/>
+        </div>
+
+        <button class="btn btn-primary">Save</button>
+    </form>
+</section>

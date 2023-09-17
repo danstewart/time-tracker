@@ -21,13 +21,17 @@ The settings pages extend this and specify their content in a `content` block
 
                     <a class="nav-link{% if page == 'admin' %} active{% endif %}"
                         href="/settings/admin">Admin</a>
+
+                    {# TODO: Only show if on team plan #}
+                    <a class="nav-link{% if page in ('teams', 'team', 'user', 'add_team', 'invite_user') %} active{% endif %}"
+                        href="/settings/teams">Teams</a>
                 </nav>
             </dynamic-frame-router>
         </div>
 
         <div class="col">
             <!-- We don't load on init here so we can do the initial load server side using jinjas include -->
-            <dynamic-frame id="main-content" :url="/settings/{{ page }}" :param-block="frame" :render-on-init="0">
+            <dynamic-frame id="main-content" :url="/settings/{{ page }}" :param-block="frame" :render-on-init="0" :contained>
                 <!-- We wrap this in a block as that allows us to load just this section via /settings/general?block=frame -->
                 {% block frame %}
                     {% include "frames/settings/" + page + ".html.j2" %}
