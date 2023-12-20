@@ -5,11 +5,11 @@
 
     // ESLint
     "eslint.enable": true,
-    "eslint.probe": [ "javascript", "html", "jinja-html"],
-    "eslint.validate": [ "javascript", "html", "jinja-html"],
+    "eslint.probe": ["javascript", "html", "jinja-html"],
+    "eslint.validate": ["javascript", "html", "jinja-html"],
 
     "files.trimTrailingWhitespace": false,
-    
+
     "files.associations": {
         "*.mjml.j2": "mjml"
     },
@@ -33,7 +33,7 @@
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "ms-python.black-formatter",
         "editor.codeActionsOnSave": {
-            "source.organizeImports": true
+            "source.organizeImports": "explicit"
         }
     },
 
