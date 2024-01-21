@@ -7,7 +7,10 @@ import { DynamicFrame, DynamicFrameRouter } from "/static/js/vendor/binder/core/
 
 window.initDatePicker = picker => {
     const tz = document.getElementById("timezone")?.innerText;
-    if (!tz) return;
+    if (!tz) {
+        console.warning(`[initDatePicker] Attempted to initialise date picker without timezone`);
+        return;
+    }
 
     const today = spacetime.now(tz);
     let date = today.format("Y-m-d");
