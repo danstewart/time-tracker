@@ -1,8 +1,15 @@
+/**
+ * Find all forms on the page and call `attachValidation` on them
+ */
 function autoAttachValidation() {
     const forms = document.querySelectorAll("form");
     forms.forEach(form => attachValidation(form));
 }
 
+/**
+ * Reset the errors on a form
+ * @param {*} formEl The form element to reset
+ */
 function resetFormValidation(formEl) {
     formEl.querySelectorAll(".is-invalid").forEach(fieldEl => {
         fieldEl.classList.remove("is-invalid");
@@ -13,6 +20,13 @@ function resetFormValidation(formEl) {
     });
 }
 
+/**
+ * Intercept the submit event for the given form
+ * Submits the form manually via fetch first in validation mode
+ * If it fails the submission is prevented and the errors are shown
+ * If it passes then the form is submitted
+ * @param {*} formEl
+ */
 function attachValidation(formEl) {
     formEl.addEventListener("submit", async e => {
         e.preventDefault();
@@ -38,6 +52,11 @@ function attachValidation(formEl) {
     });
 }
 
+/**
+ * Submit the form in validation mode via fetch
+ * @param {*} formEl The form element to submit
+ * @returns The validation object, the keys are the fields and the value is an array of error messages. On success it will be `{success: true}`
+ */
 async function validateForm(formEl) {
     const method = formEl.getAttribute("method") || "GET";
     const action = formEl.getAttribute("action") || "/";
