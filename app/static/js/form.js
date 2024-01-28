@@ -1,8 +1,8 @@
 /**
- * Find all forms on the page and call `attachValidation` on them
+ * Find all forms on the page with the `with-validation` attribute and calls `attachValidation` on them
  */
 function autoAttachValidation() {
-    const forms = document.querySelectorAll("form");
+    const forms = document.querySelectorAll("form[with-validation]");
     forms.forEach(form => attachValidation(form));
 }
 
