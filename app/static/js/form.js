@@ -81,6 +81,7 @@ function attachValidation(formEl) {
  * @returns The validation object, the keys are the fields and the value is an array of error messages. On success it will be `{success: true}`
  */
 async function validateForm(formEl) {
+    // TODO: We can pull most of this from binder since dynamic-frame.js does this too
     const method = formEl.getAttribute("method") || "GET";
     const action = formEl.getAttribute("action") || "/";
     const encoding = formEl.getAttribute("enctype") || "application/x-www-form-urlencoded";
