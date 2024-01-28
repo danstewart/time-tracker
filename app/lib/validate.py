@@ -40,11 +40,12 @@ def validate_form(values: dict[str, Any], checks: dict[str, Check | list[Check]]
     Validates a form submission
 
     `values`: The form submission dictionary
-    `checks`: The checks to apply for each field in `values`
+    `checks`: The checks to apply for each field in `values`, the key is the field name and the value is a `Check` or a list of `Check`
 
     Returns a `Validation` object which has `ok` and `response` fields
     `ok` indicates if the form submission was valid
-    `response` is the response body to return to the client if not
+    `errors` is a dict where the key is the field name and the value is a list of error messages
+    `success` is a dict of `{"success": True}`
     """
     from collections import defaultdict
 
