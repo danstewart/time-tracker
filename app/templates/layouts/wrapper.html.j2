@@ -25,6 +25,11 @@
         <!-- Our CSS and js -->
         <link rel="stylesheet" href="/static/css/default.css" />
         <script type="module" defer src="/static/js/main.js"></script>
+
+        <script type="module">
+            import { autoAttachValidation } from "/static/js/form.js";
+            window.addEventListener("DOMContentLoaded", () => autoAttachValidation());
+        </script>
     </head>
 
     <body style="padding-bottom: 500px;">
