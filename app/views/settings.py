@@ -25,18 +25,13 @@ def general_settings():
             validation = v.validate_form(
                 values=dict(request.form),
                 checks={
-                    "timezone": v.Check(
-                        regex=r"\w+\/\w+",
-                    ),
-                    "holiday_location": v.Check(
-                        options=["GB/ENG", "GB/NIR", "GB/WLS", "GB/SCT"],
-                    ),
-                    "week_start": v.Check(
-                        options=["0", "1", "2", "3", "4", "5", "6"],
-                    ),
+                    # TODO: Run this through arrow or pytz to validate
+                    "timezone": v.Check(regex=r"\w+\/\w+"),
+                    "holiday_location": v.Check(options=["GB/ENG", "GB/NIR", "GB/WLS", "GB/SCT"]),
+                    "week_start": v.Check(options=["0", "1", "2", "3", "4", "5", "6"]),
                     "hours_per_day": v.Check(
                         func=lambda x: Decimal(x) > 0,
-                        message="Hours per day must be a positive number",
+                        message="Must be a positive number",
                     ),
                 },
             )
