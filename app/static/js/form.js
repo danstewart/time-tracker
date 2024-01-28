@@ -18,6 +18,9 @@ function resetFormValidation(formEl) {
     formEl.querySelectorAll("div.invalid-feedback").forEach(feedbackEl => {
         feedbackEl.remove();
     });
+
+    const alert = formEl.querySelector("div.alert.alert-danger");
+    if (alert) alert.remove();
 }
 
 /**
@@ -40,6 +43,26 @@ function attachValidation(formEl) {
             formEl.submit();
         } else {
             // Show errors
+            formEl.insertAdjacentHTML(
+                "afterbegin",
+                `
+                    <div class="alert alert-danger"
+                    role="alert"
+                    aria-live="assertive"
+                    aria-atomic="true"
+                    data-bs-autohide="true">
+                        <div class="d-flex">
+                            <div class="toast-body">There was an error with your submission, please review the errors below.</div>
+                            <button onclick="this.parentNode.parentNode.remove()"
+                                type="button"
+                                class="btn-close me-2 m-auto"
+                                data-bs-dismiss="toast"
+                                aria-label="Close">
+                            </button>
+                        </div>
+                    </div>`
+            );
+
             for (const [field, messages] of Object.entries(validation)) {
                 const fieldEl = document.getElementById(field);
                 fieldEl.classList.add("is-invalid");
