@@ -1,11 +1,12 @@
 from dataclasses import dataclass
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Literal, Optional
 
 
 @dataclass
 class Validation:
     ok: bool
-    response: dict[str, str | bool]
+    errors: dict[str, list[str]]
+    success: dict[Literal["success"], Literal[True]]
 
 
 @dataclass
@@ -34,7 +35,7 @@ class Check:
         return True
 
 
-def validate_form(values: dict[str, Any], checks: dict[str, Check]) -> Validation:
+def validate_form(values: dict[str, Any], checks: dict[str, Check | list[Check]]) -> Validation:
     """
     Validates a form submission
 
@@ -45,17 +46,23 @@ def validate_form(values: dict[str, Any], checks: dict[str, Check]) -> Validatio
     `ok` indicates if the form submission was valid
     `response` is the response body to return to the client if not
     """
-    errors = {}
+    from collections import defaultdict
 
-    # TODO: Add nice name conversion from field names
+    errors = defaultdict(list)
+
     for field, value in values.items():
         if field in checks:
-            # TODO: Allow list of checks for one field
             check = checks[field]
-            if not check.run(value):
-                errors[field] = check.message or "Invalid value"
+
+            if not isinstance(check, list):
+                check = [check]
+
+            for c in check:
+                if not c.run(value):
+                    errors[field].append(c.message or "Invalid value")
 
     return Validation(
         ok=len(errors.keys()) == 0,
-        response=errors or {"success": True},
+        errors=dict(errors),
+        success={"success": True},
     )

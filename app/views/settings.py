@@ -40,7 +40,7 @@ def general_settings():
                     ),
                 },
             )
-            return validation.response
+            return validation.errors or validation.success
 
         settings.update(**request.form)
         flash("Settings saved", "success")

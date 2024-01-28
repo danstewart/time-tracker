@@ -26,10 +26,13 @@ function attachValidation(formEl) {
             formEl.submit();
         } else {
             // Show errors
-            for (const [field, message] of Object.entries(validation)) {
+            for (const [field, messages] of Object.entries(validation)) {
                 const fieldEl = document.getElementById(field);
                 fieldEl.classList.add("is-invalid");
-                fieldEl.insertAdjacentHTML("afterend", "<div class='invalid-feedback'>" + message + "</div>");
+
+                for (const message of messages) {
+                    fieldEl.insertAdjacentHTML("afterend", "<div class='invalid-feedback'>" + message + "</div>");
+                }
             }
         }
     });
