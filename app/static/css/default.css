@@ -17,6 +17,12 @@
     z-index: 99;
 }
 
+#breadcrumbs {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
 /*
 Show menu to the left of the toggle
 This stops the menu going off screen on smaller screens

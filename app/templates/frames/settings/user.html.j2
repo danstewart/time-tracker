@@ -1,23 +1,33 @@
-<div class="d-flex justify-content-between">
-    {% set bc_teams = "<a href='/settings/teams'>Teams</a>" %}
-    {% set bc_team = "<a href='/settings/teams/{}'>{}</a>".format(team, team) %}
+<div id="breadcrumbs">
+    {% set teams_url = "<a href='/settings/teams'>Teams</a>" %}
+    {% set team_url = "<a href='/settings/teams/{}'>{}</a>".format(team, team) %}
 
-    <h3>{{ bc_teams }} / {{ bc_team }} / {{ user }}</h3>
+    <h3>{{ teams_url }} / {{ team_url }} / {{ user }}</h3>
 
     <div>
         <button class="btn btn-danger">Remove User</button>
     </div>
 </div>
 
-<form>
-    <div class="mb-2">
-        <label class="form-label">Annual Leave Entitlement</label>
-        <input class="form-control"
-            type="text"
-            name="leaveEntitelement"
-            id="leaveEntitlement"
-            value="25"
-            required/>
+<form method="post" action="{{ request.url }}">
+    <div class="mb-3">
+        <div class="mb-2">
+            <label class="form-label">Role</label>
+            <select class="form-select">
+                <option value="standard">Standard</option>
+                <option value="approver">Approver</option>
+            </select>
+        </div>
+
+        <div class="mb-2">
+            <label class="form-label">Annual Leave Entitlement</label>
+            <input class="form-control"
+                type="text"
+                name="leaveEntitelement"
+                id="leaveEntitlement"
+                value="25"
+                required/>
+        </div>
     </div>
 
     <button class="btn btn-primary">Save</button>
