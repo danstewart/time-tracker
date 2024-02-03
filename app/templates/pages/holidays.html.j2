@@ -13,8 +13,10 @@ The settings pages extend this and specify their content in a `content` block
                 <nav class="nav nav-pills flex-lg-column">
                     <a class="nav-link{% if page == 'upcoming' %} active{% endif %}"
                         aria-current="page"
+                        data-active-for="upcoming"
                         href="/holidays/upcoming">Upcoming</a>
                     <a class="nav-link{% if page == 'history' %} active{% endif %}"
+                        data-active-for="history"
                         href="/holidays/history">History</a>
                 </nav>
             </dynamic-frame-router>

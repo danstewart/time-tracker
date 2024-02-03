@@ -15,17 +15,21 @@ The settings pages extend this and specify their content in a `content` block
                 <nav class="nav nav-pills flex-lg-column">
                     <a class="nav-link{% if page == 'general' %} active{% endif %}"
                         aria-current="page"
+                        data-active-for="general"
                         href="/settings/general">General</a>
                     <a class="nav-link{% if page == 'account' %} active{% endif %}"
+                        data-active-for="account"
                         href="/settings/account">Account</a>
 
                     {% if is_admin %}
                         <a class="nav-link{% if page == 'admin' %} active{% endif %}"
+                            data-active-for="admin"
                             href="/settings/admin">Admin</a>
                     {% endif %}
 
                     {# TODO: Only show if on team plan #}
                     <a class="nav-link{% if page in ('teams', 'team', 'user', 'add_team', 'invite_user') %} active{% endif %}"
+                        data-active-for="teams,team,user,add_team,invite_user"
                         href="/settings/teams">Teams</a>
                 </nav>
             </dynamic-frame-router>
