@@ -515,6 +515,8 @@ class DynamicFrameRouter extends Controller {
             return;
         }
 
+        this.setActiveTab();
+
         // Handle clicks
         this.addEventListener("click", e => {
             let target = e.target || e.srcElement;
@@ -553,6 +555,12 @@ class DynamicFrameRouter extends Controller {
             await this.target.loadUrl(href);
         }
 
+        this.setActiveTab();
+
+        if (addToHistory) window.history.pushState({}, "", href);
+    }
+
+    setActiveTab() {
         // Update the active anchor
         const meta = this.target.querySelector("frame-meta");
         if (meta) {
@@ -567,8 +575,6 @@ class DynamicFrameRouter extends Controller {
                 }
             });
         }
-
-        if (addToHistory) window.history.pushState({}, "", href);
     }
 }
 
