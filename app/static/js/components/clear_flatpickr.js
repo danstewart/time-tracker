@@ -1,4 +1,4 @@
-import { Controller, html, css } from "/static/js/vendor/binder/binder.js";
+import { Controller, css, html } from "/static/js/vendor/binder/binder.js";
 
 /**
  * A button designed to be combined with a flatpickr input to clear the value
@@ -19,6 +19,7 @@ class ClearFlatpickr extends Controller {
         this.querySelector("button").style.cssText = css`
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
+            border: var(--bs-border-width) solid var(--bs-border-color);
         `;
 
         this.bind();

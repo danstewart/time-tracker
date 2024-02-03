@@ -123,6 +123,16 @@ class Break(BaseModel):
     end: Mapped[Optional[UnixTimestamp]] = mapped_column(db.Integer, nullable=True)
     note: Mapped[Optional[str]] = mapped_column(db.String(255), nullable=True)
 
+    @property
+    def duration(self) -> str:
+        if self.end:
+            diff = arrow.get(self.end) - arrow.get(self.start)
+        else:
+            diff = arrow.now() - arrow.get(self.start)
+
+        minutes = int(int(diff.total_seconds()) / 60)
+        return f"{minutes} minutes" if minutes != 1 else "1 minute"
+
 
 class Leave(BaseModel):
     leave_type: Mapped[str] = mapped_column(db.String(255), nullable=False)  # sick / annual

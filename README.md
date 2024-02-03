@@ -24,7 +24,7 @@ docker compose -f docker-compose.yml up -d --build
 
 #### Install dependencies locally
 
-Requires python 3.10
+Requires python 3.12
 
 ```bash
 # Install JS linter
@@ -54,6 +54,15 @@ pipenv shell
 ```bash
 docker exec -it log-my-time flask db migrate -m "Description of change"
 docker exec -it log-my-time flask db upgrade
+```
+
+#### Bootstrap
+
+```bash
+# Bootstrap overrides can be found in bootstrap/custom.scss
+# The build.sh command compiles this to app/static/css/bootstrap.css
+cd bootstrap
+./build.sh
 ```
 
 ---

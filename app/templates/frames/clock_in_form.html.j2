@@ -31,10 +31,10 @@
                             value="in"
                             type="submit">Clock In</button>
                 {% endif %}
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
             </div>
         </div>
     </div>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 </form>
 <script>
     (function() {

@@ -177,15 +177,18 @@
     #showAnnualLeaveForm {
         border-top-left-radius: 0px !important;
         border-bottom-left-radius: 0px !important;
+        border-top-right-radius: 0px !important;
+        border-bottom-right-radius: 0px !important;
     }
 
-    /* Some hacks to make the accordions look the way I want... */
-    .accordion-button {
-        border-bottom: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color);
+    #showSickLeaveForm {
+        border-top-left-radius: 0px !important;
+        border-bottom-left-radius: 0px !important;
     }
 
-    .accordion-item {
-        border-bottom: 0px;
+    #accordion-add-body, #accordion-annual-leave-body, #accordion-sick-leave-body {
+        border-top: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color);
+        border-bottom: 0px !important;
     }
 
     .accordion-button:not(.collapsed) {

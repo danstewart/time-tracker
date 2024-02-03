@@ -19,8 +19,10 @@ The settings pages extend this and specify their content in a `content` block
                     <a class="nav-link{% if page == 'account' %} active{% endif %}"
                         href="/settings/account">Account</a>
 
-                    <a class="nav-link{% if page == 'admin' %} active{% endif %}"
-                        href="/settings/admin">Admin</a>
+                    {% if is_admin %}
+                        <a class="nav-link{% if page == 'admin' %} active{% endif %}"
+                            href="/settings/admin">Admin</a>
+                    {% endif %}
 
                     {# TODO: Only show if on team plan #}
                     <a class="nav-link{% if page in ('teams', 'team', 'user', 'add_team', 'invite_user') %} active{% endif %}"

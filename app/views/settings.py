@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from flask import Blueprint, request
 
 from app.controllers import settings
@@ -16,6 +18,24 @@ logger = get_logger(__name__)
 def general_settings():
     if request.form:
         from flask import flash, redirect
+
+        if request.form.get("validate"):
+            from app.lib import validate as v
+
+            validation = v.validate_form(
+                values=dict(request.form),
+                checks={
+                    # TODO: Run this through arrow or pytz to validate
+                    "timezone": v.Check(regex=r"\w+\/\w+"),
+                    "holiday_location": v.Check(options=["GB/ENG", "GB/NIR", "GB/WLS", "GB/SCT"]),
+                    "week_start": v.Check(options=["0", "1", "2", "3", "4", "5", "6"]),
+                    "hours_per_day": v.Check(
+                        func=lambda x: Decimal(x) > 0,
+                        message="Must be a positive number",
+                    ),
+                },
+            )
+            return validation.errors or validation.success
 
         settings.update(**request.form)
         flash("Settings saved", "success")
