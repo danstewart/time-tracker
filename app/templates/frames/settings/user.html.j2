@@ -11,15 +11,17 @@
 
 <form method="post" action="{{ request.url }}">
     <div class="mb-3">
-        <div class="mb-2">
-            <label class="form-label">Role</label>
+        <div class="mb-3">
+            <label class="form-label">Roles</label>
             <select class="form-select">
                 <option value="standard">Standard</option>
                 <option value="approver">Approver</option>
+                <option value="admin">Admin</option>
             </select>
+            <div class="form-text">Approvers can approve leave requests. Admins can also manage the team settings.</div>
         </div>
 
-        <div class="mb-2">
+        <div class="mb-3">
             <label class="form-label">Annual Leave Entitlement</label>
             <input class="form-control"
                 type="text"
@@ -27,6 +29,7 @@
                 id="leaveEntitlement"
                 value="25"
                 required/>
+            <div class="form-text">Total days of annual leave entitlement per year.</div>
         </div>
     </div>
 
