@@ -30,6 +30,38 @@
             import { autoAttachValidation } from "/static/js/form.js";
             window.addEventListener("DOMContentLoaded", () => autoAttachValidation());
         </script>
+
+        <!-- Sentry -->
+        <script
+            src="https://js.sentry-cdn.com/788bef00fbdb1d6e0a77b1615737be54.min.js"
+            crossorigin="anonymous"
+        ></script>
+        <script>
+            Sentry.onLoad(function() {
+                window.replay = Sentry.replayIntegration({
+                    maskAllText: false,
+                    blockAllMedia: false,
+                });
+
+                Sentry.init({
+                    // TODO: Set right env
+                    environment: "local",
+
+                    integrations: [
+                        window.replay,
+                        Sentry.browserTracingIntegration(),
+                    ],
+
+                    // Tracing
+                    tracesSampleRate: 1.0,
+                    tracePropagationTargets: ["localhost", /^https:\/\/logmytime\.app/],
+
+                    // Replay
+                    replaysSessionSampleRate: 1.0,
+                    replaysOnErrorSampleRate: 1.0,
+                });
+            });
+        </script>
     </head>
 
     <body style="padding-bottom: 500px;">

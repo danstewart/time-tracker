@@ -12,6 +12,7 @@ services:
             FLASK_APP: ${FLASK_APP:-app}
             FLASK_DEBUG: ${FLASK_DEBUG:-1}
             LOG_LEVEL: ${LOG_LEVEL:-warning}
+            ENVIRONMENT: ${ENVIRONMENT:-local}
         volumes:
             - "./app:/home/app/log-my-time/app"
             - "./db:/home/app/log-my-time/db"

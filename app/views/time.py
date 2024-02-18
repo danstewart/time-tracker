@@ -20,6 +20,7 @@ def add_time():
             case "manual":
                 time.create(start=values["start"], end=values["end"] if "end" in values else None, note=values["note"])
             case "in":
+                1/0
                 time.create(start=values["time"])
             case "out":
                 time.clock_out(end=values["time"])
@@ -52,8 +53,9 @@ def clock_in_form():
 @v.route("/frames/time_form/<row_id>", methods=["GET", "POST"])
 @login_required
 def time_form(row_id: str = ""):
-    from app.lib.util.ensure import ensure_list
     from datetime import datetime
+
+    from app.lib.util.ensure import ensure_list
 
     if request.method == "POST" and request.json:
         from collections import defaultdict

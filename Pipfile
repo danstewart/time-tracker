@@ -20,6 +20,7 @@ flask-migrate = "*"
 sqlalchemy = ">2,<3"
 flask-sqlalchemy = "*"
 holidays = "*"
+sentry-sdk = {extras = ["flask"], version = "*"}
 
 [dev-packages]
 pytest = "*"

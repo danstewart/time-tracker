@@ -1,0 +1,10 @@
+{% extends "layouts/wrapper.html.j2" %}
+{% block content %}
+    <div class="mt-5">
+        <div class="mb-5">
+            <h3>Unexpected Error</h3>
+            {% if error %}
+                <p>{{ error }}</p>
+            {% endif %}
+        </div>
+{% endblock content %}

@@ -1,6 +1,7 @@
 import os
 
-from flask import Flask
+import sentry_sdk
+from flask import Flask, render_template
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
@@ -19,6 +20,16 @@ def create_app(test_mode: bool = False):
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE="Lax",
     )
+
+    if os.getenv("TEST_MODE") != "yes" and app.config.get("SENTRY_DSN"):
+        # Initialise sentry.io - unless in test mode
+        sentry_sdk.init(
+            dsn=app.config["SENTRY_DSN"],
+            traces_sample_rate=1.0,
+            profiles_sample_rate=1.0,
+            enable_tracing=True,
+            environment=os.getenv("ENVIRONMENT", "unknown")
+        )
 
     # Initialise database
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////home/app/log-my-time/db/time.db"
@@ -81,5 +92,10 @@ def create_app(test_mode: bool = False):
                 globals["settings"] = fetch()
 
             return globals
+
+    @app.errorhandler(Exception)
+    def handle_error(e):
+        sentry_sdk.capture_exception(e)
+        return render_template("pages/error.html.j2", error=e), 500
 
     return app
