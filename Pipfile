@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [requires]
-python_version = "3.11"
+python_version = "3.12"
 
 [packages]
 arrow = "*"
@@ -21,6 +21,8 @@ sqlalchemy = ">2,<3"
 flask-sqlalchemy = "*"
 holidays = "*"
 sentry-sdk = {extras = ["flask"], version = "*"}
+highlight-io = {extras = ["flask"], version = "*"}
+flask-cors = "*"
 
 [dev-packages]
 pytest = "*"

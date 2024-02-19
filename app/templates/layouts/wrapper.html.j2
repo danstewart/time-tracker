@@ -31,37 +31,24 @@
             window.addEventListener("DOMContentLoaded", () => autoAttachValidation());
         </script>
 
-        <!-- Sentry -->
-        <script
-            src="https://js.sentry-cdn.com/788bef00fbdb1d6e0a77b1615737be54.min.js"
-            crossorigin="anonymous"
-        ></script>
-        <script>
-            Sentry.onLoad(function() {
-                window.replay = Sentry.replayIntegration({
-                    maskAllText: false,
-                    blockAllMedia: false,
+        {% if HIGHLIGHT_IO_PROJECT %}
+            <!-- highlight.io -->
+            <script src="https://unpkg.com/highlight.run"></script>
+            <script>
+                H.init("{{ HIGHLIGHT_IO_PROJECT }}", {
+                    environment: 'local',  // TODO
+                    version: 'commit:123',  // TODO
+                    tracingOrigins: ['localhost:5000', 'localhost:4000', 'logmytime.app'],
+                    networkRecording: {
+                        enabled: true,
+                        recordHeadersAndBody: true,
+                        urlBlocklist: [],
+                    },
                 });
 
-                Sentry.init({
-                    // TODO: Set right env
-                    environment: "local",
-
-                    integrations: [
-                        window.replay,
-                        Sentry.browserTracingIntegration(),
-                    ],
-
-                    // Tracing
-                    tracesSampleRate: 1.0,
-                    tracePropagationTargets: ["localhost", /^https:\/\/logmytime\.app/],
-
-                    // Replay
-                    replaysSessionSampleRate: 1.0,
-                    replaysOnErrorSampleRate: 1.0,
-                });
-            });
-        </script>
+                H.identify("logmytime@mail.danstewart.dev");
+            </script>
+        {% endif %}
     </head>
 
     <body style="padding-bottom: 500px;">

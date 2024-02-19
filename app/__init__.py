@@ -1,14 +1,20 @@
 import os
 
-import sentry_sdk
+import highlight_io
 from flask import Flask, render_template
+from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from highlight_io.integrations.flask import FlaskIntegration
 
 from app.lib.util.lenient import lenient_wrap
 
 db = SQLAlchemy()
 migrate = Migrate()
+cors = CORS(
+    expose_headers=["X-Highlight-Request"],
+    allow_headers=["X-Highlight-Request"],
+)
 
 
 def create_app(test_mode: bool = False):
@@ -21,22 +27,13 @@ def create_app(test_mode: bool = False):
         SESSION_COOKIE_SAMESITE="Lax",
     )
 
-    if os.getenv("TEST_MODE") != "yes" and app.config.get("SENTRY_DSN"):
-        # Initialise sentry.io - unless in test mode
-        sentry_sdk.init(
-            dsn=app.config["SENTRY_DSN"],
-            traces_sample_rate=1.0,
-            profiles_sample_rate=1.0,
-            enable_tracing=True,
-            environment=os.getenv("ENVIRONMENT", "unknown")
-        )
-
     # Initialise database
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////home/app/log-my-time/db/time.db"
 
     if test_mode or os.getenv("TEST_MODE") == "yes":
         app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////home/app/log-my-time/db/time.test.db"
 
+    cors.init_app(app)
     db.init_app(app)
     db.metadata.naming_convention = {
         "ix": "ix_%(table_name)s_%(column_0_N_label)s",
@@ -86,6 +83,7 @@ def create_app(test_mode: bool = False):
                 "host": app.config["HOST"],
                 "csrf_token": get_csrf_token,
                 "FLASK_DEBUG": os.getenv("FLASK_DEBUG") == "1",
+                "HIGHLIGHT_IO_PROJECT": app.config.get("HIGHLIGHT_IO_PROJECT"),
             }
 
             if globals["is_logged_in"]:
@@ -93,9 +91,20 @@ def create_app(test_mode: bool = False):
 
             return globals
 
+        if os.getenv("TEST_MODE") != "yes" and app.config.get("HIGHLIGHT_IO_PROJECT"):
+            # Initialise highlight.io - unless in test mode
+            H = highlight_io.H(
+                app.config["HIGHLIGHT_IO_PROJECT"],
+                integrations=[FlaskIntegration()],
+                instrument_logging=True,
+                service_name="LogMyTime",
+                service_version="commit:123",
+                environment="local",
+            )
+
     @app.errorhandler(Exception)
-    def handle_error(e):
-        sentry_sdk.capture_exception(e)
-        return render_template("pages/error.html.j2", error=e), 500
+    def handle_error(exc):
+        highlight_io.H.get_instance().record_exception(exc)
+        return render_template("pages/error.html.j2", error=exc), 503
 
     return app
