@@ -1,6 +1,8 @@
 import os
 
-from flask import Flask
+import rollbar
+import rollbar.contrib.flask
+from flask import Flask, got_request_exception
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
@@ -75,11 +77,27 @@ def create_app(test_mode: bool = False):
                 "host": app.config["HOST"],
                 "csrf_token": get_csrf_token,
                 "FLASK_DEBUG": os.getenv("FLASK_DEBUG") == "1",
+                "ROLLBAR_CLIENT_TOKEN": app.config.get("ROLLBAR_CLIENT_TOKEN"),
+                "ENVIRONMENT": os.getenv("ENVIRONMENT", "local"),
             }
 
             if globals["is_logged_in"]:
                 globals["settings"] = fetch()
 
             return globals
+
+        @app.before_request
+        def init_rollbar():
+            if not app.config.get("ROLLBAR_SERVER_TOKEN"):
+                return
+
+            rollbar.init(
+                app.config["ROLLBAR_SERVER_TOKEN"],
+                os.getenv("ENVIRONMENT", "local"),
+                root=os.path.dirname(os.path.realpath(__file__)),
+                allow_logging_basic_config=False,
+            )
+
+            got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
 
     return app
