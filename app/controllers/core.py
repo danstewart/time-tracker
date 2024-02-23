@@ -16,10 +16,16 @@ def _get_first_record_time() -> int | None:
     first_time = db.session.scalars(db.select(Time).filter(Time.user == get_user()).order_by(Time.start)).first()
     first_leave = db.session.scalars(db.select(Leave).filter(Leave.user == get_user()).order_by(Leave.start)).first()
 
-    if not first_time and not first_leave:
+    to_check = []
+    if first_time:
+        to_check.append(first_time.start)
+    if first_leave:
+        to_check.append(first_leave.start)
+
+    if not to_check:
         return None
 
-    return min(map(lambda row: row.start, filter(lambda row: row is not None, [first_time, first_leave])))
+    return min(to_check)
 
 
 def stats() -> TimeStats:
@@ -82,32 +88,12 @@ def stats() -> TimeStats:
             days_worked=_settings.work_days,
         )
 
+        # First take off the time we _should_ have worked
         overtime = -(expected_hours * 60 * 60)  # Convert to seconds
 
-        # Now get the total logged up to today
-        total_logged = 0
-
-        total_logged += sum(
-            [
-                rec.logged()
-                for rec in db.session.scalars(
-                    db.select(Time).filter(Time.user == get_user(), Time.start < now.timestamp())
-                ).all()
-            ]
-        )
-
-        # And the total leave entries
-        total_logged += sum(
-            [
-                rec.logged()
-                for rec in db.session.scalars(
-                    db.select(Leave).filter(Leave.user == get_user(), Leave.start < now.timestamp())
-                ).all()
-            ]
-        )
-
-        if total_logged:
-            overtime += total_logged
+        # Now add on what we have worked/taken as leave
+        overtime += sum([rec.logged() for rec in Time.since(0)])
+        overtime += sum([rec.logged() for rec in Leave.since(0)])
 
     return TimeStats(
         logged_this_week=humanize_seconds(logged_this_week, short=True),
