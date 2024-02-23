@@ -32,17 +32,18 @@ def stats() -> TimeStats:
     now = arrow.now(tz=_tz)
     today = now.replace(hour=0, minute=0, second=0)
 
+    # Set the start point to the first working day of the current week
     if now.weekday() != _settings.week_start_0:
-        start = today.shift(weekday=_settings.week_start_0).shift(days=-7)
+        week_start = today.shift(weekday=_settings.week_start_0).shift(days=-7)
     else:
-        start = today
+        week_start = today
 
     # Time logged
-    logged_today = sum([rec.logged() for rec in Time.since(today.int_timestamp)])
-    leave_today = sum([rec.logged() for rec in Leave.since(today.int_timestamp)])
+    entries_today = [*Time.since(today.int_timestamp), *Leave.since(today.int_timestamp)]
+    logged_today = sum([rec.logged() for rec in entries_today])
 
-    logged_this_week = sum([rec.logged() for rec in Time.since(start.int_timestamp)])
-    leave_this_week = sum([rec.logged() for rec in Leave.since(start.int_timestamp)])
+    entries_this_week = [*Time.since(week_start.int_timestamp), *Leave.since(week_start.int_timestamp)]
+    logged_this_week = sum([rec.logged() for rec in entries_this_week])
 
     # Time to do
     current_day = now.format("dddd")
@@ -53,8 +54,8 @@ def stats() -> TimeStats:
     todo_this_week = (_settings.hours_per_day * 60 * 60) * total_work_days
 
     # Time remaining
-    remaining_today = todo_today - (logged_today + leave_today)
-    remaining_this_week = todo_this_week - (logged_this_week + leave_this_week)
+    remaining_today = todo_today - logged_today
+    remaining_this_week = todo_this_week - logged_this_week
 
     # You can't have negative time remaining
     # Any extra time is displayed as overtime
@@ -65,7 +66,9 @@ def stats() -> TimeStats:
         remaining_this_week = 0
 
     # Overtime (all time)
-    # This is a little inefficient as it must go through all records
+    # TODO: This is a little inefficient as it must go through all records from the beginning
+    # It would probably be better to save the overtime each week in a background task
+    # Though this is nice and simple
     overtime = 0
 
     if first_time := _get_first_record_time():
@@ -93,6 +96,7 @@ def stats() -> TimeStats:
             ]
         )
 
+        # And the total leave entries
         total_logged += sum(
             [
                 rec.logged()
