@@ -4,6 +4,9 @@ config/app_config.py
 # Database
 db/
 
+# Other
+.DS_Store/
+
 # Debug data
 debug/
 !debug/.keep

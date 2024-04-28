@@ -30,6 +30,5 @@ pytest-playwright = "*"
 coverage = "*"
 
 [local-packages]
-black = "*"
 djlint = "*"
 ruff = "*"

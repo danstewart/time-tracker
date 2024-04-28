@@ -19,15 +19,12 @@ indent_empty_lines = false
 wrap_line_length = 120
 brace_style = "preserve-inline"
 
-[tool.black]
-line-length = 120
-
 [tool.ruff]
 line-length = 120
 ignore = [
     "E711", # Interferes with SQLAlchemy conditions
     "E712", # Interferes with SQLAlchemy conditions
-    "E501", # Black handles line length, this rule just gets angry at long strings
+    "E501", # Ruff handles line length, this rule just gets angry at long strings
 ]
 
 [tool.pyright]

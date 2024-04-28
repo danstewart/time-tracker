@@ -56,12 +56,12 @@ docker exec -it log-my-time flask db migrate -m "Description of change"
 docker exec -it log-my-time flask db upgrade
 ```
 
-#### Bootstrap
+#### Custom Bootstrap CSS
 
 ```bash
-# Bootstrap overrides can be found in bootstrap/custom.scss
+# Bootstrap overrides can be found in scss/custom.scss
 # The build.sh command compiles this to app/static/css/bootstrap.css
-cd bootstrap
+cd scss
 ./build.sh
 ```
 
