@@ -125,7 +125,7 @@ def week_list() -> list[str]:
 
     # Go through each week since the first time record until now
     weeks = []
-    while first.shift(weeks=1) < now:
+    while first <= now:
         weeks.append("{}-W{:02d}".format(first.year, first.week))
         first = first.shift(weeks=1)
 
