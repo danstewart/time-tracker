@@ -32,7 +32,7 @@
                             {% elif loop.index == 2 %}
                                 Last Week
                             {% else %}
-                                {{ loop.index }} weeks ago
+                                {{ loop.index - 1 }} weeks ago
                             {% endif %}
                         </option>
                     {% endfor %}
