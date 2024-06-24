@@ -25,12 +25,11 @@
                     <i class="bi bi-arrow-left"></i>
                 </button>
                 <select class="form-select">
-                    <option value="">
-                        This Week
-                    </option>
                     {% for week in week_list %}
                         <option value="{{ week }}">
                             {% if loop.index == 1 %}
+                                This Week
+                            {% elif loop.index == 2 %}
                                 Last Week
                             {% else %}
                                 {{ loop.index }} weeks ago
