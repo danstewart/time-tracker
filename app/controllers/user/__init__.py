@@ -1,3 +1,4 @@
+import sqlalchemy as sa
 from flask import current_app as app
 from flask import render_template
 
@@ -17,7 +18,7 @@ def register(email: str, password: str) -> User:
     Registers and returns a new user
     If the email is already in use, a UserAlreadyExistsError is raised
     """
-    user = db.session.execute(db.select(User).filter_by(email=email)).one_or_none()
+    user = db.session.execute(sa.select(User).filter_by(email=email)).one_or_none()
 
     # If a user already exists with this email then send them a password reset link instead
     if user:
@@ -74,7 +75,7 @@ def login(email: str, password: str) -> LoginSession:
 
     from app.lib.util.security import generate_csrf_token
 
-    user = db.session.scalars(db.select(User).filter_by(email=email)).one_or_none()
+    user = db.session.scalars(sa.select(User).filter_by(email=email)).one_or_none()
 
     if not user:
         raise UserAuthFailed("User not found")
@@ -93,7 +94,7 @@ def login(email: str, password: str) -> LoginSession:
     session = LoginSession(
         key=secrets.token_hex(),
         expires=arrow.utcnow().shift(hours=7 * 24).int_timestamp,
-        user=user,
+        user_id=user.id,
     )
     db.session.add(session)
     db.session.commit()
@@ -104,7 +105,7 @@ def logout():
     from flask import session as flask_session
 
     if login_session_key := flask_session.get("login_session_key"):
-        if login_session := db.session.scalars(db.select(LoginSession).filter_by(key=login_session_key)).first():
+        if login_session := db.session.scalars(sa.select(LoginSession).filter_by(key=login_session_key)).first():
             db.session.delete(login_session)
             db.session.commit()
         flask_session.pop("login_session_key")
@@ -114,7 +115,7 @@ def send_password_reset(email: str):
     """
     If an email exists in the system then send a password reset email
     """
-    if user := db.session.scalars(db.select(User).filter_by(email=email)).one_or_none():
+    if user := db.session.scalars(sa.select(User).filter_by(email=email)).one_or_none():
         reset_token = create_token(
             {
                 "type": "password-reset",
@@ -139,7 +140,7 @@ def update_email(user: User, new_email: str):
     """
 
     # If an account already exists for this email then send a different email advising the user to use the existing account
-    if existing_user := db.session.scalars(db.select(User).where(User.email == new_email)).first():
+    if existing_user := db.session.scalars(sa.select(User).where(User.email == new_email)).first():
         reset_token = create_token(
             {
                 "type": "password-reset",
@@ -182,7 +183,7 @@ def delete_account(user: User):
     from app.models import User
 
     # We have cascading deletes :)
-    user = db.session.scalars(db.select(User).where(User.id == user.id)).first()
+    user = db.session.scalars(sa.select(User).where(User.id == user.id)).one()
     db.session.delete(user)
     db.session.commit()
 

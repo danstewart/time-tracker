@@ -7,7 +7,7 @@ from app.controllers import settings
 def get_holiday_location() -> tuple[str, str]:
     _settings = settings.fetch()
     if location := _settings.holiday_location:
-        return tuple(location.split("/", 2))
+        return tuple(location.split("/", 2))  # type: ignore
     raise ValueError("No `holiday_location` configured")
 
 

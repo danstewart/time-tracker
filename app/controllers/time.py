@@ -1,6 +1,7 @@
-from typing import Optional
+from typing import Optional, Sequence
 
 import arrow
+import sqlalchemy as sa
 from flask import abort
 
 from app import db
@@ -13,21 +14,22 @@ logger = get_logger(__name__)
 
 
 def get(row_id: str) -> Time:
-    t = db.session.scalars(db.select(Time).filter(Time.id == row_id, Time.user == get_user())).first()
+    t = db.session.scalars(sa.select(Time).filter(Time.id == row_id, Time.user == get_user())).first()
     if not t:
         abort(403)
     return t
 
 
-def all() -> list[Time]:
+def all() -> Sequence[Time]:
     """Return all time records sorted by start date"""
-    return (
-        Time.query.filter(
+
+    return db.session.scalars(
+        sa.select(Time)
+        .filter(
             Time.user == get_user(),
         )
         .order_by(Time.start.desc(), Time.id.desc())
-        .all()
-    )
+    ).all()
 
 
 def current() -> Optional[Time]:
@@ -35,7 +37,7 @@ def current() -> Optional[Time]:
     Return the current clocked in time record (if there is one)
     """
     return db.session.scalars(
-        db.select(Time)
+        sa.select(Time)
         .filter(
             Time.user == get_user(),
             Time.end == None,
@@ -49,7 +51,7 @@ def current_break() -> Optional[Break]:
     Return the current clocked in break record (if there is one)
     """
     return db.session.scalars(
-        db.select(Break)
+        sa.select(Break)
         .filter(
             Break.time.has(user=get_user()),
             Break.end == None,
@@ -58,7 +60,7 @@ def current_break() -> Optional[Break]:
     ).first()
 
 
-def all_for_week(week: Optional[str] = None) -> list[Time]:
+def all_for_week(week: Optional[str] = None) -> Sequence[Time]:
     """
     Return all time records sorted by start date for the given week
 
@@ -90,15 +92,15 @@ def all_for_week(week: Optional[str] = None) -> list[Time]:
             week_start = week_start.shift(weeks=-1)
 
     week_end = week_start.shift(days=7)
-    return (
-        Time.query.filter(
+    return db.session.scalars(
+        sa.select(Time)
+        .filter(
             Time.user == get_user(),
             Time.start >= week_start.int_timestamp,
             Time.start < week_end.int_timestamp,
         )
         .order_by(Time.start.desc(), Time.id.desc())
-        .all()
-    )
+    ).all()
 
 
 def create(start: str, end: Optional[str] = None, note: str = "") -> Time:
@@ -134,7 +136,7 @@ def update(row_id: str, start: str, end: Optional[str] = None, note: str = "") -
     if end:
         end_dt = arrow.get(end, tzinfo=_tz).int_timestamp
 
-    t = db.session.scalars(db.select(Time).filter(Time.id == row_id, Time.user == get_user())).first()
+    t = db.session.scalars(sa.select(Time).filter(Time.id == row_id, Time.user == get_user())).first()
     if not t:
         abort(403)
 
@@ -151,7 +153,7 @@ def delete(row_id: int) -> bool:
     Deletes a time record by ID
     Returns True if deleted and False if not
     """
-    if record := db.session.scalars(db.select(Time).filter(Time.id == row_id, Time.user == get_user())).first():
+    if record := db.session.scalars(sa.select(Time).filter(Time.id == row_id, Time.user == get_user())).first():
         db.session.delete(record)
         db.session.commit()
         return True
@@ -166,7 +168,7 @@ def clock_out(end: str):
     end_dt = arrow.get(end, tzinfo=_tz)
 
     current_record = db.session.scalars(
-        db.select(Time)
+        sa.select(Time)
         .filter(
             Time.user == get_user(),
             Time.end == None,
@@ -176,7 +178,8 @@ def clock_out(end: str):
 
     if current_record:
         current_record.end = end_dt.int_timestamp
-        current_record.logged = end_dt.int_timestamp - current_record.start
+        # TODO: Is this needed?
+        # current_record.logged = end_dt.int_timestamp - current_record.start
         db.session.commit()
 
 
@@ -188,7 +191,7 @@ def break_start(start: str):
     start_dt = arrow.get(start, tzinfo=_tz)
 
     current_record = db.session.scalars(
-        db.select(Time)
+        sa.select(Time)
         .filter(
             Time.user == get_user(),
             Time.end == None,
@@ -217,7 +220,7 @@ def break_end(end: str):
     end_dt = arrow.get(end, tzinfo=_tz)
 
     current_record = db.session.scalars(
-        db.select(Time)
+        sa.select(Time)
         .filter(
             Time.user == get_user(),
             Time.end == None,
@@ -229,7 +232,7 @@ def break_end(end: str):
         return
 
     current_break = db.session.scalars(
-        db.select(Break).filter(
+        sa.select(Break).filter(
             Break.time_id == current_record.id,
             Break.end == None,
         )
@@ -242,7 +245,7 @@ def break_end(end: str):
 
 
 def add_break(time_id: str, break_start: str, break_end: str | None):
-    time_record = db.session.scalars(db.select(Time).filter(Time.id == time_id, Time.user == get_user())).first()
+    time_record = db.session.scalars(sa.select(Time).filter(Time.id == time_id, Time.user == get_user())).first()
     if not time_record:
         abort(403)
 
@@ -276,7 +279,7 @@ def bulk_update(table, data: dict[int, dict]):
     model = Time if table == "time" else Break
 
     for row_id, values in data.items():
-        row = db.session.scalars(db.select(model).filter_by(id=row_id)).one()
+        row = db.session.scalars(sa.select(model).filter_by(id=row_id)).one()
         for key, value in values.items():
             # Convert string dates to int timestamps
             if key in ("start", "end") and value:
@@ -284,4 +287,3 @@ def bulk_update(table, data: dict[int, dict]):
             setattr(row, key, value if value else None)
 
     db.session.commit()
-

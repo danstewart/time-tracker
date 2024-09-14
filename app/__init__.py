@@ -3,13 +3,28 @@ import os
 import rollbar
 import rollbar.contrib.flask
 from flask import Flask, got_request_exception
-from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
+from flask_alembic import Alembic
+from flask_sqlalchemy_lite import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase
 
 from app.lib.util.lenient import lenient_wrap
 
+
+class Model(DeclarativeBase):
+    pass
+
+
+Model.metadata.naming_convention = {
+    "ix": "ix_%(table_name)s_%(column_0_N_label)s",
+    "uq": "uc_%(table_name)s_%(column_0_N_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s",
+}
+
+
 db = SQLAlchemy()
-migrate = Migrate()
+alembic = Alembic(metadatas=Model.metadata)
 
 
 def create_app(test_mode: bool = False):
@@ -23,20 +38,13 @@ def create_app(test_mode: bool = False):
     )
 
     # Initialise database
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////home/app/log-my-time/db/time.db"
+    app.config["SQLALCHEMY_ENGINES"] = {"default": "sqlite:////home/app/log-my-time/db/time.db"}
 
     if test_mode or os.getenv("TEST_MODE") == "yes":
-        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////home/app/log-my-time/db/time.test.db"
+        app.config["SQLALCHEMY_ENGINES"] = {"default": "sqlite:////home/app/log-my-time/db/time.test.db"}
 
     db.init_app(app)
-    db.metadata.naming_convention = {
-        "ix": "ix_%(table_name)s_%(column_0_N_label)s",
-        "uq": "uc_%(table_name)s_%(column_0_N_name)s",
-        "ck": "ck_%(table_name)s_%(constraint_name)s",
-        "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-        "pk": "pk_%(table_name)s",
-    }
-    migrate.init_app(app, db)
+    alembic.init_app(app)
 
     app.jinja_env.add_extension("jinja2.ext.do")
     app.jinja_env.add_extension("jinja2.ext.loopcontrols")
@@ -47,7 +55,7 @@ def create_app(test_mode: bool = False):
         from app.cli import data
         from app.controllers.user.util import get_user, is_admin, is_logged_in, unseen_whats_new
         from app.lib.util.security import enable_csrf_protection, get_csrf_token
-        from app.views import core, holidays, leave, settings, time, user
+        from app.views import callback, core, holidays, leave, settings, time, user
 
         enable_csrf_protection(app)
 
@@ -57,6 +65,7 @@ def create_app(test_mode: bool = False):
         app.register_blueprint(user.v)
         app.register_blueprint(core.v)
         app.register_blueprint(data.v)
+        app.register_blueprint(callback.v)
         app.register_blueprint(holidays.v)
 
         # Inject some values into ALL templates
@@ -92,6 +101,9 @@ def create_app(test_mode: bool = False):
         @app.before_request
         def init_rollbar():
             if not app.config.get("ROLLBAR_SERVER_TOKEN"):
+                return
+
+            if os.getenv("TEST_MODE") == "yes":
                 return
 
             rollbar.init(
