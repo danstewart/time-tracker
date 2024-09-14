@@ -21,7 +21,6 @@ sqlalchemy = ">2,<3"
 flask-sqlalchemy = "*"
 holidays = "*"
 rollbar = "*"
-posthog = "*"
 
 [dev-packages]
 pytest = "*"

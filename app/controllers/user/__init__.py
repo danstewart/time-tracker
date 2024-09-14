@@ -17,8 +17,6 @@ def register(email: str, password: str) -> User:
     Registers and returns a new user
     If the email is already in use, a UserAlreadyExistsError is raised
     """
-    from app.controllers.analytics import posthog
-
     user = db.session.execute(db.select(User).filter_by(email=email)).one_or_none()
 
     # If a user already exists with this email then send them a password reset link instead
@@ -43,14 +41,6 @@ def register(email: str, password: str) -> User:
     new_user = User(email=email).set_password(password)
     db.session.add(new_user)
     db.session.commit()
-
-    posthog.capture(
-        new_user.id,
-        "user-register",
-        properties={
-            "$set": {"email": email},
-        },
-    )
 
     verify_token = create_token(
         payload={
@@ -82,7 +72,6 @@ def login(email: str, password: str) -> LoginSession:
 
     import arrow
 
-    from app.controllers.analytics import posthog
     from app.lib.util.security import generate_csrf_token
 
     user = db.session.scalars(db.select(User).filter_by(email=email)).one_or_none()
@@ -101,13 +90,6 @@ def login(email: str, password: str) -> LoginSession:
     generate_csrf_token(user.id)
 
     # Log in
-    posthog.capture(
-        user.id,
-        "user-login",
-        properties={
-            "$set": {"email": email},
-        },
-    )
     session = LoginSession(
         key=secrets.token_hex(),
         expires=arrow.utcnow().shift(hours=7 * 24).int_timestamp,
