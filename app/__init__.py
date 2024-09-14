@@ -45,7 +45,7 @@ def create_app(test_mode: bool = False):
 
     with app.app_context():
         from app.cli import data
-        from app.controllers.user.util import is_admin, is_logged_in, unseen_whats_new
+        from app.controllers.user.util import get_user, is_admin, is_logged_in, unseen_whats_new
         from app.lib.util.security import enable_csrf_protection, get_csrf_token
         from app.views import core, holidays, leave, settings, time, user
 
@@ -83,6 +83,9 @@ def create_app(test_mode: bool = False):
 
             if globals["is_logged_in"]:
                 globals["settings"] = fetch()
+
+                u = get_user()
+                globals["user_id"] = u.id
 
             return globals
 
