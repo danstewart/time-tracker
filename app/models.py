@@ -72,6 +72,7 @@ class User(BaseModel):
     settings: Mapped["Settings"] = relationship(back_populates="user", cascade="all, delete-orphan", uselist=False)
     times: Mapped[list["Time"]] = relationship("Time", back_populates="user", cascade="all, delete-orphan")
     leaves: Mapped[list["Leave"]] = relationship("Leave", back_populates="user", cascade="all, delete-orphan")
+    slack_tokens: Mapped[list["UserToSlackToken"]] = relationship("UserToSlackToken", back_populates="user")
 
     def verify(self):
         """
@@ -105,6 +106,8 @@ class User(BaseModel):
 class UserToSlackToken(BaseModel):
     user_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey("user.id"), nullable=False)
     slack_token: Mapped[str] = mapped_column(sa.String(255), nullable=False)
+
+    user: Mapped[User] = relationship("User", viewonly=True, back_populates="slack_tokens")
 
 
 class LoginSession(BaseModel):

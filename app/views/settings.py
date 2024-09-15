@@ -103,7 +103,10 @@ def account_settings():
 def slack_settings():
     from flask import current_app as app
 
-    user_has_connected_slack_account = False  # TODO
+    from app.controllers.user.util import get_user
+
+    user = get_user()
+    user_has_connected_slack_account = len(user.slack_tokens) > 0
 
     if not user_has_connected_slack_account:
         import urllib.parse

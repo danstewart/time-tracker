@@ -29,6 +29,7 @@ def slack_oauth_callback():
             "client_id": app.config["SLACK_CLIENT_ID"],
             "client_secret": app.config["SLACK_CLIENT_SECRET"],
             "code": code,
+            "redirect_uri": "",  # TODO
         },
         headers={
             "Content-Type": "application/x-www-form-urlencoded",
