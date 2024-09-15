@@ -31,6 +31,7 @@ def start_server():
     print("Starting test server...")
     sys.stdout.flush()
 
+    # TODO: Need to write the server output to a file or something to make it easier to debug playwright test issues
     server = subprocess.Popen(server_command, stderr=subprocess.PIPE, env=env)
     for line in server.stderr:  # type: ignore
         if line.startswith(b" * Running on"):
@@ -46,10 +47,6 @@ def setup():
     # Run migrations
     print("Running migrations...")
     sys.stdout.flush()
-
-    # migrate_command = ["flask", "db", "upgrade"]
-    # migrate = subprocess.Popen(migrate_command, env=env)
-    # migrate.wait(timeout=30)
 
     # Seed test data
     print("Seeding test database...")
