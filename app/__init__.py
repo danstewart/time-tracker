@@ -41,6 +41,7 @@ def create_app(test_mode: bool = False):
     app.config["SQLALCHEMY_ENGINES"] = {"default": "sqlite:////home/app/log-my-time/db/time.db"}
 
     if test_mode or os.getenv("TEST_MODE") == "yes":
+        app.testing = True
         app.config["SQLALCHEMY_ENGINES"] = {"default": "sqlite:////home/app/log-my-time/db/time.test.db"}
 
     db.init_app(app)
@@ -103,7 +104,7 @@ def create_app(test_mode: bool = False):
             if not app.config.get("ROLLBAR_SERVER_TOKEN"):
                 return
 
-            if os.getenv("TEST_MODE") == "yes":
+            if app.testing:
                 return
 
             rollbar.init(

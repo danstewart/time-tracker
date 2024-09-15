@@ -47,9 +47,9 @@ def setup():
     print("Running migrations...")
     sys.stdout.flush()
 
-    migrate_command = ["flask", "db", "upgrade"]
-    migrate = subprocess.Popen(migrate_command, env=env)
-    migrate.wait(timeout=30)
+    # migrate_command = ["flask", "db", "upgrade"]
+    # migrate = subprocess.Popen(migrate_command, env=env)
+    # migrate.wait(timeout=30)
 
     # Seed test data
     print("Seeding test database...")

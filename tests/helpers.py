@@ -34,10 +34,9 @@ def execute_sql(statements: list[str]):
 
     app = create_app(test_mode=True)
 
+    # TODO: Fix this
     with app.app_context(), app.test_request_context():
-        conn = db.engine.connect()
-
-        for statement in statements:
-            conn.execute(text(statement))
-        conn.execute(text("COMMIT"))
-        conn.close()
+        with db.sessionmaker() as session:
+            for statement in statements:
+                session.execute(text(statement))
+            session.commit()
