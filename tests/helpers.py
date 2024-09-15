@@ -25,18 +25,14 @@ def open_menu_and_click(text: str, page: Page):
 
 def execute_sql(statements: list[str]):
     """
-    Execute a list of SQL statements
-    Useful for test set up and teardown
+    Helper for cleaning up after tests
+    Executes a list of SQL statements
     """
-    from sqlalchemy import text
+    import sqlalchemy as sa
 
-    from app import create_app, db
+    engine = sa.create_engine("sqlite:////home/app/log-my-time/db/time.test.db")
 
-    app = create_app(test_mode=True)
-
-    # TODO: Fix this
-    with app.app_context(), app.test_request_context():
-        with db.sessionmaker() as session:
-            for statement in statements:
-                session.execute(text(statement))
-            session.commit()
+    with engine.connect() as conn:
+        for statement in statements:
+            conn.execute(sa.text(statement))
+        conn.execute(sa.text("COMMIT"))
