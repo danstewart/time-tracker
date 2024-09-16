@@ -129,9 +129,7 @@ def slack_settings():
             flash("Your slack account has been disconnected", "success")
             return redirect("/settings/slack")
 
-        settings.update(**request.form)
-        flash("Settings saved", "success")
-        return redirect("/dash")
+        # TODO: Handle other actions
 
     return render("pages/settings.html.j2", page="slack_config")
 
