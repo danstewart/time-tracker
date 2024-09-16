@@ -2,7 +2,7 @@ from flask import Blueprint, flash, redirect, url_for
 
 from app.controllers import holidays, settings
 from app.controllers.user.util import login_required
-from app.lib.blocks import frame, render
+from app.lib.blocks import render
 from app.lib.logger import get_logger
 
 v = Blueprint("holidays", __name__)
@@ -12,7 +12,6 @@ logger = get_logger(__name__)
 @v.get("/holidays")
 @v.get("/holidays/upcoming")
 @login_required
-@frame
 def upcoming_holidays():
     _settings = settings.fetch()
 
@@ -29,7 +28,6 @@ def upcoming_holidays():
 
 @v.get("/holidays/history")
 @login_required
-@frame
 def previous_holidays():
     _settings = settings.fetch()
 

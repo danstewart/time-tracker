@@ -6,7 +6,6 @@ This module contains the logic needed to render blocks of a template and helpers
 ```python3
 from app.lib.blocks import render, frame
 
-@frame
 @v.get("/greeter")
 def some_route():
     return render("hello.html", name="Dan")
@@ -16,7 +15,6 @@ Calling `/greeter?block=greeting` will render only the `greeting` block within `
 """
 
 import typing
-from functools import wraps
 
 from blinker import Namespace
 from flask import current_app, render_template
@@ -76,29 +74,6 @@ def render_block(template_name: str, block_name: str, **replacers) -> str:
     return rendered
 
 
-def frame(f) -> typing.Any:
-    """
-    View decorator that adds support for rendering the route with a `?block` query string argument to render a single block.
-    Expects the wrapped function to return a `RenderIntent`.
-    """
-
-    @wraps(f)
-    def decorated(*args, **kwargs) -> str:
-        from flask import request
-
-        intent = f(*args, **kwargs)
-
-        if not isinstance(intent, RenderIntent):
-            return intent
-
-        if block := request.args.get("block"):
-            intent.block = block
-
-        return intent.execute()
-
-    return decorated
-
-
 class RenderIntent:
     """
     A RenderIntent is a simple object that contains the information needed to render a view.
@@ -116,10 +91,16 @@ class RenderIntent:
         return render_template(self.template, **self.replacers)
 
 
-def render(template: str, block: typing.Optional[str] = None, **replacers) -> RenderIntent:
+def render(template: str, block: typing.Optional[str] = None, **replacers) -> str:
     """
-    Drop in replacement for `flask.templating.render_template` but instead of rendering a template it returns a `RenderIntent`.
-    This is what is expcected by the `@frame` decorator.
+    Drop in replacement for `flask.templating.render_template` but supports returning a block within the template if the `?block=` querystring is passed.
     Your decorated view function should use `render()` instead of `render_template()`.
     """
-    return RenderIntent(template, block, **replacers)
+    from flask import request
+
+    intent = RenderIntent(template, block, **replacers)
+
+    if block := request.args.get("block"):
+        intent.block = block
+
+    return intent.execute()

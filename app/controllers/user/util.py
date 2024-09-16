@@ -1,3 +1,4 @@
+import typing
 from functools import wraps
 
 import sqlalchemy as sa
@@ -70,7 +71,7 @@ def unseen_whats_new() -> int:
     return False
 
 
-def login_required(f):
+def login_required(f) -> typing.Any:
     """
     View decorator that will ensures user is logged in
     If not they are redirected to the login form and a flash message is shown

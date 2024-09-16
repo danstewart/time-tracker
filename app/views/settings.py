@@ -5,7 +5,7 @@ from flask import Blueprint, request
 
 from app.controllers import settings
 from app.controllers.user.util import admin_only, login_required
-from app.lib.blocks import frame, render
+from app.lib.blocks import render
 from app.lib.logger import get_logger
 from app.models import UserToSlackToken
 
@@ -16,7 +16,6 @@ logger = get_logger(__name__)
 @v.route("/settings", methods=["GET", "POST"])
 @v.route("/settings/general", methods=["GET", "POST"])
 @login_required
-@frame
 def general_settings():
     if request.form:
         from flask import flash, redirect
@@ -48,7 +47,6 @@ def general_settings():
 
 @v.route("/settings/account", methods=["GET", "POST"])
 @login_required
-@frame
 def account_settings():
     from app.controllers.user import update_email
     from app.controllers.user.util import get_user
@@ -101,7 +99,6 @@ def account_settings():
 
 @v.route("/settings/slack", methods=["GET", "POST"])
 @login_required
-@frame
 def slack_settings():
     from flask import current_app as app
 
@@ -137,7 +134,6 @@ def slack_settings():
 @v.route("/settings/admin", methods=["GET", "POST"])
 @login_required
 @admin_only
-@frame
 def admin_settings():
     if request.form:
         from flask import flash, redirect
