@@ -5,7 +5,7 @@ import sqlalchemy as sa
 from flask import abort
 
 from app import db
-from app.controllers import settings
+from app.controllers import settings, slack
 from app.controllers.user.util import get_user
 from app.lib.logger import get_logger
 from app.models import Break, Time
@@ -210,6 +210,7 @@ def break_start(start: str):
     )
 
     db.session.commit()
+    slack.update_status(on_break=True)
 
 
 def break_end(end: str):
@@ -242,6 +243,7 @@ def break_end(end: str):
         brk.end = end_dt.int_timestamp
 
     db.session.commit()
+    slack.update_status(on_break=False)
 
 
 def add_break(time_id: str, break_start: str, break_end: str | None):

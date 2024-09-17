@@ -204,6 +204,7 @@ class Settings(BaseModel):
     work_days: Mapped[str] = mapped_column(
         sa.String(7), nullable=False
     )  # This is stored as a 7 char string, the day char if the day is a work day and a hyphen if not, eg: MTWTF--
+    auto_update_slack_status: Mapped[bool | None] = mapped_column(sa.Boolean, nullable=True, default=False)
 
     user_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey("user.id"), nullable=False)
 

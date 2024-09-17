@@ -13,6 +13,7 @@ def slack_oauth_callback():
     from flask import flash, redirect, request
 
     from app import db
+    from app.controllers import settings
     from app.controllers.user.util import get_user
     from app.models import UserToSlackToken
 
@@ -47,6 +48,7 @@ def slack_oauth_callback():
 
     access_token = parsed["authed_user"]["access_token"]
     db.session.add(UserToSlackToken(user_id=current_user.id, slack_token=access_token))
+    settings.update(auto_update_slack_status=True)
     db.session.commit()
 
     flash("Your slack account has been connected", "success")

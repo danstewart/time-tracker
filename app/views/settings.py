@@ -1,11 +1,13 @@
 from decimal import Decimal
 
+import sqlalchemy as sa
 from flask import Blueprint, request
 
 from app.controllers import settings
 from app.controllers.user.util import admin_only, login_required
 from app.lib.blocks import render
 from app.lib.logger import get_logger
+from app.models import UserToSlackToken
 
 v = Blueprint("settings", __name__)
 logger = get_logger(__name__)
@@ -100,6 +102,7 @@ def account_settings():
 def slack_settings():
     from flask import current_app as app
 
+    from app import db
     from app.controllers.user.util import get_user
 
     user = get_user()
@@ -117,13 +120,17 @@ def slack_settings():
 
         submit = request.form.get("submit", "save")
         if submit == "disconnect-slack":
-            # db.session.execute(sa.delete(UserToSlackToken).where(UserToSlackToken.user_id == user.id))
-            # db.session.commit()
+            db.session.execute(sa.delete(UserToSlackToken).where(UserToSlackToken.user_id == user.id))
+            db.session.commit()
 
             flash("Your slack account has been disconnected", "success")
             return redirect("/settings/slack")
 
-        # TODO: Handle other actions
+        settings.update(
+            auto_update_slack_status=request.form.get("auto_update_slack_status") == "1",
+        )
+        flash("Settings saved", "success")
+        return redirect("/dash")
 
     return render("pages/settings.html.j2", page="slack_config")
 

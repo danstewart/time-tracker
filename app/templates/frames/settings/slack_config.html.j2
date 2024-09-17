@@ -1,12 +1,11 @@
 {% import "macros/bootstrap.html.j2" as bs %}
 
-<p>Hello, Slack Config!</p>
+<h3>Slack Integration</h3>
 
 <form method="post" action="/settings/slack">
-    {# Checkbox to enable slack integration #}
     <div class="form-check">
-        <input class="form-check-input" type="checkbox" name="enabled" id="enabled" value="1" {{ "checked" if settings.slack_enabled }} />
-        <label class="form-check-label" for="enabled">Enable Slack integration</label>
+        <input class="form-check-input" type="checkbox" name="auto_update_slack_status" id="auto_update_slack_status" value="1" {{ "checked" if settings.auto_update_slack_status }} />
+        <label class="form-check-label" for="auto_update_slack_status">Auto update Slack status when starting and ending breaks</label>
     </div>
 
 
