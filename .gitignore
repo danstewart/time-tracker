@@ -5,7 +5,7 @@ config/app_config.py
 db/
 
 # Other
-.DS_Store/
+.DS_Store
 
 # Debug data
 debug/
