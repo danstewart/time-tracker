@@ -46,7 +46,11 @@ pipenv shell
 #### Running the tests
 
 ```bash
+# Run all tests
 ./tools/ctl test
+
+# Or a subset of tests
+./tools/ctl test tests/e2e/test_time.py tests/e2e/test_holidays.py
 ```
 
 #### Database migrations

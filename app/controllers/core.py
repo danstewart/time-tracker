@@ -1,6 +1,7 @@
 from typing import Optional
 
 import arrow
+import sqlalchemy as sa
 
 from app import db
 from app.controllers import settings
@@ -13,8 +14,8 @@ def _get_first_record_time() -> int | None:
     """
     Returns the timestamp of the first time or leave record
     """
-    first_time = db.session.scalars(db.select(Time).filter(Time.user == get_user()).order_by(Time.start)).first()
-    first_leave = db.session.scalars(db.select(Leave).filter(Leave.user == get_user()).order_by(Leave.start)).first()
+    first_time = db.session.scalars(sa.select(Time).filter(Time.user == get_user()).order_by(Time.start)).first()
+    first_leave = db.session.scalars(sa.select(Leave).filter(Leave.user == get_user()).order_by(Leave.start)).first()
 
     to_check = []
     if first_time:

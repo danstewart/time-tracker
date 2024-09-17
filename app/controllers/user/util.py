@@ -1,5 +1,7 @@
+import typing
 from functools import wraps
 
+import sqlalchemy as sa
 from flask import flash, redirect
 from flask import session as flask_session
 
@@ -15,7 +17,7 @@ def get_user() -> User:
     import arrow
 
     if login_session_key := flask_session.get("login_session_key"):
-        if login_session := db.session.scalars(db.select(LoginSession).filter_by(key=login_session_key)).first():
+        if login_session := db.session.scalars(sa.select(LoginSession).filter_by(key=login_session_key)).first():
             if login_session.expires < arrow.utcnow().int_timestamp:
                 flask_session.pop("login_session_key")
             else:
@@ -69,7 +71,7 @@ def unseen_whats_new() -> int:
     return False
 
 
-def login_required(f):
+def login_required(f) -> typing.Any:
     """
     View decorator that will ensures user is logged in
     If not they are redirected to the login form and a flash message is shown

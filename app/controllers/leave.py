@@ -1,6 +1,7 @@
-from typing import Optional
+from typing import Optional, Sequence
 
 import arrow
+import sqlalchemy as sa
 from flask import abort
 
 from app import db
@@ -10,7 +11,7 @@ from app.models import Leave
 
 
 def get(row_id: int) -> Leave:
-    return Leave.query.filter(Leave.id == row_id).one()
+    return db.session.scalars(sa.select(Leave).filter(Leave.id == row_id)).one()
 
 
 def delete(row_id: int) -> bool:
@@ -18,7 +19,7 @@ def delete(row_id: int) -> bool:
     Deletes a time record by ID
     Returns True if deleted and False if not
     """
-    if record := db.session.scalars(db.select(Leave).filter(Leave.id == row_id, Leave.user == get_user())).first():
+    if record := db.session.scalars(sa.select(Leave).filter(Leave.id == row_id, Leave.user == get_user())).first():
         db.session.delete(record)
         db.session.commit()
         return True
@@ -47,7 +48,7 @@ def create(leave_type: str, start: int, duration: float, note: str = "", public_
 def update(
     row_id: int, leave_type: str, start: int, duration: float, note: Optional[str] = None, public_holiday: bool = False
 ) -> Leave:
-    leave = db.session.scalars(db.select(Leave).where(Leave.id == row_id)).first()
+    leave = db.session.scalars(sa.select(Leave).where(Leave.id == row_id)).first()
     if not leave:
         abort(403)
 
@@ -65,7 +66,7 @@ def update(
     return leave
 
 
-def all_for_week(week: Optional[str] = None) -> list[Leave]:
+def all_for_week(week: Optional[str] = None) -> Sequence[Leave]:
     """
     Return all leave records sorted by start date for the given week
 
@@ -100,12 +101,12 @@ def all_for_week(week: Optional[str] = None) -> list[Leave]:
 
     week_end = week_start.shift(days=7)
 
-    return (
-        Leave.query.filter(
+    return db.session.scalars(
+        sa.select(Leave)
+        .filter(
             Leave.user == get_user(),
             Leave.start >= week_start.int_timestamp,
             Leave.start < week_end.int_timestamp,
         )
         .order_by(Leave.start.desc(), Leave.id.desc())
-        .all()
-    )
+    ).all()

@@ -1,20 +1,37 @@
-from typing import NewType, Optional
+from typing import Optional, Self
 
 import arrow
+import sqlalchemy as sa
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, declared_attr, mapped_column, relationship
 
-from app import db
+from app import Model, db
 
-UnixTimestamp = NewType("UnixTimestamp", int)
-DurationDays = NewType("DurationDays", float)
+UnixTimestamp = int
+DurationDays = float
 
 
-class BaseModel(db.Model):  # type: ignore
+class BaseModel(Model):  # type: ignore
     __abstract__ = True
 
-    id: Mapped[int] = mapped_column(db.Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(sa.Integer, primary_key=True, autoincrement=True)
+
+    @declared_attr  # type: ignore
+    def __tablename__(cls):
+        import re
+
+        table_name = re.sub(r"(?<!^)(?=[A-Z])", "_", cls.__name__).lower()  # type: ignore
+        table_name = re.sub(r"__+", "_", table_name)
+        return table_name
+
+    @classmethod
+    def from_id(cls, id: str) -> Self:
+        return db.session.scalars(sa.select(cls).filter_by(id=id)).one()
+
+    @classmethod
+    def maybe_from_id(cls, id: str) -> Self | None:
+        return db.session.scalars(sa.select(cls).filter_by(id=id)).one_or_none()
 
     def update(self, **kwargs):
         """
@@ -39,18 +56,23 @@ class BaseModel(db.Model):  # type: ignore
         """
         Return a list of the columns
         """
-        return [col.name for col in cls.__table__.columns]
+        return [col.name for col in cls.__table__.columns]  # type: ignore
 
 
 class User(BaseModel):
-    email: Mapped[str] = mapped_column(db.String(255), unique=True, nullable=False)
-    password: Mapped[Optional[str]] = mapped_column(db.String(255), nullable=True)
-    verified: Mapped[Optional[bool]] = mapped_column(db.Boolean, default=False, nullable=False)
-    last_seen_whats_new: Mapped[Optional[int]] = mapped_column(db.Integer, db.ForeignKey("whats_new.id"), nullable=True)
-    is_admin: Mapped[Optional[bool]] = mapped_column(db.Boolean)
+    email: Mapped[str] = mapped_column(sa.String(255), unique=True, nullable=False)
+    password: Mapped[Optional[str]] = mapped_column(sa.String(255), nullable=True)
+    verified: Mapped[Optional[bool]] = mapped_column(sa.Boolean, default=False, nullable=False)
+    last_seen_whats_new: Mapped[Optional[int]] = mapped_column(sa.Integer, sa.ForeignKey("whats_new.id"), nullable=True)
+    is_admin: Mapped[Optional[bool]] = mapped_column(sa.Boolean)
 
-    sessions: Mapped[list["LoginSession"]] = relationship("LoginSession", backref="user", cascade="all, delete-orphan")
-    settings: Mapped["Settings"] = relationship(backref="user", cascade="all, delete-orphan", uselist=False)
+    sessions: Mapped[list["LoginSession"]] = relationship(
+        "LoginSession", back_populates="user", cascade="all, delete-orphan"
+    )
+    settings: Mapped["Settings"] = relationship(back_populates="user", cascade="all, delete-orphan", uselist=False)
+    times: Mapped[list["Time"]] = relationship("Time", back_populates="user", cascade="all, delete-orphan")
+    leaves: Mapped[list["Leave"]] = relationship("Leave", back_populates="user", cascade="all, delete-orphan")
+    slack_tokens: Mapped[list["UserToSlackToken"]] = relationship("UserToSlackToken", back_populates="user")
 
     def verify(self):
         """
@@ -81,21 +103,32 @@ class User(BaseModel):
         return True
 
 
+class UserToSlackToken(BaseModel):
+    user_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey("user.id"), nullable=False)
+    slack_token: Mapped[str] = mapped_column(sa.String(255), nullable=False)
+
+    user: Mapped[User] = relationship("User", viewonly=True, back_populates="slack_tokens")
+
+
 class LoginSession(BaseModel):
     # Unique session ID, stored in user cookies
-    key: Mapped[str] = mapped_column(db.String(255), unique=True, nullable=False)
-    expires: Mapped[UnixTimestamp] = mapped_column(db.Integer, nullable=False)
-    user_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    key: Mapped[str] = mapped_column(sa.String(255), unique=True, nullable=False)
+    expires: Mapped[UnixTimestamp] = mapped_column(sa.Integer, nullable=False)
+    user_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey("user.id"), nullable=False)
+
+    user: Mapped[User] = relationship("User", viewonly=True, back_populates="sessions")
 
 
 class Time(BaseModel):
-    start: Mapped[UnixTimestamp] = mapped_column(db.Integer, nullable=False)
-    end: Mapped[Optional[UnixTimestamp]] = mapped_column(db.Integer, nullable=True)
-    note: Mapped[Optional[str]] = mapped_column(db.String(255), nullable=True)
-    user_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    start: Mapped[UnixTimestamp] = mapped_column(sa.Integer, nullable=False)
+    end: Mapped[Optional[UnixTimestamp]] = mapped_column(sa.Integer, nullable=True)
+    note: Mapped[Optional[str]] = mapped_column(sa.String(255), nullable=True)
+    user_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey("user.id"), nullable=False)
 
-    breaks: Mapped[list["Break"]] = relationship("Break", lazy=True, backref="time", cascade="all, delete-orphan")
-    user: Mapped[User] = relationship("User", viewonly=True)
+    breaks: Mapped[list["Break"]] = relationship(
+        "Break", lazy=True, back_populates="time", cascade="all, delete-orphan"
+    )
+    user: Mapped[User] = relationship("User", viewonly=True, back_populates="times")
 
     def logged(self):
         """
@@ -114,14 +147,16 @@ class Time(BaseModel):
         from app.controllers.user.util import get_user
 
         user = get_user()
-        return db.session.scalars(db.select(Time).filter(Time.start >= timestamp, Time.user == user)).all()
+        return db.session.scalars(sa.select(Time).filter(Time.start >= timestamp, Time.user == user)).all()
 
 
 class Break(BaseModel):
-    time_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("time.id"))
-    start: Mapped[UnixTimestamp] = mapped_column(db.Integer)
-    end: Mapped[Optional[UnixTimestamp]] = mapped_column(db.Integer, nullable=True)
-    note: Mapped[Optional[str]] = mapped_column(db.String(255), nullable=True)
+    time_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey("time.id"))
+    start: Mapped[UnixTimestamp] = mapped_column(sa.Integer)
+    end: Mapped[Optional[UnixTimestamp]] = mapped_column(sa.Integer, nullable=True)
+    note: Mapped[Optional[str]] = mapped_column(sa.String(255), nullable=True)
+
+    time: Mapped[Time] = relationship("Time", viewonly=True, back_populates="breaks")
 
     @property
     def duration(self) -> str:
@@ -135,21 +170,21 @@ class Break(BaseModel):
 
 
 class Leave(BaseModel):
-    leave_type: Mapped[str] = mapped_column(db.String(255), nullable=False)  # sick / annual
-    start: Mapped[UnixTimestamp] = mapped_column(db.Integer, nullable=False)
-    duration: Mapped[DurationDays] = mapped_column(db.Float, nullable=False)
-    public_holiday: Mapped[Optional[bool]] = mapped_column(db.Boolean, default=False)
-    note: Mapped[Optional[str]] = mapped_column(db.String(255), nullable=True)
-    user_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    leave_type: Mapped[str] = mapped_column(sa.String(255), nullable=False)  # sick / annual
+    start: Mapped[UnixTimestamp] = mapped_column(sa.Integer, nullable=False)
+    duration: Mapped[DurationDays] = mapped_column(sa.Float, nullable=False)
+    public_holiday: Mapped[Optional[bool]] = mapped_column(sa.Boolean, default=False)
+    note: Mapped[Optional[str]] = mapped_column(sa.String(255), nullable=True)
+    user_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey("user.id"), nullable=False)
 
-    user: Mapped[User] = relationship("User", viewonly=True)
+    user: Mapped[User] = relationship("User", viewonly=True, back_populates="leaves")
 
     @classmethod
     def since(cls, timestamp):
         from app.controllers.user.util import get_user
 
         user = get_user()
-        return db.session.scalars(db.select(Leave).filter(Leave.start >= timestamp, Leave.user == user)).all()
+        return db.session.scalars(sa.select(Leave).filter(Leave.start >= timestamp, Leave.user == user)).all()
 
     def logged(self) -> int:
         """
@@ -160,17 +195,20 @@ class Leave(BaseModel):
 
 
 class Settings(BaseModel):
-    timezone: Mapped[str] = mapped_column(db.String(255), nullable=False)
-    holiday_location: Mapped[Optional[str]] = mapped_column(db.String(255), nullable=True)
+    timezone: Mapped[str] = mapped_column(sa.String(255), nullable=False)
+    holiday_location: Mapped[Optional[str]] = mapped_column(sa.String(255), nullable=True)
 
     # 1 = Monday, 7 = Sunday
-    week_start: Mapped[int] = mapped_column(db.Integer, nullable=False)
-    hours_per_day: Mapped[float] = mapped_column(db.Float, nullable=False)
+    week_start: Mapped[int] = mapped_column(sa.Integer, nullable=False)
+    hours_per_day: Mapped[float] = mapped_column(sa.Float, nullable=False)
     work_days: Mapped[str] = mapped_column(
-        db.String(7), nullable=False
+        sa.String(7), nullable=False
     )  # This is stored as a 7 char string, the day char if the day is a work day and a hyphen if not, eg: MTWTF--
+    auto_update_slack_status: Mapped[bool | None] = mapped_column(sa.Boolean, nullable=True, default=False)
 
-    user_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey("user.id"), nullable=False)
+
+    user: Mapped[User] = relationship("User", viewonly=True, back_populates="settings")
 
     @classmethod
     def default(cls, user_id: int):
@@ -199,6 +237,6 @@ class Settings(BaseModel):
 
 
 class WhatsNew(BaseModel):
-    title: Mapped[str] = mapped_column(db.String(255), nullable=False)
-    content: Mapped[str] = mapped_column(db.Text, nullable=False)
-    created_at: Mapped[int] = mapped_column(db.Integer, nullable=False)
+    title: Mapped[str] = mapped_column(sa.String(255), nullable=False)
+    content: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    created_at: Mapped[int] = mapped_column(sa.Integer, nullable=False)

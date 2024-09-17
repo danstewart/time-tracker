@@ -1,3 +1,4 @@
+import sqlalchemy as sa
 from flask import abort
 
 from app import db
@@ -11,7 +12,7 @@ def fetch() -> Settings:
     from app.controllers.user.util import get_user
 
     user = get_user()
-    settings = db.session.scalars(db.select(Settings).filter(Settings.user == user)).first()
+    settings = db.session.scalars(sa.select(Settings).filter(Settings.user == user)).first()
 
     if not settings:
         # These are the default settings
@@ -20,7 +21,7 @@ def fetch() -> Settings:
             week_start=1,  # Monday
             hours_per_day=7.5,
             work_days="MTWTF--",
-            user=user,
+            user_id=user.id,
         )
         db.session.add(settings)
         db.session.commit()
@@ -32,7 +33,7 @@ def update(**values):
     from app.controllers.user.util import get_user
 
     user = get_user()
-    settings = db.session.scalars(db.select(Settings).filter(Settings.user == user)).first()
+    settings = db.session.scalars(sa.select(Settings).filter(Settings.user == user)).first()
 
     if not settings:
         abort(403)

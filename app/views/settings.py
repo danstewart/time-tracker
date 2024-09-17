@@ -1,11 +1,13 @@
 from decimal import Decimal
 
+import sqlalchemy as sa
 from flask import Blueprint, request
 
 from app.controllers import settings
 from app.controllers.user.util import admin_only, login_required
-from app.lib.blocks import frame, render
+from app.lib.blocks import render
 from app.lib.logger import get_logger
+from app.models import UserToSlackToken
 
 v = Blueprint("settings", __name__)
 logger = get_logger(__name__)
@@ -14,7 +16,6 @@ logger = get_logger(__name__)
 @v.route("/settings", methods=["GET", "POST"])
 @v.route("/settings/general", methods=["GET", "POST"])
 @login_required
-@frame
 def general_settings():
     if request.form:
         from flask import flash, redirect
@@ -46,7 +47,6 @@ def general_settings():
 
 @v.route("/settings/account", methods=["GET", "POST"])
 @login_required
-@frame
 def account_settings():
     from app.controllers.user import update_email
     from app.controllers.user.util import get_user
@@ -97,10 +97,47 @@ def account_settings():
     return render("pages/settings.html.j2", page="account", email=user.email)
 
 
+@v.route("/settings/slack", methods=["GET", "POST"])
+@login_required
+def slack_settings():
+    from flask import current_app as app
+
+    from app import db
+    from app.controllers.user.util import get_user
+
+    user = get_user()
+    user_has_connected_slack_account = len(user.slack_tokens) > 0
+
+    if not user_has_connected_slack_account:
+        import urllib.parse
+
+        callback_url = f"{app.config['HOST']}/callback/slack"
+        callback_url = urllib.parse.quote(callback_url)
+        return render("pages/settings.html.j2", page="slack_connect", callback_url=callback_url)
+
+    if request.form:
+        from flask import flash, redirect
+
+        submit = request.form.get("submit", "save")
+        if submit == "disconnect-slack":
+            db.session.execute(sa.delete(UserToSlackToken).where(UserToSlackToken.user_id == user.id))
+            db.session.commit()
+
+            flash("Your slack account has been disconnected", "success")
+            return redirect("/settings/slack")
+
+        settings.update(
+            auto_update_slack_status=request.form.get("auto_update_slack_status") == "1",
+        )
+        flash("Settings saved", "success")
+        return redirect("/dash")
+
+    return render("pages/settings.html.j2", page="slack_config")
+
+
 @v.route("/settings/admin", methods=["GET", "POST"])
 @login_required
 @admin_only
-@frame
 def admin_settings():
     if request.form:
         from flask import flash, redirect

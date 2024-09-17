@@ -6,7 +6,7 @@ class InvalidCSRFToken(Exception):
     pass
 
 
-def generate_csrf_token(user_id: str):
+def generate_csrf_token(user_id: int):
     """
     Generates a new CSRF token for the specified user and stores it in redis under `csrf:{user.id}`
     The token should be generated upon log in persists for the duration of the login session.

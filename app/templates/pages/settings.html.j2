@@ -18,6 +18,8 @@ The settings pages extend this and specify their content in a `content` block
                         href="/settings/general">General</a>
                     <a class="nav-link{% if page == 'account' %} active{% endif %}"
                         href="/settings/account">Account</a>
+                    <a class="nav-link{% if page in ('slack_connect', 'slack_config') %} active{% endif %}"
+                        href="/settings/slack">Slack Integration</a>
 
                     {% if is_admin %}
                         <a class="nav-link{% if page == 'admin' %} active{% endif %}"

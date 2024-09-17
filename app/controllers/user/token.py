@@ -39,5 +39,5 @@ def parse_token(token: str) -> dict:
     from app.lib.redis import session
 
     if payload := session.get(f"token:{token}"):
-        return json.loads(payload.decode("utf-8"))
+        return json.loads(payload.decode("utf-8"))  # type: ignore
     raise TokenNotFound(f"Could not find session value for token:{token}")
