@@ -58,6 +58,7 @@ def create_app(test_mode: bool = False):
         from app.lib.util.security import enable_csrf_protection, get_csrf_token
         from app.views import callback, core, holidays, leave, settings, time, user
 
+        init_rollbar(app)
         enable_csrf_protection(app)
 
         app.register_blueprint(time.v)
@@ -99,21 +100,21 @@ def create_app(test_mode: bool = False):
 
             return globals
 
-        @app.before_request
-        def init_rollbar():
-            if not app.config.get("ROLLBAR_SERVER_TOKEN"):
-                return
-
-            if app.testing:
-                return
-
-            rollbar.init(
-                app.config["ROLLBAR_SERVER_TOKEN"],
-                os.getenv("ENVIRONMENT", "local"),
-                root=os.path.dirname(os.path.realpath(__file__)),
-                allow_logging_basic_config=False,
-            )
-
-            got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
-
     return app
+
+
+def init_rollbar(app):
+    if not app.config.get("ROLLBAR_SERVER_TOKEN"):
+        return
+
+    if app.testing:
+        return
+
+    rollbar.init(
+        app.config["ROLLBAR_SERVER_TOKEN"],
+        os.getenv("ENVIRONMENT", "local"),
+        root=os.path.dirname(os.path.realpath(__file__)),
+        allow_logging_basic_config=False,
+    )
+
+    got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
