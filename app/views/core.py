@@ -38,6 +38,11 @@ def about_page():
     return render_template("pages/about.html.j2")
 
 
+@v.get("/privacy")
+def privacy_page():
+    return render_template("pages/privacy.html.j2")
+
+
 # FRAMES
 @v.get("/frames/entries")
 @login_required
