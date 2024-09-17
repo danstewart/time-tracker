@@ -1,5 +1,60 @@
+{% import "macros/bootstrap.html.j2" as bs %}
+
 <p>Hello, Slack Config!</p>
 
 <form method="post" action="/settings/slack">
-    <button class="btn btn-danger" name="action" value="disconnect">Disconnect Slack</button>
+    {# Checkbox to enable slack integration #}
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="enabled" id="enabled" value="1" {{ "checked" if settings.slack_enabled }} />
+        <label class="form-check-label" for="enabled">Enable Slack integration</label>
+    </div>
+
+
+    <div class="d-flex justify-content-between mt-3">
+        <button class="btn btn-primary" name="submit" value="save" type="submit">Save</button>
+
+        <button class="btn btn-danger"
+                id="delete-account"
+                type="button"
+                data-bs-toggle="modal"
+                data-bs-target="#disconnectSlackModal">
+            Disconnect Slack
+        </button>
+    </div>
 </form>
+
+{# Disconnect slack modal #}
+{% call bs.modal("disconnectSlackModal", "Disconnect Slack Account") %}
+    <div class="modal-body">
+        <p>Are you sure you want to disconnect Slack from your account?</p>
+        <p>You can always reconnect later.</p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, keep slack connected</button>
+        <button id="confirm-slack-disconnect" type="button" class="btn btn-danger">Yes, disconnect slack</button>
+    </div>
+{% endcall %}
+
+<script>
+    window.addEventListener("DOMContentLoaded", async () => {
+        const confirmSlackDisconnectBtn = document.getElementById("confirm-slack-disconnect");
+        confirmSlackDisconnectBtn.addEventListener("click", async e => {
+            e.preventDefault();
+            const form = document.querySelector("form");
+            const formData = new FormData(form);
+            formData.append("submit", "disconnect-slack");
+
+            const res = await fetch(form.action, {
+                method: form.method,
+                body: formData,
+                redirect: "manual",
+            });
+
+            if (res.type === "opaqueredirect") {
+                window.location.href = res.url;
+            } else {
+                flash("Something went wrong, please contact us", "danger");
+            }
+        });
+    });
+</script>

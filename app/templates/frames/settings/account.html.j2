@@ -1,3 +1,5 @@
+{% import "macros/bootstrap.html.j2" as bs %}
+
 <form method="post" action="/settings/account">
     <div class="mb-3">
         <div class="mb-2">
@@ -39,32 +41,19 @@
         </div>
     </div>
 </form>
+
 {# Delete account modal #}
-<div class="modal fade"
-    id="deleteAccountModal"
-    tabindex="-1"
-    aria-labelledby="deleteAccountModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteAccountModalLabel">Delete Account</h5>
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete your account?</p>
-                <p>We will delete all of your data with no way to recover it.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, keep my account</button>
-                <button id="confirm-account-deletion" type="button" class="btn btn-danger">Yes, delete my account</button>
-            </div>
-        </div>
+{% call bs.modal("deleteAccountModal", "Delete Account") %}
+    <div class="modal-body">
+        <p>Are you sure you want to delete your account?</p>
+        <p>We will delete all of your data with no way to recover it.</p>
     </div>
-</div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, keep my account</button>
+        <button id="confirm-account-deletion" type="button" class="btn btn-danger">Yes, delete my account</button>
+    </div>
+{% endcall %}
+
 <script>
     window.addEventListener("DOMContentLoaded", async () => {
         const showPasswordBtn = document.getElementById("showPassword");
@@ -92,10 +81,11 @@
             const res = await fetch(form.action, {
                 method: form.method,
                 body: formData,
+                redirect: "manual",
             });
 
-            if (res.redirected) {
-                window.location = res.url;
+            if (res.type === "opaqueredirect") {
+                window.location.href = res.url;
             } else {
                 flash("Something went wrong, please contact us", "danger");
             }
