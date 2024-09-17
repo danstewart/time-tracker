@@ -25,7 +25,7 @@ flask-alembic = "*"
 [dev-packages]
 pytest = "*"
 devtools = {extras = ["pygments"], version = "*"}
-watchdog = "*"
+watchdog = "<5"
 pytest-playwright = "*"
 coverage = "*"
 
