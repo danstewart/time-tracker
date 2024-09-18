@@ -4,8 +4,9 @@ if [[ $FLASK_DEBUG == 1 ]]; then
   exec flask run --host 0.0.0.0 --port 5000
 else
   exec gunicorn \
-    --workers 4 \
-    --worker-class gevent \
+    --workers 2 \
+    --threads 4 \
+    --worker-class gthread \
     --bind 0.0.0.0:5000 \
     --worker-tmp-dir /dev/shm \
     --log-level debug \
