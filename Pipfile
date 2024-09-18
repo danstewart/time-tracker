@@ -10,8 +10,6 @@ python_version = "3.12"
 arrow = "*"
 click = "*"
 Flask = "==3.0.3"
-gunicorn = "*"
-gevent = "*"
 argon2-cffi = "*"
 redis = "*"
 sendgrid = "*"
@@ -21,6 +19,7 @@ rollbar = "*"
 requests = "*"
 flask-sqlalchemy-lite = "*"
 flask-alembic = "*"
+gunicorn = {extras = ["gthread"], version = "*"}
 
 [dev-packages]
 pytest = "*"
