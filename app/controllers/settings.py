@@ -46,7 +46,10 @@ def update(**values):
         else:
             work_days.append("-")
 
-    values["work_days"] = "".join(work_days)
+    # Only update if we have passed work days
+    if work_days != "-------":
+        values["work_days"] = "".join(work_days)
+
     settings.update(**values)
     db.session.commit()
 
