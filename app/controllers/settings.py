@@ -39,15 +39,17 @@ def update(**values):
         abort(403)
 
     work_days = []
+    has_work_days = False
     for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]:
         if values.get("work_day_" + day):
             work_days.append(day[0])
             values.pop("work_day_" + day)
+            has_work_days = True
         else:
             work_days.append("-")
 
     # Only update if we have passed work days
-    if work_days != "-------":
+    if has_work_days:
         values["work_days"] = "".join(work_days)
 
     settings.update(**values)
