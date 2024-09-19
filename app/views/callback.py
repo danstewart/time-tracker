@@ -47,7 +47,14 @@ def slack_oauth_callback():
         return redirect("/settings/slack")
 
     access_token = parsed["authed_user"]["access_token"]
-    db.session.add(UserToSlackToken(user_id=current_user.id, slack_token=access_token))
+    team_name = parsed["team"]["name"]
+    db.session.add(
+        UserToSlackToken(
+            user_id=current_user.id,
+            slack_token=access_token,
+            team_name=team_name,
+        )
+    )
     settings.update(auto_update_slack_status=True)
     db.session.commit()
 

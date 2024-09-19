@@ -139,6 +139,7 @@ class User(BaseModel):
 class UserToSlackToken(BaseModel):
     user_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey("user.id"), nullable=False)
     slack_token: Mapped[str] = mapped_column(sa.String(255), nullable=False)
+    team_name: Mapped[str] = mapped_column(sa.String(255), nullable=False)
 
     user: Mapped[User] = relationship("User", viewonly=True, back_populates="slack_tokens")
 

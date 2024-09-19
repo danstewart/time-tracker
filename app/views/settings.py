@@ -132,7 +132,7 @@ def slack_settings():
         flash("Settings saved", "success")
         return redirect("/dash")
 
-    return render("pages/settings.html.j2", page="slack_config")
+    return render("pages/settings.html.j2", page="slack_config", slack_tokens=user.slack_tokens)
 
 
 @v.route("/settings/admin", methods=["GET", "POST"])
