@@ -46,7 +46,10 @@ def stats() -> TimeStats:
         week_start = today
 
     # Time logged
-    entries_today = [*Time.since(today.int_timestamp), *Leave.since(today.int_timestamp)]
+    entries_today = [
+        *Time.between(today.int_timestamp, today.int_timestamp + 86400),
+        *Leave.between(today.int_timestamp, today.int_timestamp + 86400),
+    ]
     logged_today = sum([rec.logged() for rec in entries_today])
 
     entries_this_week = [*Time.since(week_start.int_timestamp), *Leave.since(week_start.int_timestamp)]
@@ -93,8 +96,8 @@ def stats() -> TimeStats:
         overtime = -(expected_hours * 60 * 60)  # Convert to seconds
 
         # Now add on what we have worked/taken as leave
-        overtime += sum([rec.logged() for rec in Time.since(0)])
-        overtime += sum([rec.logged() for rec in Leave.since(0)])
+        overtime += sum([rec.logged() for rec in Time.between(0, now.int_timestamp)])
+        overtime += sum([rec.logged() for rec in Leave.between(0, now.int_timestamp)])
 
     return TimeStats(
         logged_this_week=humanize_seconds(logged_this_week, short=True),

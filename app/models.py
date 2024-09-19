@@ -59,6 +59,39 @@ class BaseModel(Model):  # type: ignore
         return [col.name for col in cls.__table__.columns]  # type: ignore
 
 
+class TimeHelperMixin:
+    """
+    Add some helpers for time based models
+
+    Models must have `start` and `user_id` columns
+    """
+
+    start: Mapped[UnixTimestamp] = mapped_column(sa.Integer, nullable=False)
+    user_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey("user.id"), nullable=False)
+
+    @classmethod
+    def since(cls, timestamp: int):
+        """
+        Get all records that started on or after the provided timestamp
+        """
+        from app.controllers.user.util import get_user
+
+        user = get_user()
+        return db.session.scalars(sa.select(cls).filter(cls.start >= timestamp, cls.user_id == user.id)).all()
+
+    @classmethod
+    def between(cls, start: int, end: int):
+        """
+        Get all records that started between the provided start and end timestamps
+        """
+        from app.controllers.user.util import get_user
+
+        user = get_user()
+        return db.session.scalars(
+            sa.select(cls).filter(cls.start >= start, cls.start <= end, cls.user_id == user.id)
+        ).all()
+
+
 class User(BaseModel):
     email: Mapped[str] = mapped_column(sa.String(255), unique=True, nullable=False)
     password: Mapped[Optional[str]] = mapped_column(sa.String(255), nullable=True)
@@ -119,7 +152,7 @@ class LoginSession(BaseModel):
     user: Mapped[User] = relationship("User", viewonly=True, back_populates="sessions")
 
 
-class Time(BaseModel):
+class Time(TimeHelperMixin, BaseModel):
     start: Mapped[UnixTimestamp] = mapped_column(sa.Integer, nullable=False)
     end: Mapped[Optional[UnixTimestamp]] = mapped_column(sa.Integer, nullable=True)
     note: Mapped[Optional[str]] = mapped_column(sa.String(255), nullable=True)
@@ -142,13 +175,6 @@ class Time(BaseModel):
 
         return duration - to_remove
 
-    @classmethod
-    def since(cls, timestamp):
-        from app.controllers.user.util import get_user
-
-        user = get_user()
-        return db.session.scalars(sa.select(Time).filter(Time.start >= timestamp, Time.user == user)).all()
-
 
 class Break(BaseModel):
     time_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey("time.id"))
@@ -169,7 +195,7 @@ class Break(BaseModel):
         return f"{minutes} minutes" if minutes != 1 else "1 minute"
 
 
-class Leave(BaseModel):
+class Leave(TimeHelperMixin, BaseModel):
     leave_type: Mapped[str] = mapped_column(sa.String(255), nullable=False)  # sick / annual
     start: Mapped[UnixTimestamp] = mapped_column(sa.Integer, nullable=False)
     duration: Mapped[DurationDays] = mapped_column(sa.Float, nullable=False)
