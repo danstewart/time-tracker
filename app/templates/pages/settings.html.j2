@@ -31,7 +31,7 @@ The settings pages extend this and specify their content in a `content` block
 
         <div class="col">
             <!-- We don't load on init here so we can do the initial load server side using jinjas include -->
-            <dynamic-frame id="main-content" :url="/settings/{{ page }}" :param-block="frame" :render-on-init="0">
+            <dynamic-frame id="main-content" :url="/settings/{{ page }}" :param-block="frame" :render-on-init="0" :execute-scripts="true">
                 <!-- We wrap this in a block as that allows us to load just this section via /settings/general?block=frame -->
                 {% block frame %}
                     {% include "frames/settings/" + page + ".html.j2" %}
