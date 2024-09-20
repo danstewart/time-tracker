@@ -1,13 +1,11 @@
 from decimal import Decimal
 
-import sqlalchemy as sa
-from flask import Blueprint, request
+from flask import Blueprint, request, url_for
 
 from app.controllers import settings
 from app.controllers.user.util import admin_only, login_required
 from app.lib.blocks import render
 from app.lib.logger import get_logger
-from app.models import UserToSlackToken
 
 v = Blueprint("settings", __name__)
 logger = get_logger(__name__)
@@ -102,29 +100,27 @@ def account_settings():
 def slack_settings():
     from flask import current_app as app
 
-    from app import db
     from app.controllers.user.util import get_user
 
     user = get_user()
     user_has_connected_slack_account = len(user.slack_tokens) > 0
 
+    # If user hasn't connected to slack yet then render the connect setup page
     if not user_has_connected_slack_account:
         import urllib.parse
 
         callback_url = f"{app.config['HOST']}/callback/slack"
         callback_url = urllib.parse.quote(callback_url)
-        return render("pages/settings.html.j2", page="slack_connect", callback_url=callback_url)
+        return render(
+            "pages/settings.html.j2",
+            page="slack_connect",
+            callback_url=callback_url,
+            slack_client_id=app.config["SLACK_CLIENT_ID"],
+        )
 
+    # Otherwise render/handle the slack settings page
     if request.form:
         from flask import flash, redirect
-
-        submit = request.form.get("submit", "save")
-        if submit == "disconnect-slack":
-            db.session.execute(sa.delete(UserToSlackToken).where(UserToSlackToken.user_id == user.id))
-            db.session.commit()
-
-            flash("Your slack account has been disconnected", "success")
-            return redirect("/settings/slack")
 
         settings.update(
             auto_update_slack_status=request.form.get("auto_update_slack_status") == "1",
@@ -132,7 +128,43 @@ def slack_settings():
         flash("Settings saved", "success")
         return redirect("/dash")
 
-    return render("pages/settings.html.j2", page="slack_config")
+    return render(
+        "pages/settings.html.j2",
+        page="slack_config",
+        slack_tokens=user.slack_tokens,
+        slack_client_id=app.config["SLACK_CLIENT_ID"],
+    )
+
+
+@v.post("/settings/slack/disconnect")
+@login_required
+def disconnect_slack():
+    """
+    Disconnect a slack account
+
+    Expects JSON in the form:
+    ```
+    {
+        "token_id": <int>
+    }
+    ```
+    """
+    import sqlalchemy as sa
+    from flask import flash, request
+
+    from app import db
+    from app.models import UserToSlackToken
+
+    args = request.get_json()
+
+    db.session.execute(sa.delete(UserToSlackToken).where(UserToSlackToken.id == args["token_id"]))
+    db.session.commit()
+
+    flash("Your slack account has been disconnected", "success")
+    return {
+        "ok": True,
+        "redirect": url_for("settings.slack_settings"),
+    }
 
 
 @v.route("/settings/admin", methods=["GET", "POST"])

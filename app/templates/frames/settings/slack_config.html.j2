@@ -8,19 +8,38 @@
         <label class="form-check-label" for="auto_update_slack_status">Auto update Slack status when starting and ending breaks</label>
     </div>
 
-
     <div class="d-flex justify-content-between mt-3">
         <button class="btn btn-primary" name="submit" value="save" type="submit">Save</button>
-
-        <button class="btn btn-danger"
-                id="delete-account"
-                type="button"
-                data-bs-toggle="modal"
-                data-bs-target="#disconnectSlackModal">
-            Disconnect Slack
-        </button>
     </div>
 </form>
+
+<div class="mt-5">
+    <h4>Connected Slack Accounts</h4>
+
+    <ul class="list-group list-group-flush">
+        {% for token in slack_tokens %}
+            <li class="list-group-item">
+                <div class="d-flex flex-column align-items-start pb-2">
+                    <p class="mb-0">{{ token.team_name }}</p><br />
+                    <button class="btn btn-link p-0"
+                            id="delete-account"
+                            type="button"
+                            data-slack-token-id="{{ token.id }}"
+                            onclick="window.tokenToDelete = this.getAttribute('data-slack-token-id')"
+                            data-bs-toggle="modal"
+                            data-bs-target="#disconnectSlackModal">
+                        Disconnect
+                    </button>
+                </div>
+            </li>
+        {% endfor %}
+
+        {# Button to add another account #}
+        <li class="list-group-item">
+            <a href="https://slack.com/oauth/v2/authorize?scope=&amp;user_scope=users%3Awrite%2Cusers.profile%3Awrite&amp;redirect_uri={{ callback_url }}&amp;client_id={{ slack_client_id }}">Add another Slack account</a>
+        </li>
+    </ul>
+</div>
 
 {# Disconnect slack modal #}
 {% call bs.modal("disconnectSlackModal", "Disconnect Slack Account") %}
@@ -39,19 +58,27 @@
         const confirmSlackDisconnectBtn = document.getElementById("confirm-slack-disconnect");
         confirmSlackDisconnectBtn.addEventListener("click", async e => {
             e.preventDefault();
-            const form = document.querySelector("form");
-            const formData = new FormData(form);
-            formData.append("submit", "disconnect-slack");
 
-            const res = await fetch(form.action, {
-                method: form.method,
-                body: formData,
-                redirect: "manual",
+            const res = await fetch("/settings/slack/disconnect", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    token_id: window.tokenToDelete,
+                }),
             });
 
-            if (res.type === "opaqueredirect") {
-                window.location.href = res.url;
-            } else {
+            try {
+                const parsed = await res.json();
+
+                if (parsed.ok && parsed.redirect) {
+                    window.location.href = parsed.redirect;
+                } else {
+                    throw new Error("Error from disconnect call: " + parsed.error);
+                }
+            } catch (e) {
+                console.error(e);
                 flash("Something went wrong, please contact us", "danger");
             }
         });

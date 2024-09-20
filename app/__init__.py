@@ -110,6 +110,9 @@ def init_rollbar(app):
     if app.testing:
         return
 
+    if os.getenv("ENVIRONMENT") == "local":
+        return
+
     rollbar.init(
         app.config["ROLLBAR_SERVER_TOKEN"],
         os.getenv("ENVIRONMENT", "local"),
