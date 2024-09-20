@@ -111,7 +111,12 @@ def slack_settings():
 
         callback_url = f"{app.config['HOST']}/callback/slack"
         callback_url = urllib.parse.quote(callback_url)
-        return render("pages/settings.html.j2", page="slack_connect", callback_url=callback_url)
+        return render(
+            "pages/settings.html.j2",
+            page="slack_connect",
+            callback_url=callback_url,
+            slack_client_id=app.config["SLACK_CLIENT_ID"],
+        )
 
     # Otherwise render/handle the slack settings page
     if request.form:
@@ -123,7 +128,12 @@ def slack_settings():
         flash("Settings saved", "success")
         return redirect("/dash")
 
-    return render("pages/settings.html.j2", page="slack_config", slack_tokens=user.slack_tokens)
+    return render(
+        "pages/settings.html.j2",
+        page="slack_config",
+        slack_tokens=user.slack_tokens,
+        slack_client_id=app.config["SLACK_CLIENT_ID"],
+    )
 
 
 @v.post("/settings/slack/disconnect")
