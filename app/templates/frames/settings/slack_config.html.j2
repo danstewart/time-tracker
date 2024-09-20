@@ -20,11 +20,12 @@
         {% for token in slack_tokens %}
             <li class="list-group-item">
                 <div class="d-flex flex-column align-items-start pb-2">
-                    <p>{{ token.team_name }}</p><br />
+                    <p class="mb-0">{{ token.team_name }}</p><br />
                     <button class="btn btn-link p-0"
                             id="delete-account"
                             type="button"
                             data-slack-token-id="{{ token.id }}"
+                            onclick="window.tokenToDelete = this.getAttribute('data-slack-token-id')"
                             data-bs-toggle="modal"
                             data-bs-target="#disconnectSlackModal">
                         Disconnect
@@ -32,6 +33,11 @@
                 </div>
             </li>
         {% endfor %}
+
+        {# Button to add another account #}
+        <li class="list-group-item">
+            <a href="https://slack.com/oauth/v2/authorize?scope=&amp;user_scope=users%3Awrite%2Cusers.profile%3Awrite&amp;redirect_uri={{ callback_url }}&amp;client_id=7752107603456.7722697346342">Add another Slack account</a>
+        </li>
     </ul>
 </div>
 
@@ -52,21 +58,27 @@
         const confirmSlackDisconnectBtn = document.getElementById("confirm-slack-disconnect");
         confirmSlackDisconnectBtn.addEventListener("click", async e => {
             e.preventDefault();
-            const form = document.querySelector("form");
-            const formData = new FormData(form);
-            formData.append("submit", "disconnect-slack");
 
-            // TODO: Send token ID to server and delete by ID
-            // Probably want to change redirect and flash message too
-            const res = await fetch(form.action, {
-                method: form.method,
-                body: formData,
-                redirect: "manual",
+            const res = await fetch("/settings/slack/disconnect", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    token_id: window.tokenToDelete,
+                }),
             });
 
-            if (res.type === "opaqueredirect") {
-                window.location.href = res.url;
-            } else {
+            try {
+                const parsed = await res.json();
+
+                if (parsed.ok && parsed.redirect) {
+                    window.location.href = parsed.redirect;
+                } else {
+                    throw new Error("Error from disconnect call: " + parsed.error);
+                }
+            } catch (e) {
+                console.error(e);
                 flash("Something went wrong, please contact us", "danger");
             }
         });

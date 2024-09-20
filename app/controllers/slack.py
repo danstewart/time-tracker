@@ -14,18 +14,19 @@ def update_status(on_break: bool):
     if not on_break:
         message, emoji = ("", "")
 
-    requests.post(
-        "https://slack.com/api/users.profile.set",
-        headers={
-            "Content-Type": "application/json",
-            # TODO: Handle multiple tokens
-            "Authorization": "Bearer " + user.slack_tokens[0].slack_token,
-        },
-        json={
-            "profile": {
-                "status_text": message,
-                "status_emoji": emoji,
-                "status_expiration": 0,
+    # Update all connected accounts
+    for token in user.slack_tokens:
+        requests.post(
+            "https://slack.com/api/users.profile.set",
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token.slack_token,
             },
-        },
-    )
+            json={
+                "profile": {
+                    "status_text": message,
+                    "status_emoji": emoji,
+                    "status_expiration": 0,
+                },
+            },
+        )
