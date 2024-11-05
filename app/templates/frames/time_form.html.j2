@@ -54,7 +54,8 @@
                             <input class="flatpickr break"
                                 type="text"
                                 name="break-start-{{ break.id }}"
-                                data-date-type="time"
+                                data-date-type="datetime"
+                                data-date-format="H:i"
                                 data-date-value="{{ break_start }}"/>
 
                             <i class="bi bi-arrow-right me-2"></i>
@@ -62,7 +63,8 @@
                             <input class="flatpickr break"
                                 type="text"
                                 name="break-end-{{ break.id }}"
-                                data-date-type="time"
+                                data-date-type="datetime"
+                                data-date-format="H:i"
                                 data-date-value="{{ break_end }}"/>
 
                             <span class="badge bg-secondary">{{ break.duration }}</span>

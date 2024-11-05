@@ -19,6 +19,7 @@ window.initDatePicker = picker => {
     mins = Math.floor(mins / 5) * 5; // Round minutes to nearest 5 mins
 
     const pickerType = picker.getAttribute("data-date-type");
+    const dateFormat = picker.getAttribute("data-date-format");
     let value = picker.getAttribute("data-date-value");
     let setDefault = picker.hasAttribute("data-set-default");
 
@@ -35,7 +36,7 @@ window.initDatePicker = picker => {
             enableTime: true,
             noCalendar: true,
             altInput: true,
-            altFormat: "H:i",
+            altFormat: dateFormat || "H:i",
             dateFormat: "Y-m-d H:i",
             time_24hr: true,
             defaultDate: defaultValue,
@@ -45,7 +46,7 @@ window.initDatePicker = picker => {
         if (!value && setDefault) defaultValue = date;
         flatpickr(picker, {
             altInput: true,
-            altFormat: "F j, Y",
+            altFormat: dateFormat || "F j, Y",
             dateFormat: "Y-m-d",
             defaultDate: defaultValue,
             locale: {
@@ -57,7 +58,7 @@ window.initDatePicker = picker => {
         if (!value && setDefault) defaultValue = `${date} ${hour}:${mins}`;
         flatpickr(picker, {
             altInput: true,
-            altFormat: "H:i o\\n F j, Y",
+            altFormat: dateFormat || "H:i o\\n F j, Y",
             enableTime: true,
             time_24hr: true,
             dateFormat: "Y-m-d H:i",
