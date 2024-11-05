@@ -177,6 +177,8 @@ def clock_out(end: str):
     ).first()
 
     if current_record:
+        # If clocking out, call end break function
+        break_end(end)
         current_record.end = end_dt.int_timestamp
         # TODO: Is this needed?
         # current_record.logged = end_dt.int_timestamp - current_record.start
