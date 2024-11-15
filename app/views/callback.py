@@ -19,7 +19,7 @@ def slack_oauth_callback():
 
     current_user = get_user()
     if not current_user:
-        flash("You need to be logged in to connect your slack account", "danger")
+        flash("You need to be logged in to connect your slack account.", "danger")
         return redirect("/login")
 
     code = request.args.get("code")
@@ -58,5 +58,5 @@ def slack_oauth_callback():
     settings.update(auto_update_slack_status=True)
     db.session.commit()
 
-    flash("Your slack account has been connected", "success")
+    flash("Your slack account has been connected.", "success")
     return redirect("/settings/slack")

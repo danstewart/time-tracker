@@ -16,7 +16,7 @@ def upcoming_holidays():
     _settings = settings.fetch()
 
     if not _settings.holiday_location:
-        flash("Please set a holiday location to view the holidays list", "warning")
+        flash("Please set a holiday location to view the holidays list.", "warning")
         return redirect(url_for("settings.general_settings"))
 
     return render(
@@ -32,7 +32,7 @@ def previous_holidays():
     _settings = settings.fetch()
 
     if not _settings.holiday_location:
-        flash("Please set a holiday location to view the holidays list", "warning")
+        flash("Please set a holiday location to view the holidays list.", "warning")
         return redirect(url_for("settings.general_settings"))
 
     return render(

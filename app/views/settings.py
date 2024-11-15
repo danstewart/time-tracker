@@ -26,7 +26,7 @@ def general_settings():
                 checks={
                     # TODO: Run this through arrow or pytz to validate
                     "timezone": v.Check(regex=r"\w+\/\w+"),
-                    "holiday_location": v.Check(options=["GB/ENG", "GB/NIR", "GB/WLS", "GB/SCT"]),
+                    "holiday_location": v.Check(options=["", "GB/ENG", "GB/NIR", "GB/WLS", "GB/SCT"]),
                     "week_start": v.Check(options=["0", "1", "2", "3", "4", "5", "6"]),
                     "hours_per_day": v.Check(
                         func=lambda x: Decimal(x) > 0,
@@ -37,7 +37,7 @@ def general_settings():
             return validation.errors or validation.success
 
         settings.update(**request.form)
-        flash("Settings saved", "success")
+        flash("Settings saved.", "success")
         return redirect("/dash")
 
     return render("pages/settings.html.j2", settings=settings.fetch(), page="general")
@@ -63,7 +63,7 @@ def account_settings():
             delete_account(user)
             logout()
 
-            flash("Your account has been deleted", "success")
+            flash("Your account has been deleted.", "success")
             return redirect("/login")
         elif submit == "export":
             from flask import make_response
@@ -79,16 +79,16 @@ def account_settings():
         if new_password := request.form.get("password"):
             has_changed = True
             user.set_password(new_password)
-            flash("Password changed", "success")
+            flash("Password changed.", "success")
 
         if new_email := request.form.get("email"):
             if new_email != user.email:
                 has_changed = True
                 update_email(user, new_email)
-                flash("Email updated, please check your email to continue", "success")
+                flash("Email updated, please check your email to continue.", "success")
 
         if not has_changed:
-            flash("No changes made", "info")
+            flash("No changes made.", "info")
 
         return redirect("/dash")
 
@@ -125,7 +125,7 @@ def slack_settings():
         settings.update(
             auto_update_slack_status=request.form.get("auto_update_slack_status") == "1",
         )
-        flash("Settings saved", "success")
+        flash("Settings saved.", "success")
         return redirect("/dash")
 
     return render(
@@ -160,7 +160,7 @@ def disconnect_slack():
     db.session.execute(sa.delete(UserToSlackToken).where(UserToSlackToken.id == args["token_id"]))
     db.session.commit()
 
-    flash("Your slack account has been disconnected", "success")
+    flash("Your slack account has been disconnected.", "success")
     return {
         "ok": True,
         "redirect": url_for("settings.slack_settings"),
@@ -178,10 +178,10 @@ def admin_settings():
         content = request.form.get("whats_new_content")
 
         if not title or not content:
-            flash("Please enter a title and content", "danger")
+            flash("Please enter a title and content.", "danger")
             return redirect("/settings/admin")
 
         settings.add_whats_new(title, content)
-        flash(f"Added '{title}'", "success")
+        flash(f"Added '{title}'.", "success")
 
     return render("pages/settings.html.j2", page="admin")

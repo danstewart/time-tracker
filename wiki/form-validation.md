@@ -41,7 +41,7 @@ def general_settings():
             return validation.errors or validation.success
 
         settings.update(**request.form)
-        flash("Settings saved", "success")
+        flash("Settings saved.", "success")
         return redirect("/dash")
 
     return render("pages/settings.html.j2", settings=settings.fetch(), page="general")
