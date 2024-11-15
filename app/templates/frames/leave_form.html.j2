@@ -89,7 +89,7 @@
             if (response.ok) {
                 frame.emit("time:changed");
             } else {
-                flash("Failed to add time record", "danger");
+                flash("Failed to add time record.", "danger");
                 console.error(`Failed to add time record: ${await response.text()}`)
             }
         });
@@ -103,7 +103,7 @@
             if (response.status == 200) {
                 frame.emit("time:changed");
             } else {
-                flash("Failed to delete leave record", "danger");
+                flash("Failed to delete leave record.", "danger");
                 console.error(`Failed to delete leave record ${id}: ${await response.text()}`)
             }
         });

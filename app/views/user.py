@@ -98,12 +98,12 @@ def verify_user_email(token: str):
 
     payload = parse_token(token)
     if not payload:
-        flash("Invalid token", "danger")
+        flash("Invalid token.", "danger")
         return redirect("/login")
 
-    user: User = User.maybe_from_id(payload["user_id"])
+    user = User.maybe_from_id(payload["user_id"])
     if not user:
-        flash("Invalid token", "danger")
+        flash("Invalid token.", "danger")
         return redirect("/login")
 
     # If we're requesting an email change it will be handled here
@@ -128,12 +128,12 @@ def password_reset_handler(token):
 
     payload = parse_token(token)
     if not payload:
-        flash("Invalid token", "danger")
+        flash("Invalid token.", "danger")
         return redirect("/login")
 
     user = User.maybe_from_id(payload["user_id"])
     if not user:
-        flash("Invalid token", "danger")
+        flash("Invalid token.", "danger")
         return redirect("/login")
 
     user.verify()
