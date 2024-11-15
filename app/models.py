@@ -105,7 +105,9 @@ class User(BaseModel):
     settings: Mapped["Settings"] = relationship(back_populates="user", cascade="all, delete-orphan", uselist=False)
     times: Mapped[list["Time"]] = relationship("Time", back_populates="user", cascade="all, delete-orphan")
     leaves: Mapped[list["Leave"]] = relationship("Leave", back_populates="user", cascade="all, delete-orphan")
-    slack_tokens: Mapped[list["UserToSlackToken"]] = relationship("UserToSlackToken", back_populates="user")
+    slack_tokens: Mapped[list["UserToSlackToken"]] = relationship(
+        "UserToSlackToken", back_populates="user", cascade="all, delete-orphan"
+    )
 
     def verify(self):
         """
