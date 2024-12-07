@@ -6,11 +6,9 @@ html {
 /* Core styles */
 #header a {
     text-decoration: none;
-    color: black;
 }
 
 #header a:hover {
-    color: #0d6efd;
     text-decoration: none;
     cursor: pointer;
 }
@@ -30,7 +28,7 @@ This stops the menu going off screen on smaller screens
     left: calc(0vw - 120px);
 }
 
-a.icon > i {
+a.icon>i {
     font-size: 24px;
 }
 
@@ -40,11 +38,6 @@ a.icon {
 }
 
 /* Custom classes */
-.edit-time-entry {
-    cursor: pointer;
-    color: #0d6efd;
-}
-
 .time-badge {
     height: 20px;
     width: 60px;
@@ -65,22 +58,18 @@ a.icon {
     content: none;
 }
 
-.dropdown-item:active {
-    background-color: #e9ecef;
-}
-
 /* Border radius fixes */
 /* This might be a little flaky */
 /* Flatpickr hides the element it mounts and inserts the real picker after it  */
 /* Most of the time if we have a flatpickr in an input-group it's the first item */
 /* So should have a border radius */
-.input-group > :first-child:not(input[type="checkbox"]),
-.input-group > .flatpickr {
+.input-group> :first-child:not(input[type="checkbox"]),
+.input-group>.flatpickr {
     border-top-left-radius: var(--bs-border-radius) !important;
     border-bottom-left-radius: var(--bs-border-radius) !important;
 }
 
-.input-group > *:last-child:not(input[type="checkbox"]) {
+.input-group>*:last-child:not(input[type="checkbox"]) {
     border-top-right-radius: var(--bs-border-radius) !important;
     border-bottom-right-radius: var(--bs-border-radius) !important;
 }

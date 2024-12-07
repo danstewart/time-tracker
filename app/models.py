@@ -1,4 +1,4 @@
-from typing import Optional, Self
+from typing import Literal, Optional, Self
 
 import arrow
 import sqlalchemy as sa
@@ -234,6 +234,7 @@ class Settings(BaseModel):
         sa.String(7), nullable=False
     )  # This is stored as a 7 char string, the day char if the day is a work day and a hyphen if not, eg: MTWTF--
     auto_update_slack_status: Mapped[bool | None] = mapped_column(sa.Boolean, nullable=True, default=False)
+    theme: Mapped[Literal["light", "dark"] | None] = mapped_column(sa.String(20), nullable=True, default=None)
 
     user_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey("user.id"), nullable=False)
 

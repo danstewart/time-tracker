@@ -13,6 +13,17 @@
         </div>
 
         <div class="mb-2">
+            <label class="form-label">Theme</label>
+            <select class="form-select"
+                    name="theme"
+                    id="theme">
+
+                <option value="light" {{ "selected" if settings.theme == "light" }}>Light</option>
+                <option value="dark" {{ "selected" if settings.theme == "dark" }}>Dark</option>
+            </select>
+        </div>
+
+        <div class="mb-2">
             <label class="form-label">Holiday Location</label>
             <select class="form-select"
                     name="holiday_location"

@@ -75,11 +75,14 @@ def create_app(test_mode: bool = False):
         @app.context_processor
         def inject_globals():
             import arrow
+            from flask import has_request_context
+            from flask import session as flask_session
 
             from app.controllers.settings import fetch
             from app.lib.util.date import humanize_seconds
 
             globals = {
+                "theme": "light",
                 "arrow": arrow,
                 "humanize_seconds": humanize_seconds,
                 "is_logged_in": is_logged_in(),
@@ -93,8 +96,18 @@ def create_app(test_mode: bool = False):
                 "ENVIRONMENT": os.getenv("ENVIRONMENT", "local"),
             }
 
+            # If we have a request context then check for a theme in browser session
+            if has_request_context():
+                if flask_session.get("theme"):
+                    globals["theme"] = flask_session.get("theme")
+
+            # If we are logged in then inject the settings
             if globals["is_logged_in"]:
                 globals["settings"] = fetch()
+
+                # Theme from settings takes priority
+                if globals["settings"].theme:
+                    flask_session["theme"] = globals["settings"].theme
 
                 u = get_user()
                 globals["user_id"] = u.id
@@ -131,5 +144,6 @@ def init_rollbar(app):
         allow_logging_basic_config=False,
     )
 
+    got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
     got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
     got_request_exception.connect(rollbar.contrib.flask.report_exception, app)

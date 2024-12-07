@@ -1,0 +1,11 @@
+#header a {
+    color: black;
+}
+
+#header a:hover {
+    color: #5096fd;
+}
+
+.dropdown-item:active {
+    background-color: #e9ecef;
+}

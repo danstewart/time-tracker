@@ -56,7 +56,7 @@ pipenv shell
 #### Database migrations
 
 ```bash
-docker exec -it log-my-time flask db migrate -m "Description of change"
+docker exec -it log-my-time flask db revision "Description of change"
 docker exec -it log-my-time flask db upgrade
 ```
 

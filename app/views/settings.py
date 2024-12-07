@@ -28,6 +28,7 @@ def general_settings():
                     "timezone": v.Check(regex=r"\w+\/\w+"),
                     "holiday_location": v.Check(options=["", "GB/ENG", "GB/NIR", "GB/WLS", "GB/SCT"]),
                     "week_start": v.Check(options=["0", "1", "2", "3", "4", "5", "6"]),
+                    "theme": v.Check(options=["light", "dark"]),
                     "hours_per_day": v.Check(
                         func=lambda x: Decimal(x) > 0,
                         message="Must be a positive number",
