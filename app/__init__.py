@@ -55,8 +55,7 @@ def create_app(test_mode: bool = False):
 
     with app.app_context():
         from app.cli import data
-        from app.controllers.user.util import get_user, is_admin, is_logged_in, unseen_whats_new
-        from app.lib.util.security import enable_csrf_protection, get_csrf_token
+        from app.lib.util.security import enable_csrf_protection
         from app.views import callback, core, holidays, leave, settings, time, user
 
         init_rollbar(app)
@@ -69,61 +68,12 @@ def create_app(test_mode: bool = False):
         app.register_blueprint(core.v)
         app.register_blueprint(data.v)
         app.register_blueprint(callback.v)
+
         app.register_blueprint(holidays.v)
 
-        # Inject some values into ALL templates
-        @app.context_processor
-        def inject_globals():
-            import arrow
-            from flask import has_request_context
-            from flask import session as flask_session
-
-            from app.controllers.settings import fetch
-            from app.lib.util.date import humanize_seconds
-
-            globals = {
-                "theme": "light",
-                "arrow": arrow,
-                "humanize_seconds": humanize_seconds,
-                "is_logged_in": is_logged_in(),
-                "is_admin": is_logged_in() and is_admin(),
-                "unseen_whats_new": is_logged_in() and unseen_whats_new(),
-                "settings": None,
-                "host": app.config["HOST"],
-                "csrf_token": get_csrf_token,
-                "FLASK_DEBUG": os.getenv("FLASK_DEBUG") == "1",
-                "ROLLBAR_CLIENT_TOKEN": app.config.get("ROLLBAR_CLIENT_TOKEN"),
-                "ENVIRONMENT": os.getenv("ENVIRONMENT", "local"),
-            }
-
-            # If we have a request context then check for a theme in browser session
-            if has_request_context():
-                if flask_session.get("theme"):
-                    globals["theme"] = flask_session.get("theme")
-
-            # If we are logged in then inject the settings
-            if globals["is_logged_in"]:
-                globals["settings"] = fetch()
-
-                # Theme from settings takes priority
-                if globals["settings"].theme:
-                    flask_session["theme"] = globals["settings"].theme
-                    globals["theme"] = globals["settings"].theme
-
-                u = get_user()
-                globals["user_id"] = u.id
-
-            return globals
-
-        @app.errorhandler(MissingCSRFToken)
-        def handle_missing_csrf_token(e):
-            from flask import make_response
-            from flask import session as flask_session
-
-            response = make_response("Missing CSRF token")
-            flask_session.pop("login_session_key", None)
-            response.headers["X-Dynamic-Frame-Page-Redirect"] = "/login"
-            return response
+        add_error_handlers(app)
+        add_globals(app)
+        add_jinja_filters(app)
 
     return app
 
@@ -148,3 +98,80 @@ def init_rollbar(app):
     got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
     got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
     got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
+
+
+def add_error_handlers(app):
+    @app.errorhandler(MissingCSRFToken)
+    def handle_missing_csrf_token(e):
+        from flask import make_response
+        from flask import session as flask_session
+
+        response = make_response("Missing CSRF token")
+        flask_session.pop("login_session_key", None)
+        response.headers["X-Dynamic-Frame-Page-Redirect"] = "/login"
+        return response
+
+
+def add_globals(app):
+    # Inject some values into ALL templates
+    @app.context_processor
+    def inject_globals():
+        import arrow
+        from flask import has_request_context
+        from flask import session as flask_session
+
+        from app.controllers.settings import fetch
+        from app.controllers.user.util import get_user, is_admin, is_logged_in, unseen_whats_new
+        from app.lib.util.date import humanize_seconds
+        from app.lib.util.security import get_csrf_token
+
+        globals = {
+            "theme": "light",
+            "arrow": arrow,
+            "humanize_seconds": humanize_seconds,
+            "is_logged_in": is_logged_in(),
+            "is_admin": is_logged_in() and is_admin(),
+            "unseen_whats_new": is_logged_in() and unseen_whats_new(),
+            "settings": None,
+            "host": app.config["HOST"],
+            "csrf_token": get_csrf_token,
+            "FLASK_DEBUG": os.getenv("FLASK_DEBUG") == "1",
+            "ROLLBAR_CLIENT_TOKEN": app.config.get("ROLLBAR_CLIENT_TOKEN"),
+            "ENVIRONMENT": os.getenv("ENVIRONMENT", "local"),
+        }
+
+        # If we have a request context then check for a theme in browser session
+        if has_request_context():
+            if flask_session.get("theme"):
+                globals["theme"] = flask_session.get("theme")
+
+        # If we are logged in then inject the settings
+        if globals["is_logged_in"]:
+            globals["settings"] = fetch()
+
+            # Theme from settings takes priority
+            if globals["settings"].theme:
+                flask_session["theme"] = globals["settings"].theme
+                globals["theme"] = globals["settings"].theme
+
+            u = get_user()
+            globals["user_id"] = u.id
+
+        return globals
+
+
+def add_jinja_filters(app):
+    @app.template_filter("unix_to_datetime")
+    def unix_to_datetime(stamp: int | None) -> str:
+        import arrow
+
+        if not stamp:
+            return "None"
+
+        return arrow.get(stamp).format("YYYY-MM-DD HH:mm")
+
+    @app.template_filter("bool_to_icon")
+    def bool_to_icon(value: bool) -> str:
+        if value:
+            return "<span class='bi bi-check text-success'></span>"
+        return "<span class='bi bi-x text-danger'></span>"

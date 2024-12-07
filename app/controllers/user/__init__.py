@@ -93,6 +93,9 @@ def login(email: str, password: str) -> LoginSession:
         user_id=user.id,
     )
 
+    # Set the last login time
+    user.last_login_at = arrow.utcnow().int_timestamp
+
     # Clean up any expired sessions
     now = arrow.utcnow().int_timestamp
     db.session.execute(sa.delete(LoginSession).where(LoginSession.expires < now))

@@ -98,6 +98,7 @@ class User(BaseModel):
     verified: Mapped[Optional[bool]] = mapped_column(sa.Boolean, default=False, nullable=False)
     last_seen_whats_new: Mapped[Optional[int]] = mapped_column(sa.Integer, sa.ForeignKey("whats_new.id"), nullable=True)
     is_admin: Mapped[Optional[bool]] = mapped_column(sa.Boolean)
+    last_login_at: Mapped[Optional[int]] = mapped_column(sa.Integer, nullable=True)
 
     sessions: Mapped[list["LoginSession"]] = relationship(
         "LoginSession", back_populates="user", cascade="all, delete-orphan"
@@ -153,6 +154,11 @@ class LoginSession(BaseModel):
     user_id: Mapped[int] = mapped_column(sa.Integer, sa.ForeignKey("user.id"), nullable=False)
 
     user: Mapped[User] = relationship("User", viewonly=True, back_populates="sessions")
+
+    @property
+    def created_at(self) -> arrow.Arrow:
+        expires = arrow.get(self.expires)
+        return expires.shift(hours=7 * 24 * -1)
 
 
 class Time(TimeHelperMixin, BaseModel):

@@ -186,3 +186,16 @@ def admin_settings():
         flash(f"Added '{title}'.", "success")
 
     return render("pages/settings.html.j2", page="admin")
+
+
+@v.route("/settings/users", methods=["GET"])
+@login_required
+@admin_only
+def user_management():
+    import sqlalchemy as sa
+
+    from app import db
+    from app.models import User
+
+    users = db.session.scalars(sa.select(User)).all()
+    return render("pages/settings.html.j2", page="users", users=users)

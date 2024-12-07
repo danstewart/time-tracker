@@ -1,0 +1,29 @@
+<h3>User Management</h3>
+
+<table class="table table-striped w-100">
+    <thead>
+        <tr>
+            <th scope="col">Email</th>
+            <th scope="col">Verified</th>
+            <th scope="col">Last Login</th>
+            <th scope="col">Total Time Entries</th>
+            <th scope="col">Latest Entry</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for user in users %}
+            <tr>
+                <td>{{ user.email }}</td>
+                <td>{{ user.verified | bool_to_icon }}</td>
+                <td>{{ user.last_login_at | unix_to_datetime }}</td>
+                <td>{{ user.times | length }}</td>
+                {% if user.times %}
+                    <td>{{ (user.times | last).start | unix_to_datetime }}</td>
+                {% else %}
+                    <td>None</td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
