@@ -6,6 +6,14 @@ class InvalidCSRFToken(Exception):
     pass
 
 
+class MissingCSRFToken(Exception):
+    """
+    Raised when a CSRF token is not found in redis for the user.
+    """
+
+    pass
+
+
 def generate_csrf_token(user_id: int):
     """
     Generates a new CSRF token for the specified user and stores it in redis under `csrf:{user.id}`
@@ -34,7 +42,7 @@ def get_csrf_token() -> str:
 
     token = session.get(csrf_key)
     if not token:
-        raise InvalidCSRFToken("No CSRF token generated")
+        raise MissingCSRFToken("No CSRF token generated")
 
     return token.decode("utf-8")
 

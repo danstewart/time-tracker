@@ -8,6 +8,7 @@ from flask_sqlalchemy_lite import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 
 from app.lib.util.lenient import lenient_wrap
+from app.lib.util.security import MissingCSRFToken
 
 
 class Model(DeclarativeBase):
@@ -100,6 +101,16 @@ def create_app(test_mode: bool = False):
 
             return globals
 
+        @app.errorhandler(MissingCSRFToken)
+        def handle_missing_csrf_token(e):
+            from flask import make_response
+            from flask import session as flask_session
+
+            response = make_response("Missing CSRF token")
+            flask_session.pop("login_session_key", None)
+            response.headers["X-Dynamic-Frame-Page-Redirect"] = "/login"
+            return response
+
     return app
 
 
@@ -120,4 +131,5 @@ def init_rollbar(app):
         allow_logging_basic_config=False,
     )
 
+    got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
     got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
