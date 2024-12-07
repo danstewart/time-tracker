@@ -3,11 +3,7 @@ from flask import current_app as app
 from flask import render_template
 
 from app import db
-from app.controllers.user.exceptions import (
-    UserAlreadyExistsError,
-    UserAuthFailed,
-    UserNotVerifiedError,
-)
+from app.controllers.user.exceptions import UserAlreadyExistsError, UserAuthFailed, UserNotVerifiedError
 from app.controllers.user.token import create_token
 from app.lib.email import send_email
 from app.models import LoginSession, User
@@ -96,6 +92,11 @@ def login(email: str, password: str) -> LoginSession:
         expires=arrow.utcnow().shift(hours=7 * 24).int_timestamp,
         user_id=user.id,
     )
+
+    # Clean up any expired sessions
+    now = arrow.utcnow().int_timestamp
+    db.session.execute(sa.delete(LoginSession).where(LoginSession.expires < now))
+
     db.session.add(session)
     db.session.commit()
     return session
