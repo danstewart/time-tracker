@@ -108,6 +108,7 @@ def create_app(test_mode: bool = False):
                 # Theme from settings takes priority
                 if globals["settings"].theme:
                     flask_session["theme"] = globals["settings"].theme
+                    globals["theme"] = globals["settings"].theme
 
                 u = get_user()
                 globals["user_id"] = u.id
