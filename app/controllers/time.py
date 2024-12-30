@@ -74,13 +74,11 @@ def all_for_week(week: Optional[str] = None) -> Sequence[Time]:
     if not week:
         now = arrow.utcnow()
 
-        y, w = now.year, now.week
+        # Adjust the starting day to the first working day of the week
+        while now.weekday() > _settings.week_start_0:
+            now = now.shift(days=-1)
 
-        # Handle the case where the new year starts but the week started the previous year
-        if w >= 52 and now.month == 1:
-            y -= 1
-
-        week = "{}-W{:02}".format(y, w)
+        week = now.format("W").rsplit("-", 1)[0]
 
     week_start = arrow.get(week)
 

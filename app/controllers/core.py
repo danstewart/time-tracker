@@ -130,7 +130,7 @@ def week_list() -> list[str]:
     # Go through each week since the first time record until now
     weeks = []
     while first <= now:
-        weeks.append("{}-W{:02d}".format(first.year, first.week))
+        weeks.append(first.format("W").rsplit("-", 1)[0])
         first = first.shift(weeks=1)
 
     return list(reversed(weeks))
