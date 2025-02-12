@@ -56,7 +56,8 @@ def create_app(test_mode: bool = False):
     with app.app_context():
         from app.cli import data
         from app.lib.util.security import enable_csrf_protection
-        from app.views import callback, core, holidays, leave, settings, time, user
+        from app.views import (callback, core, holidays, leave, settings, time,
+                               user)
 
         init_rollbar(app)
         enable_csrf_protection(app)
@@ -95,9 +96,19 @@ def init_rollbar(app):
         allow_logging_basic_config=False,
     )
 
+    def inject_user_to_rollbar_payload(payload, **kw):
+        from app.controllers.user.util import get_user, is_logged_in
+
+        if is_logged_in():
+            u = get_user()
+            payload["data"]["user_id"] = u.id
+
+        return payload
+
     got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
     got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
     got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
+    rollbar.events.add_payload_handler(inject_user_to_rollbar_payload)
 
 
 def add_error_handlers(app):
@@ -121,7 +132,8 @@ def add_globals(app):
         from flask import session as flask_session
 
         from app.controllers.settings import fetch
-        from app.controllers.user.util import get_user, is_admin, is_logged_in, unseen_whats_new
+        from app.controllers.user.util import (get_user, is_admin,
+                                               is_logged_in, unseen_whats_new)
         from app.lib.util.date import humanize_seconds
         from app.lib.util.security import get_csrf_token
 
