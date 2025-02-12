@@ -15,6 +15,7 @@ logger = get_logger(__name__)
 @v.route("/settings/general", methods=["GET", "POST"])
 @login_required
 def general_settings():
+    import pytz
     if request.form:
         from flask import flash, redirect
 
@@ -41,7 +42,7 @@ def general_settings():
         flash("Settings saved.", "success")
         return redirect("/dash")
 
-    return render("pages/settings.html.j2", settings=settings.fetch(), page="general")
+    return render("pages/settings.html.j2", settings=settings.fetch(), page="general", timezone_options=pytz.common_timezones)
 
 
 @v.route("/settings/account", methods=["GET", "POST"])

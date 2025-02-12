@@ -9,7 +9,7 @@ python_version = "3.12"
 [packages]
 arrow = "*"
 click = "*"
-Flask = "==3.0.3"
+Flask = "==3.1.0"
 argon2-cffi = "*"
 redis = "*"
 sendgrid = "*"
@@ -20,6 +20,7 @@ requests = "*"
 flask-sqlalchemy-lite = "*"
 flask-alembic = "*"
 gunicorn = {extras = ["gthread"], version = "*"}
+pytz = "*"
 
 [dev-packages]
 pytest = "*"

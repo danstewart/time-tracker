@@ -4,12 +4,16 @@
     <div class="mb-3">
         <div class="mb-2">
             <label class="form-label">Time Zone</label>
-            <input class="form-control"
-                type="text"
+            <select class="form-select tomselect"
                 name="timezone"
                 id="timezone"
-                value="{{ settings.timezone }}"
-                required/>
+                required>
+                {% for tz in timezone_options %}
+                    <option value="{{ tz }}" {% if tz == settings.timezone %}selected{% endif %}>
+                        {{ tz }}
+                    </option>
+                {% endfor %}
+            </select>
         </div>
 
         <div class="mb-2">

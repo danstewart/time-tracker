@@ -1,4 +1,3 @@
-import flatpickr from "https://cdn.jsdelivr.net/npm/flatpickr/+esm";
 import spacetime from "https://cdn.jsdelivr.net/npm/spacetime/+esm";
 import { ClearFlatpickr } from "/static/js/components/clear_flatpickr.js";
 import { ModalFrame } from "/static/js/components/modal_frame.js";
@@ -70,9 +69,20 @@ window.initDatePicker = picker => {
     }
 };
 
+window.initTomSelect = select => {
+    if (select.tomselect) return;
+
+    const options = {};
+    new TomSelect(select, options);
+};
+
 window.addEventListener("DOMContentLoaded", () => {
     const pickers = document.querySelectorAll(".flatpickr");
     pickers.forEach(picker => window.initDatePicker(picker));
+
+    const selects = document.querySelectorAll("select.tomselect");
+    selects.forEach(select => window.initTomSelect(select));
+
     registerControllers(DynamicFrame, DynamicFrameRouter, ModalFrame, ClearFlatpickr);
 });
 
@@ -80,6 +90,9 @@ window.addEventListener("DOMContentLoaded", () => {
 window.addEventListener("dynamic-frame:updated", e => {
     const pickers = e.target.querySelectorAll(".flatpickr");
     pickers.forEach(picker => window.initDatePicker(picker));
+
+    const selects = document.querySelectorAll("select.tomselect");
+    selects.forEach(select => window.initTomSelect(select));
 });
 
 window.flash = (message, type = "info") => {
